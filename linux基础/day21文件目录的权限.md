@@ -1,5 +1,19 @@
 # day21文件目录的权限
 
+> 本文档已做排版优化（清除样式标签、统一导航），全部内容原样保留。
+
+## 目录
+- day21文件目录的权限
+- 文件和目录 的rwx 的含义
+- 说错下面错误的报错原因:
+- 文件访问过程与权限
+- 控制系统默认权限 umask
+- 如何通过控制权限，来保护网站的安全？
+- linux 特殊权限 （了解） suid setuid  sticky粘zhān滞位
+- 隐藏属性（文件系统权限）
+
+# day21文件目录的权限
+
 
 
 
@@ -10,7 +24,7 @@
 
 
 
-# [](#4sr6bv)文件和目录 的rwx 的含义
+# 文件和目录 的rwx 的含义
 ```bash
 对于文件rwx含义
 
@@ -139,7 +153,7 @@ x  是否能进入到目录   cd  （你是否能查看目录中文件的属性 
 
  
 
-# [](#4agugh)说错下面错误的报错原因:
+# 说错下面错误的报错原因:
 ```bash
 1. $ ls /root/ 
 ls: cannot open directory /root/: Permission denied
@@ -163,7 +177,7 @@ cat: /etc/shadow: Permission denied
 
 
 
-# [](#29q6ms)文件访问过程与权限
+# 文件访问过程与权限
 ```bash
 cat oldboy.txt
     		inode     block
@@ -187,7 +201,7 @@ cat /oldboy/test.sh
 
 
 
-# [](#gu4smh)控制系统默认权限 umask
+# 控制系统默认权限 umask
 ```bash
 umask
 022    777-022
@@ -210,7 +224,7 @@ umask  是035 系统文件的默认权限是？ 目录权限是？
 
 
 
-# [](#5tv2ax)如何通过控制权限，来保护网站的安全？
+# 如何通过控制权限，来保护网站的安全？
 ```bash
 网站 blog.oldboyedu.com
 /app/blog
@@ -237,7 +251,7 @@ touch: cannot touch `upload/499G.torrent': Permission denied
 drwxr-xr-x 2 www www 26 Aug 18 10:16 /app/blog/upload
 ```
 
-# linux 特殊权限 （了解） suid setuid  sticky粘<font style="color:#2B2B2B;background-color:#F8FCFD;">zhān</font>滞位
+# linux 特殊权限 （了解） suid setuid  sticky粘zhān滞位
 
 
 ```bash
@@ -287,7 +301,7 @@ Change: 2018-08-07 21:39:54.827108611 +0800
 
 
 
-# [](#yzpigt)隐藏属性（文件系统权限）
+# 隐藏属性（文件系统权限）
 ```bash
 chattr  改变文件或目录的扩展属性
 chattr [options] [mode] files

@@ -1,142 +1,167 @@
+# linux常用150个命令汇总
+
+> 本文档已做排版优化（清除样式标签、统一导航），全部内容原样保留。
+
+## 目录
+- linux 常用 150个命令汇总
+  - ●线上查询及帮助命令（2 个）
+- [运维老鸟分享linux运维发展路线规划](https://blog.51cto.com/oldboy/1361536)
+  - 线上查询及帮助命令(2个)
+  - 文件和目录操作命令(18个)
+  - 查看文件及内容处理命令（21个）
+  - 文件压缩及解压缩命令（4个）
+  - 信息显示命令（11个）
+  - 搜索文件命令（4个）
+  - 用户管理命令（10个）
+  - 基础网络操作命令（11个）
+  - 深入网络操作命令（9个）
+  - 有关磁盘与文件系统的命令
+  - 系统权限及用户授权相关命令（4个）
+  - 查看系统用户登陆信息的命令（7个）
+  - 内置命令及其它（19个）
+  - 系统管理与性能监视命令(9个)
+  - 关机/重启/注销和查看系统信息的命令（6个）
+  - 进程管理相关命令（15个）
+  - 三剑客
+
 # linux 常用 150个命令汇总
 
 ![1553346369541-ff44190a-add2-4f02-a408-120380296518.png](img/linux%E5%B8%B8%E7%94%A8150%E4%B8%AA%E5%91%BD%E4%BB%A4%E6%B1%87%E6%80%BB-01.png)
 
 
 
-## 
-<font style="color:#000000;">●</font><font style="color:#000000;">线上查询及帮助命令（2 个） </font>
+## ●线上查询及帮助命令（2 个） 
 
-<font style="color:#000000;">man help info</font>
+man help info
 
 
 
-<font style="color:#000000;">●</font><font style="color:#000000;">文件和目录操作命令（19 个） </font>
+●文件和目录操作命令（19 个） 
 
-<font style="color:#000000;">ls cd cp find mkdir mv pwd rename rm rmdir touch tree </font>
+ls cd cp find mkdir mv pwd rename rm rmdir touch tree 
 
-<font style="color:#000000;">basename dirname chattr lsattr file md5sum</font>
+basename dirname chattr lsattr file md5sum
 
 
 
-<font style="color:#000000;">●</font><font style="color:#000000;">查看文件及内容处理命令（19 个） </font>
+●查看文件及内容处理命令（19 个） 
 
-<font style="color:#000000;">cat tac more less head tail cut split paste sort uniq wc iconv </font>
+cat tac more less head tail cut split paste sort uniq wc iconv 
 
-<font style="color:#000000;">dos2unix file diff vimdiff rev grep egrep join tr vi/vim </font>
+dos2unix file diff vimdiff rev grep egrep join tr vi/vim 
 
-<font style="color:#000000;">●文件压缩及解压缩命令（4 个） </font>
+●文件压缩及解压缩命令（4 个） 
 
-<font style="color:#000000;">tar unzip gzip zip </font>
+tar unzip gzip zip 
 
-<font style="color:#000000;">●信息显示命令（12 个） </font>
+●信息显示命令（12 个） 
 
-<font style="color:#000000;">uname hostname </font>**dmesg **<font style="color:#000000;">uptime file stat du df top free date cal </font>
+uname hostname **dmesg **uptime file stat du df top free date cal 
 
-<font style="color:#000000;">●搜索文件命令（4 个） </font>
+●搜索文件命令（4 个） 
 
-<font style="color:#000000;">which find whereis locate </font>
+which find whereis locate 
 
-<font style="color:#000000;">●用户管理命令（10 个） </font>
+●用户管理命令（10 个） 
 
-<font style="color:#000000;">useradd usermod userdel groupadd passwd chage id su  </font>
+useradd usermod userdel groupadd passwd chage id su  
 
-<font style="color:#000000;">visudo sudo  </font>
+visudo sudo  
 
-<font style="color:#000000;">●基础网络操作命令（10 个） </font>
+●基础网络操作命令（10 个） 
 
-<font style="color:#000000;">telnet ssh scp wget ping route ifconfig ifup ifdown netstat </font>
+telnet ssh scp wget ping route ifconfig ifup ifdown netstat 
 
-<font style="color:#000000;">●深入网络操作命令（6 个） </font>
+●深入网络操作命令（6 个） 
 
-<font style="color:#000000;">nmap lsof route mail mutt nslookup dig host traceroute </font>
+nmap lsof route mail mutt nslookup dig host traceroute 
 
-<font style="color:#000000;">tcpdump</font>
+tcpdump
 
 
 
-<font style="color:#000000;">●有关磁盘与文件系统的命令（10 几个） </font>
+●有关磁盘与文件系统的命令（10 几个） 
 
-<font style="color:#000000;">mount umount df du fsck dd dumpe2fs dump fdisk parted  </font>
+mount umount df du fsck dd dumpe2fs dump fdisk parted  
 
-<font style="color:#000000;">mkfs partprobe e2fsck mkswap swapon sync resize2fs </font>
+mkfs partprobe e2fsck mkswap swapon sync resize2fs 
 
-<font style="color:#000000;">●关机和查看系统信息的命令（3 个） </font>
+●关机和查看系统信息的命令（3 个） 
 
-<font style="color:#000000;">shutdown halt init </font>
+shutdown halt init 
 
-<font style="color:#000000;">●系统管理相关命令（8 个） </font>
+●系统管理相关命令（8 个） 
 
-<font style="color:#000000;">uptime top free vmstat mpstat iostat sar(sysstats) chkconfig </font>
+uptime top free vmstat mpstat iostat sar(sysstats) chkconfig 
 
-<font style="color:#000000;">●系统安全相关命令（10 个） </font>
+●系统安全相关命令（10 个） 
 
-<font style="color:#000000;">chmod chown chgrp chage passwd su sudo umask chattr  </font>
+chmod chown chgrp chage passwd su sudo umask chattr  
 
-<font style="color:#000000;">lsattr </font>
+lsattr 
 
-<font style="color:#000000;">●查看系统用户登陆信息的命令（7 个） </font>
+●查看系统用户登陆信息的命令（7 个） 
 
-<font style="color:#000000;">whoami who w last lastlog users finger </font>
+whoami who w last lastlog users finger 
 
-<font style="color:#000000;">●其它（19 个） </font>
+●其它（19 个） 
 
-<font style="color:#000000;">echo printf rpm yum watch alias unalias date clear history  </font>
+echo printf rpm yum watch alias unalias date clear history  
 
-<font style="color:#000000;">eject time nohup nc xargs exec export unset type bc </font>
+eject time nohup nc xargs exec export unset type bc 
 
-<font style="color:#000000;">●系统性能监视高级命令(12 个) </font>
+●系统性能监视高级命令(12 个) 
 
-<font style="color:#000000;">内存:top free vmstat mpstat iostat sar </font>
+内存:top free vmstat mpstat iostat sar 
 
-<font style="color:#000000;">CPU:top vmstat mpstat iostat sar </font>
+CPU:top vmstat mpstat iostat sar 
 
-<font style="color:#000000;">I/O:vmstat mpstat iostat sar </font>
+I/O:vmstat mpstat iostat sar 
 
-<font style="color:#000000;">进程:ipcs ipcrm lsof strace lstrace </font>
+进程:ipcs ipcrm lsof strace lstrace 
 
-<font style="color:#000000;">负载:uptime</font>
+负载:uptime
 
-<font style="color:#000000;">●关机/重启/注销命令（7） </font>
+●关机/重启/注销命令（7） 
 
-<font style="color:#000000;">关机重启: </font>
+关机重启: 
 
-<font style="color:#000000;">shutdown init halt poweroff reboot </font>
+shutdown init halt poweroff reboot 
 
-<font style="color:#000000;">注销退出： </font>
+注销退出： 
 
-<font style="color:#000000;">logout exit ctl+d ——>快捷键(生产常用) </font>
+logout exit ctl+d ——>快捷键(生产常用) 
 
-<font style="color:#000000;">●进程管理：（16 个） </font>
+●进程管理：（16 个） 
 
-<font style="color:#000000;">bg：后台运行 fg：挂起程序 jobs：显示后台程序 kill,killall,pkill：杀掉进程 </font>
+bg：后台运行 fg：挂起程序 jobs：显示后台程序 kill,killall,pkill：杀掉进程 
 
-<font style="color:#000000;">crontab：设置定时 ps：查看进程 pstree：显示进程状态树 </font>
+crontab：设置定时 ps：查看进程 pstree：显示进程状态树 
 
-<font style="color:#000000;">top：显示进程 nice：改变优先权 nohup：用户退出系统之后继续工作 </font>
+top：显示进程 nice：改变优先权 nohup：用户退出系统之后继续工作 
 
-<font style="color:#000000;">pgrep：查找匹配条件的进程 strace：跟踪一个进程的系统调用 </font>
+pgrep：查找匹配条件的进程 strace：跟踪一个进程的系统调用 
 
-<font style="color:#000000;">ltrace：跟踪进程调用库函数的情 vmstat：报告虚拟内存统计信息 </font>
+ltrace：跟踪进程调用库函数的情 vmstat：报告虚拟内存统计信息 
 
-<font style="color:#000000;">runlevel init service </font>
+runlevel init service 
 
-<font style="color:#000000;">●非常危险的系统命令（5 个）： </font>
+●非常危险的系统命令（5 个）： 
 
-<font style="color:#000000;">mv rm fdisk parted dd </font>
+mv rm fdisk parted dd 
 
-<font style="color:#000000;">●linux 系统四位剑客（3 个） </font>
+●linux 系统四位剑客（3 个） 
 
-<font style="color:#000000;">grep（egrep） sed awk</font>
+grep（egrep） sed awk
 
 
 
-<font style="color:#000000;"></font>
+
 
 # [运维老鸟分享linux运维发展路线规划](https://blog.51cto.com/oldboy/1361536)
-<font style="color:#000000;"></font>
 
-<font style="color:#000000;"></font>
+
+
 
 
 

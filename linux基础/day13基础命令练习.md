@@ -1,5 +1,24 @@
 # day13基础命令练习
 
+> 本文档已做排版优化（清除样式标签、统一导航），全部内容原样保留。
+
+## 目录
+- day13基础命令练习
+- 通过三剑客进行过滤
+- 取网卡ipaddr 地址
+- date
+- 打包压缩 /etc 目录   压缩到/tmp ,每天创建的压缩包名字要不同
+- 查找当前目录下所有文件 ，并把文件中的 oldboy 字符串换成 oldgirl
+- 请问在一个命令上加什么参数可以实现下面命令的内容在同一行输出。
+- 当从root 用户切换到普通用户oldboy时， 执行ifconfig，会提示。 command not found
+- 请描述下列路径的内容做什么的？
+- 如何快速查到ifconfig的全路径，请给出命令。
+- 请给出查看系统在线的用户
+- 请给出正确的关机和重起服务器的命令。
+- 请写出下面linux命令行的的快捷键的功能
+
+# day13基础命令练习
+
 
 
 # 通过三剑客进行过滤
@@ -142,7 +161,7 @@ yum install -y net-tools
 yum install -y mlocate
 
 which ifconfig  # 显示命令的绝对路径
-whereis ifconfig #  显示命令相关信息
+whereis ifconfig # 显示命令相关信息
 
 updatedb  # 更新locate所用的数据（清单）  占用磁盘IO读写
 locate ifconfig  # 根据名字查找文件（目录）位置   

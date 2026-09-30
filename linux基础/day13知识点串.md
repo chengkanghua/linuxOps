@@ -1,8 +1,37 @@
+# day13知识点串
+
+> 本文档已做排版优化（清除样式标签、统一导航），全部内容原样保留。
+
+## 目录
+- day13 知识点串
+- 单引号 双引号  反引号
+- 显示你到目标之间每个路由是否通畅
+- windows tracert
+- linux traceroute
+- 检查 sshd是否在运行
+- 检查进程是否运行
+- 找出/app/logs 下面 以.log结尾的文件（不区分大小写）  打包备份/tmp/log.tar.gz  (2种方法)
+- 找出/app/logs下面以.log结尾的文件（不区分大小写）复制到 /tmp/下面（3种方法）
+- 程序 进程 守护进程
+  - 1. 程序 (Program) —— 静态的代码
+  - 2. 进程 (Process) —— 动态的实例
+- 查看当前运行的进程ps-ef
+  - 3. 守护进程 (Daemon) —— 后台 “不死” 进程
+- vim故障
+- [](https://www.yuque.com/chengkanghua/oldboy50/balhn5#qpv6zz)vim 快捷键
+- [](https://www.yuque.com/chengkanghua/oldboy50/balhn5#4he3ba)挂载光盘 rpm 安装软件
+- [如何解压RPM包](https://www.cnblogs.com/joeblackzqq/archive/2011/03/19/1989137.html)
+- 网卡配置文件
+- 如何修改主机名
+- host 主机 域名
+- [](https://www.yuque.com/chengkanghua/oldboy50/balhn5#uiunix)yum grouplist
+- [](https://www.yuque.com/chengkanghua/oldboy50/balhn5#na0lgv)zip 打包文件
+
 # day13 知识点串
 
 ![1546505225915-6fbbd77e-8f0e-4a1e-9e2e-7c2ca14c417b.png](img/day13%E7%9F%A5%E8%AF%86%E7%82%B9%E4%B8%B2-01.png)
 
-# [](#v7mlos)单引号 双引号  反引号
+# 单引号 双引号  反引号
 
 ```bash
 1 单引号  所见即所得  单引号里面的内容会原封不动的输出
@@ -76,7 +105,7 @@ traceroute to www.taobao.com (101.37.183.171), 30 hops max, 60 byte packets
 
 ```
 
-# [](#tvgrnz)检查 sshd是否在运行
+# 检查 sshd是否在运行
 
 ```bash
 1 检查端口 22  （端口用来区分不同的服务）
@@ -157,7 +186,7 @@ root        918      1  0 May19 ?        00:00:00 /usr/sbin/sshd -D
 
 ```
 
-# [](#g72esb)找出/app/logs 下面 以.log结尾的文件（不区分大小写）  打包备份/tmp/log.tar.gz  (2种方法)
+# 找出/app/logs 下面 以.log结尾的文件（不区分大小写）  打包备份/tmp/log.tar.gz  (2种方法)
 
 ```bash
 find /app/logs/ -type f -iname "*.log" |xargs tar zcvf /tmp/log.tar.gz
@@ -175,8 +204,8 @@ find -type f -iname "*.log" -exec tar zcf /tmp/log2.tar.gz {} +;
 ```bash
 mkdir -p  /tmp/{a..d}
 #方法1 
-#  -t, --target-directory=DIRECTORY  copy all SOURCE arguments into DIRECTORY
-#  –t  把前面的选项 变成 目标路径了
+# -t, --target-directory=DIRECTORY  copy all SOURCE arguments into DIRECTORY
+# –t  把前面的选项 变成 目标路径了
 # find /app/logs/  -type f  -iname "*.log" |xargs cp -t /tmp/a 
 
 #方法2
@@ -189,9 +218,9 @@ mkdir -p  /tmp/{a..d}
 
 # 程序 进程 守护进程  
 
-* **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">程序</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">：硬盘上的</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">静态文件</font>**
-* **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">进程</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">：程序运行后，内存中的</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">动态实例</font>**
-* **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">守护进程</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">：</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">后台长期运行、脱离终端、提供服务</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">的特殊进程（系统服务）</font>
+* **程序**：硬盘上的**静态文件**
+* **进程**：程序运行后，内存中的**动态实例**
+* **守护进程**：**后台长期运行、脱离终端、提供服务**的特殊进程（系统服务）
 
 | 名称 | 状态 | 位置 | 生命周期 | 特点 | 例子 |
 | --- | --- | --- | --- | --- | --- |
@@ -199,41 +228,41 @@ mkdir -p  /tmp/{a..d}
 | **进程** | 动态 | 内存 | 运行→结束→销毁 | 有 PID，占用资源 | 执行 ping、ls 产生的进程 |
 | **守护进程** | 动态 | 内存 | 长期运行（开机→关机） | 后台、无终端、系统服务 | sshd、mysql、nginx 服务 |
 
-## <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">1. 程序 (Program) —— 静态的代码</font>
+## 1. 程序 (Program) —— 静态的代码
 
-**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">就是磁盘上的二进制文件 / 脚本，没有运行，一动不动</font>**
+**就是磁盘上的二进制文件 / 脚本，没有运行，一动不动**
 
-* <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">本质：代码、指令的集合</font>
-* <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">状态：</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">静态</font>**
-* <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">位置：存放在硬盘 / U 盘</font>
-* <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">例子：</font>
-  * <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">/usr/bin/ls</font></code>
-  * <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">/usr/sbin/sshd</font></code>
-  * <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">/root/test.sh</font></code>
-  * <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">nginx 的执行文件</font>
+* 本质：代码、指令的集合
+* 状态：**静态**
+* 位置：存放在硬盘 / U 盘
+* 例子：
+  * <code>/usr/bin/ls</code>
+  * <code>/usr/sbin/sshd</code>
+  * <code>/root/test.sh</code>
+  * nginx 的执行文件
 
-## <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">2. 进程 (Process) —— 动态的实例</font>
+## 2. 进程 (Process) —— 动态的实例
 
-**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">程序被加载到内存，开始运行，就变成了进程</font>**
+**程序被加载到内存，开始运行，就变成了进程**
 
-* <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">本质：程序的</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">执行过程</font>**
-* <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">状态：</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">动态</font>**
-* <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">有唯一标识：</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">PID（进程号）</font>**
-* <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">占用系统资源（内存、CPU）</font>
-* <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">生命周期：运行开始 → 执行结束 → 销毁</font>
+* 本质：程序的**执行过程**
+* 状态：**动态**
+* 有唯一标识：**PID（进程号）**
+* 占用系统资源（内存、CPU）
+* 生命周期：运行开始 → 执行结束 → 销毁
 
-<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);"># 查看当前运行的进程ps-ef</font>
+# 查看当前运行的进程ps-ef
 
-## <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">3. 守护进程 (Daemon) —— 后台 “不死” 进程</font>
+## 3. 守护进程 (Daemon) —— 后台 “不死” 进程
 
-**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">特殊的进程 → 后台运行、脱离终端、长期存活、开机自启</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">也叫 </font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">服务进程</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">，是为系统 / 用户提供持续服务的进程</font>
+**特殊的进程 → 后台运行、脱离终端、长期存活、开机自启**也叫 **服务进程**，是为系统 / 用户提供持续服务的进程
 
-* <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">后台运行，不占终端</font>
-* <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">关机才停，否则一直运行</font>
-* <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">没有交互界面</font>
-* <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">都是系统服务</font>
+* 后台运行，不占终端
+* 关机才停，否则一直运行
+* 没有交互界面
+* 都是系统服务
 
-**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">例子</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">：sshd、nginx、mysql、crond、firewalld</font>
+**例子**：sshd、nginx、mysql、crond、firewalld
 
 ```plain
 # 查看守护进程（系统服务）
@@ -461,7 +490,7 @@ yum groupinstall  'Debugging Tools'
 #unzip /a/host.zip
 
 
-#  -r  打包目录
+# -r  打包目录
 zip -r /tmp/a/etc.zip /etc/
 ```
 

@@ -1,28 +1,62 @@
+# linux发行版本安装
+
+> 本文档已做排版优化（清除样式标签、统一导航），全部内容原样保留。
+
+## 目录
+- linux发行版本 安装
+- Linux发展史
+- Linux系统的组成
+  - 操作系统就是人硬件之前的中介、桥梁
+      - Linux=Linux内核+命令解释器shell+程序软件
+- Linux不同发行版本的区别：
+- CentOS与RedHat区别
+- 32位系统和64位系统的区别
+- Linux发行的不同版本（常见Linux系统）
+- Centos下载地址
+- 学习环境
+- Linux系统安装
+  - 创建虚拟机着重注意的几个地方
+    - （1）注意安装过程中选择稍后安装
+    - （2）注意最后一步创建虚拟机保存的位置，一般不放在C盘
+  - 安装CentOS系统过程注意的几个地方
+    - 第一个注意系统镜像挂载的位置和启动时连接对勾要勾上
+    - 安装过程注意时间问题
+    - 安装分区注意事项
+    - 安装好后配置网络
+- Linux下面磁盘区分区
+- 网络配置
+- linux服务器无法上网排查过程
+- VMare网络模式
+    - 一、桥接模式（Bridged，VMnet0）
+    - 二、NAT 模式（Network Address Translation，VMnet8）—— 最常用默认
+    - 三  仅主机模式（Host-Only，VMnet1）—— 封闭隔离
+- centos 6.9修改系统默认字符集
+
 # linux发行版本 安装
 
 
 
 
 
-# [](#imzcwf)Linux发展史
+# Linux发展史
 1诞生 于1969年在贝尔实验室开发UNIX操作系统，，于1969年在贝尔实验室开发
 
 2 人： 谭宁邦 --1984年因为UNIX规定‘不能对学生提供源码’谭宁邦老师自己编写兼容与UNIX的Minix用于教学
 
-3 人：斯托曼 <font style="color:#333333;">1984 年，Stallman 开始 GNU（GNU's Not Unix）项目，创办 FSF（基金会；</font>
+3 人：斯托曼 1984 年，Stallman 开始 GNU（GNU's Not Unix）项目，创办 FSF（基金会；
 
-<font style="color:#333333;">（产品：GCC、Emacs、Bash Shell、GLIBC； 倡导“自由软件”； </font>
+（产品：GCC、Emacs、Bash Shell、GLIBC； 倡导“自由软件”； 
 
 4 人: 托瓦兹 --1991年，芬兰赫尔辛基大学的研究生托瓦斯基于gcc、bash开发针对368机器的Linux内核
 
-# [](#il5lwt)Linux系统的组成
-## [](#llwuyp)操作系统就是人硬件之前的中介、桥梁
+# Linux系统的组成
+## 操作系统就是人硬件之前的中介、桥梁
 
 
 ![1546417158326-e056ca3f-470a-43d0-856e-ce25514a7893-image2.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-01.png)
 
 #### Linux=Linux内核+命令解释器shell+程序软件
-# [](#a85yzw)Linux不同发行版本的区别：
+# Linux不同发行版本的区别：
 Ubuntu  乌班图 开发人员      
 
 RedHat  红帽   国企 金融
@@ -45,7 +79,7 @@ SUSE/OpenSUSE   德国 高级数据库 邮件服务
 
 红旗Linux  中标麒麟
 
-# [](#7x44dr)CentOS与RedHat区别
+# CentOS与RedHat区别
 1.Redhat 免费下载 项目收费 无法更新
 
 2.CentOS 做到与红帽一模一样
@@ -54,7 +88,7 @@ SUSE/OpenSUSE   德国 高级数据库 邮件服务
 
  2）红帽logo去掉
 
-# [](#dl2gzp)32位系统和64位系统的区别
+# 32位系统和64位系统的区别
 **运算速度**
 
 32位系统相当于4车道马路
@@ -83,7 +117,7 @@ SUSE/OpenSUSE   德国 高级数据库 邮件服务
 
 
 
-# [](#pt80xe)Linux发行的不同版本（常见Linux系统）
+# Linux发行的不同版本（常见Linux系统）
   Ubuntu  （乌班图）一般都是开发人员使用 有操作界面 有点像Windows
 
   Redhat   （红帽） 一般国企、金融使用 收费
@@ -98,7 +132,7 @@ SUSE/OpenSUSE   德国 高级数据库 邮件服务
 
   麒麟Linux（中标麒麟）/红旗Linux     国企使用
 
-# [](#5lv8fs)Centos下载地址
+# Centos下载地址
 国内镜像站 [https://developer.aliyun.com/mirror/](https://developer.aliyun.com/mirror/)
 
 centos7  iso 最新版
@@ -113,22 +147,22 @@ vmware workstation 官网
 
 众所周知，现在VMware被博通（broadcom）收购且宣布了17.5版本的VMware Workstation Pro对个人用户免费许可使用
 
-<font style="color:rgb(85, 86, 102);">需要有一个博通的账号。博主使用QQ邮箱注册成功，没什么问题。</font>
+需要有一个博通的账号。博主使用QQ邮箱注册成功，没什么问题。
 
-<font style="color:rgb(85, 86, 102);">下载的时候需要输入地址等其他信息必填项什么的，可随便填即可，这个没有影响。</font>
+下载的时候需要输入地址等其他信息必填项什么的，可随便填即可，这个没有影响。
 
 [https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware+Workstation+Pro](https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware%20Workstation%20Pro)
 
 
 
-# [](#bqy1wx)学习环境
+# 学习环境
 虚拟机软件： VMware Workstation 12.0/8.0
 
 计算机要求配置 I5 处理器 8G内存 500G硬盘
 
-# [](#qzdylr)Linux系统安装
-## [](#9i45fz)创建虚拟机着重注意的几个地方
-### [](#ky49ar)（1）注意安装过程中选择稍后安装
+# Linux系统安装
+## 创建虚拟机着重注意的几个地方
+### （1）注意安装过程中选择稍后安装
 ![1546417158347-ae072dae-b682-449d-8168-3dc311a3e429-image3.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-02.png)
 
 ![1546417158367-97dac204-b065-4444-bc71-354baf736bdd-image4.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-03.png)
@@ -137,15 +171,15 @@ vmware workstation 官网
 
 ![1546417158388-bad6ac02-b5ba-4e3f-90d6-f866c82c359d-image5.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-04.png)
 
-### [](#xgg5yq)（2）注意最后一步创建虚拟机保存的位置，一般不放在C盘
-## [](#ygdalc)	安装CentOS系统过程注意的几个地方
-### [](#g4visb)第一个注意系统镜像挂载的位置和启动时连接对勾要勾上
+### （2）注意最后一步创建虚拟机保存的位置，一般不放在C盘
+## 安装CentOS系统过程注意的几个地方
+### 第一个注意系统镜像挂载的位置和启动时连接对勾要勾上
 ![1546417158406-c1b785a7-6a2f-40ff-ad6e-0d70eaa0a964-image6.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-05.png)
 
-### [](#x25fvl)安装过程注意时间问题
+### 安装过程注意时间问题
    UTO 选项的对勾记得要去掉  不然会和计算机有时差
 
-### [](#r7lmys)安装分区注意事项
+### 安装分区注意事项
 /boot  引导分区  200M
 
 swap   交换分区 内存不足的时候 临时把swap当做内存使用  # 生产环境中内存(现在内存也便宜)都很大 swap不设置
@@ -158,7 +192,7 @@ swap   交换分区 内存不足的时候 临时把swap当做内存使用  # �
 
       剩余多少给多少
 
-### [](#fe5dce)安装好后配置网络
+### 安装好后配置网络
 主要用到 setup 命令后 一个图形界面的配置eth0网卡 注意dhcp要关掉 On boot 要记得启动
 
 
@@ -337,22 +371,22 @@ VMware DHCP Service             正在运行/已启动      自动
 
 
 # VMare网络模式
-### <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">一、桥接模式（Bridged，VMnet0）</font>
-**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">核心原理</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">：虚拟机虚拟网卡直接 “桥接” 到主机物理网卡（有线 / 无线），</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">相当于局域网里一台独立的真实电脑</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">，和主机平级、同网段。</font>
+### 一、桥接模式（Bridged，VMnet0）
+**核心原理**：虚拟机虚拟网卡直接 “桥接” 到主机物理网卡（有线 / 无线），**相当于局域网里一台独立的真实电脑**，和主机平级、同网段。
 
-### <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">二、NAT 模式（Network Address Translation，VMnet8）—— 最常用默认</font>
-**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">核心原理</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">：VMware 内置虚拟 NAT 路由器 + DHCP，虚拟机在</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">私有虚拟子网</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">，</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">共享主机的物理 IP 上网</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">，外部看不到虚拟机真实 IP。</font>
+### 二、NAT 模式（Network Address Translation，VMnet8）—— 最常用默认
+**核心原理**：VMware 内置虚拟 NAT 路由器 + DHCP，虚拟机在**私有虚拟子网**，**共享主机的物理 IP 上网**，外部看不到虚拟机真实 IP。
 
-### <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);"> 三  仅主机模式（Host-Only，VMnet1）—— 封闭隔离</font>
-**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">核心原理</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">：仅创建</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">纯内部虚拟网络</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">，无 NAT、无外网出口，虚拟机只能和主机、同 Host-Only 的虚拟机通信，完全隔离物理网络与外网。</font>
+### 三  仅主机模式（Host-Only，VMnet1）—— 封闭隔离
+**核心原理**：仅创建**纯内部虚拟网络**，无 NAT、无外网出口，虚拟机只能和主机、同 Host-Only 的虚拟机通信，完全隔离物理网络与外网。
 
-<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);"></font>
 
-<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);"></font>
 
-<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);"></font>
 
-# <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">centos 6.9修改系统默认字符集</font>
+
+
+
+# centos 6.9修改系统默认字符集
 
 
 ```bash

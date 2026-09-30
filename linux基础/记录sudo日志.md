@@ -1,5 +1,12 @@
 # 记录sudo日志
 
+> 本文档已做排版优化（清除样式标签、统一导航），全部内容原样保留。
+
+## 目录
+- 记录sudo日志
+
+# 记录sudo日志
+
 ```bash
 # 1、配置/etc/sudoers记录日志路径
 echo "Defaults  logfile=/var/log/sudo.log" >>/etc/sudoers

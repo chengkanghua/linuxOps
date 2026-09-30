@@ -1,5 +1,44 @@
 # day35故障案例与操作
 
+> 本文档已做排版优化（清除样式标签、统一导航），全部内容原样保留。
+
+## 目录
+- day35故障案例与操作
+- 写一段shell脚本，输出同时存在于file1和file2中用户名的密码
+- linux启动流程 (centos6)
+- linux运行级别
+- 软硬链接的区别
+- 2 故障案例？
+  - 磁盘空间不足系列(no space left on device)
+  - linux显示中文乱码
+  - 定时任务书写不当导致inode满了
+  - 权限拒绝 permission denled
+    - /app/blog/upload   网站上传文件报错？
+  - 命令行 ~bash-4.1$如何解决？
+  - JAVA环境变量故障，导致tomcat无法启动？
+  - java程序大量占用内存，内存不足，占用swap？
+  - 拿到磁盘到最终使用过程
+  - yum源  阿里云  清华
+  - 单用户模式
+  - 救援模式
+- vim快捷键
+- 复习题
+  - 1.三剑客过滤  指哪打哪
+  - 2.显示日期 打包压缩并添加上日期
+  - 3.find+sed  遇到故障排查流程
+  - 4.快捷键  关机重启
+  - 5.如何修改PATH
+  - 6.linux如何知道我对某个文件或目录有什么权限？
+  - 7.修改权限与所有者
+  - 1.文件 目录 rwx 含义
+  - 2.权限相关错误:  permission denied  原因及解决
+  - 3.系统默认的权限 umask 计算
+  - 4.如何通过控制权限的方法 让网站安全
+  - 5.网站集群架构 数据库 存储
+  - 6.隐藏属性（文件系统权限）
+
+# day35故障案例与操作
+
 
 
 ![1547281121531-38fbae98-f233-48e9-9139-2e68b4cdd2ba.png](img/day35%E6%95%85%E9%9A%9C%E6%A1%88%E4%BE%8B%E4%B8%8E%E6%93%8D%E4%BD%9C-01.png)
@@ -326,15 +365,15 @@ tmpfs           238M     0  238M   0% /dev/shm
 
 开机按一下 esc   或者F2   重启按ctrl alt insert    esc
 
-选第三个<font style="background-color:#ffff00;">resccue installed system</font> 救援模式进入
+选第三个resccue installed system 救援模式进入
 
-<font style="background-color:#ffff00;">提示都默认  就一个 setup network   选no 不启用网络</font>
+提示都默认  就一个 setup network   选no 不启用网络
 
-![1547281053670-7cd2352a-3713-4a50-a657-4e97d498e040-image2.png](img/day35%E6%95%85%E9%9A%9C%E6%A1%88%E4%BE%8B%E4%B8%8E%E6%93%8D%E4%BD%9C-04.png)  <font style="color:#0070C0;">#提示原来的系统放入 /mnt/sysimage </font>
+![1547281053670-7cd2352a-3713-4a50-a657-4e97d498e040-image2.png](img/day35%E6%95%85%E9%9A%9C%E6%A1%88%E4%BE%8B%E4%B8%8E%E6%93%8D%E4%BD%9C-04.png)  #提示原来的系统放入 /mnt/sysimage 
 
 ![1547281053706-07230236-47a7-46b4-8d21-1fcff72bc882-image3.png](img/day35%E6%95%85%E9%9A%9C%E6%A1%88%E4%BE%8B%E4%B8%8E%E6%93%8D%E4%BD%9C-05.png)
 
-<font style="background-color:#ffff00;">chroot /mnt/sysimage</font> <font style="color:#0070C0;">#把当前使用的/目录切换为这个下面</font>
+chroot /mnt/sysimage #把当前使用的/目录切换为这个下面
 
 退出ctrl +d  两次 选 reboot就可以了
 
@@ -431,7 +470,7 @@ awk 'NR==20,NR==30' oldboy.txt
 
 
 
-##  2.显示日期 打包压缩并添加上日期
+## 2.显示日期 打包压缩并添加上日期
 ```bash
 [root@ckh ~]# date +%N  #纳秒
 907719701
@@ -544,7 +583,7 @@ chown www.www /app/blog/upload/
 ## 6.隐藏属性（文件系统权限）
 ```bash
 chattr  +a  目标   
-#   +a文件只能被追加不能被删除   +i 不可摧毁  不能删除不能修改不能追加
+# +a文件只能被追加不能被删除   +i 不可摧毁  不能删除不能修改不能追加
 
 lsattr   查看隐藏属性
 

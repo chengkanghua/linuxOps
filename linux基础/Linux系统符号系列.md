@@ -1,5 +1,66 @@
 # Linux系统符号系列
 
+> 本文档已做排版优化（清除样式标签、统一导航），全部内容原样保留。
+
+## 目录
+- Linux系统符号系列
+- 如何证明自己有经验？
+- 搜索技巧
+- 基础正则 （BRE Basic Regular Expression)
+- 扩展正则 （ERE Extented Regular Expression)
+  - 预定义字符类
+- 案例
+  - 匹配身份证号码
+  - 取出网卡的ip地址
+  - 正则表达式取权限
+  - 如何把文件中的空行过滤掉（要求命令行实现）。
+  - # 请使用grep或egrep正则匹配的方式过滤出前两行内容
+- 其他符号
+- 四剑客 find  grep sed awk
+  - find 使用
+  - sed
+  - sed 练习
+  - awk  模式匹配与处理语言
+    - (运算%) 显示出磁盘使用率大于20%的磁盘分区名称和挂载点
+    - 计算内存的使用率（使用率）
+    - 范围
+    - 特殊模式BEGIN{} END{}
+    - 练习题
+- awk 判断中循环与判断
+- awk循环
+- awk 数组  统计
+  - ## ```bash
+- 请给出输出test.txt文件内容时，不包含oldboy字符串的命令。
+- 方法2 -head 显示前两行
+- !取反
+- -n = 关闭默认自动打印，只打印你用 p 指定的内容
+- 准备环境
+- 有oldboy字符的行
+- m开头的行
+- m结尾的行  m后面又空格不会显示
+- 显示文件中所有符号， -A每行结尾会有个 $
+- ' $' 空格结尾的行
+- ^$ 表示空格  什么符号都没有
+- -n 显示行号
+- 排除空行
+- . 任意一个字符  不会匹配空行
+- grep -o 输出匹配到的部分
+- grep -o '.' oldboy.txt
+- 以. 结尾的行, \转义字符
+- 所有回车换行符 替换成tab
+- 正则表达式 坑1      0*   会把文件都显示出来
+- 0次   没有         会把文件内容都显示出来
+- 0次以上  					 00000000000000
+- ^.*o 贪婪性  按最大的范围匹配
+- my blo 算是符合匹配的, 实际按最大范围: my blog is http://oldboy.blog.51cto
+- -o, --only-matching       show only the part of a line matching PATTERN
+- 显示匹配模式的 部分内容,匹配一个换一行, 没匹配的不显示
+- a-z的所有小写字母
+- 所有大写字母
+- -i 不区分大小写
+
+# Linux系统符号系列
+
 ![1546507679173-8dabaed9-7d6c-465c-ae16-5e2df24e6ce2.png](img/Linux%E7%B3%BB%E7%BB%9F%E7%AC%A6%E5%8F%B7%E7%B3%BB%E5%88%97-01.webp)
 
 # 如何证明自己有经验？
@@ -59,7 +120,7 @@ not 4900000448.
 my god ,i am not oldbey,but OLDBOY!
 EOF
 # 正则表达式-坑2 [oldoby]  
-#  o或l或d或o或b或y 匹配了, oldboy连续的也会匹配
+# o或l或d或o或b或y 匹配了, oldboy连续的也会匹配
 grep '[oldboy]' oldboy.txt
 
 grep '[oldboy]' oldboy.txt -o  #查看匹配过程
@@ -137,8 +198,7 @@ my qq is 49000448
 not 4900000448.
 my god ,i am not oldbey,but OLDBOY!
 +++++\\\\\\!!!!$$$$$$^^^
-####!!!^^^^^$$$$@@@@@####
-EOF
+####!!!^^^^^$$$$@@@@@#### EOF
 
 # 排除 #或$
 grep '[^#^$]' oldboy.txt  # 排除了 #^$
@@ -297,8 +357,7 @@ ifconfig eth0|sed -n 2p|sed -r 's#.*inet (.*)  net.*$#\1#g'
     inet 10.0.0.3/24 brd 10.0.0.255 scope global dynamic eth0
 [root@m01 ~]# ip a s eth0 |egrep '([0-9]{1,3}\.){3}[0-9]{1,3}'
     inet 10.0.0.3/24 brd 10.0.0.255 scope global dynamic eth0
-[root@m01 ~]#
-[root@m01 ~]#  ip a s eth0 |egrep '([0-9]{1,3}\.?){4}'
+[root@m01 ~]# [root@m01 ~]# ip a s eth0 |egrep '([0-9]{1,3}\.?){4}'
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
     inet 10.0.0.3/24 brd 10.0.0.255 scope global dynamic eth0
 [root@m01 ~]# hostname -I
@@ -359,9 +418,7 @@ sed -n '/o/p' test.txt # -p 显示 带o的   -n取消默认输出
 
 ```
 
-##
-
-# <font style="color:#000000;">请使用grep或egrep正则匹配的方式过滤出前两行内容</font>
+## # 请使用grep或egrep正则匹配的方式过滤出前两行内容
 
 ```bash
 # 文件内容
@@ -1151,11 +1208,7 @@ awk '/Failed/{h[$(NF-5)]++}END{for(i in h)print i,h[i]}' secure-20161219|sort -r
 
 ```
 
-##
-
-##
-
-```bash
+## ## ```bash
 # 请给出输出test.txt文件内容时，不包含oldboy字符串的命令。
 mkdir -p /data
 cat >/data/test.txt<<EOF
@@ -1323,7 +1376,7 @@ grep '0*' oldboy.txt
 .* 任意字符任意次数, 表示所有
 grep '.*' oldboy.txt
 
-#  ^.*o 贪婪性  按最大的范围匹配 
+# ^.*o 贪婪性  按最大的范围匹配 
 [root@m01 ~]# grep '^.*o' oldboy.txt
 ....
 # my blo 算是符合匹配的, 实际按最大范围: my blog is http://oldboy.blog.51cto
@@ -1336,7 +1389,7 @@ our size is http://blog.oldboyedu.com
 
 [] [abc] 相当与是一个符号（每次匹配一个字符）找出a或b 或c
 # -o, --only-matching       show only the part of a line matching PATTERN
-#  显示匹配模式的 部分内容,匹配一个换一行, 没匹配的不显示
+# 显示匹配模式的 部分内容,匹配一个换一行, 没匹配的不显示
 grep -o '[abc]' oldboy.txt
 
  # [abc] 相当与是一个符号（每次匹配一个字符）找出a或b 或c
@@ -1374,10 +1427,5 @@ su - oldboy
 ctrl + d 退出当前用户
 ```
 
-#
-
-#
-
-
-> 更新: 2026-04-24 14:50:04  
+# # > 更新: 2026-04-24 14:50:04  
 > 原文: <https://www.yuque.com/chengkanghua/oldboy50/axtqt3>

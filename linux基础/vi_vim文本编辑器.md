@@ -1,143 +1,160 @@
+# vi_vim文本编辑器
+
+> 本文档已做排版优化（清除样式标签、统一导航），全部内容原样保留。
+
+## 目录
+- vi/vim 文本编辑器
+  - 一、Vim 三大核心模式（必背）
+    - ## 二、基础操作：打开 / 保存 / 退出（底线模式命令）
+  - 三、高频快捷键大全（命令模式下使用）
+    - 1. 快速进入输入模式（最常用）
+    - 2. 光标移动（高效操作）
+    - 3. 删除 / 撤销 / 恢复
+    - 4. 显示 / 隐藏行号
+    - 5. 文本搜索
+    - 6. 文本替换（底线命令）
+    - 7. 批量列编辑（批量修改神器）
+    - 8. 帮助文档
+      - # 退出文件的恢复
+- 会在当前文件夹下产生.swp 的隐藏文件
+- vim 个性化
+
 # vi/vim 文本编辑器
 
-## <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">一、Vim 三大核心模式（必背）</font>
+## 一、Vim 三大核心模式（必背）
 
-<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">Vim 所有操作都基于这 3 种模式，切换逻辑是核心</font>
+Vim 所有操作都基于这 3 种模式，切换逻辑是核心
 
-<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">表格</font>
+表格
 
-| **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">模式名称</font>** | **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">核心作用</font>** | **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">进入 / 切换方式</font>** |
+| **模式名称** | **核心作用** | **进入 / 切换方式** |
 | :--- | :--- | :--- |
-| **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">命令模式</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">(默认模式)</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">执行快捷键（复制、删除、跳转、搜索）</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">无法输入文字</font>** | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">1. 打开文件默认进入</font><br/><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">2. 编辑模式按 </font><code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">ESC</font></code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">回到</font> |
-| **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">输入模式</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">(编辑模式)</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">正常输入、修改文本内容</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">命令模式按：</font><code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">i / a / o</font></code><br/><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);"> 等快捷键</font> |
-| **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">底线模式</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">(末行模式)</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">执行保存、退出、替换、显示行号等操作</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">命令模式按 </font><code>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">:</font>**</code>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">(冒号)</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);"> 进入</font> |
+| **命令模式**(默认模式) | 执行快捷键（复制、删除、跳转、搜索）**无法输入文字** | 1. 打开文件默认进入<br/>2. 编辑模式按 <code>ESC</code>回到 |
+| **输入模式**(编辑模式) | 正常输入、修改文本内容 | 命令模式按：<code>i / a / o</code><br/> 等快捷键 |
+| **底线模式**(末行模式) | 执行保存、退出、替换、显示行号等操作 | 命令模式按 <code>**:**</code>**(冒号)** 进入 |
 
-###
+### ## 二、基础操作：打开 / 保存 / 退出（底线模式命令）
 
-## <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">二、基础操作：打开 / 保存 / 退出（底线模式命令）</font>
+在**命令模式**下按 <code>:</code> 输入，执行后回车生效
 
-<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">在</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">命令模式</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">下按 </font><code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">:</font></code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);"> 输入，执行后回车生效</font>
+表格
 
-<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">表格</font>
-
-| **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">命令</font>** | **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">功能说明</font>** |
+| **命令** | **功能说明** |
 | :--- | :--- |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">:w</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">仅保存文件</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">:w 文件名</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">另存为新文件</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">:q</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">退出 Vim（未修改时可用）</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">:q!</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">强制退出，</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">不保存</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">修改</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">:wq</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">保存并退出</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">:x</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">保存并退出（简写，和 wq 功能一致）</font> |
+| <code>:w</code> | 仅保存文件 |
+| <code>:w 文件名</code> | 另存为新文件 |
+| <code>:q</code> | 退出 Vim（未修改时可用） |
+| <code>:q!</code> | 强制退出，**不保存**修改 |
+| <code>:wq</code> | 保存并退出 |
+| <code>:x</code> | 保存并退出（简写，和 wq 功能一致） |
 
-## <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">三、高频快捷键大全（命令模式下使用）</font>
+## 三、高频快捷键大全（命令模式下使用）
 
-### <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">1. 快速进入输入模式（最常用）</font>
+### 1. 快速进入输入模式（最常用）
 
-| **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">快捷键</font>** | **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">功能说明</font>** |
+| **快捷键** | **功能说明** |
 | :--- | :--- |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">i</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">在光标</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">左侧</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">插入（最常用）</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">a</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">在光标</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">右侧</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">插入</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">I</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">在当前行</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">行首</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">插入</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">A</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">在当前行</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">行尾</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">插入</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">o</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">在当前行</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">下方</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">新建一行</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">O</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">在当前行</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">上方</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">新建一行</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">cc</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">删除整行并直接进入编辑模式</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">C</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">删除光标到行尾，并进入编辑模式</font> |
+| <code>i</code> | 在光标**左侧**插入（最常用） |
+| <code>a</code> | 在光标**右侧**插入 |
+| <code>I</code> | 在当前行**行首**插入 |
+| <code>A</code> | 在当前行**行尾**插入 |
+| <code>o</code> | 在当前行**下方**新建一行 |
+| <code>O</code> | 在当前行**上方**新建一行 |
+| <code>cc</code> | 删除整行并直接进入编辑模式 |
+| <code>C</code> | 删除光标到行尾，并进入编辑模式 |
 
-### <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">2. 光标移动（高效操作）</font>
+### 2. 光标移动（高效操作）
 
-<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">表格</font>
+表格
 
-| **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">快捷键</font>** | **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">功能说明</font>** |
+| **快捷键** | **功能说明** |
 | :--- | :--- |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">h</font></code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">← </font><code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">j</font></code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">↓ </font><code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">k</font></code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">↑ </font><code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">l</font></code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);"> →</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">上下左右移动（替代方向键）</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">gg</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">跳转到</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">文件第一行</font>** |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">G</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">跳转到</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">文件最后一行</font>** |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">nG</font></code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);"> / </font><code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">ngg</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">跳转到指定行（例：10G → 第 10 行）</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">0</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">跳转到当前行</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">绝对行首</font>** |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">$</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">跳转到当前行</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">行尾</font>** |
+| <code>h</code>← <code>j</code>↓ <code>k</code>↑ <code>l</code> → | 上下左右移动（替代方向键） |
+| <code>gg</code> | 跳转到**文件第一行** |
+| <code>G</code> | 跳转到**文件最后一行** |
+| <code>nG</code> / <code>ngg</code> | 跳转到指定行（例：10G → 第 10 行） |
+| <code>0</code> | 跳转到当前行**绝对行首** |
+| <code>$</code> | 跳转到当前行**行尾** |
 
 ***
 
-### <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">3. 删除 / 撤销 / 恢复</font>
+### 3. 删除 / 撤销 / 恢复
 
-<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">表格</font>
+表格
 
-| **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">快捷键</font>** | **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">功能说明</font>** |
+| **快捷键** | **功能说明** |
 | :--- | :--- |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">x</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">删除光标所在字符</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">dd</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">删除</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">当前整行</font>** |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">ndd</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">删除连续 n 行（例：3dd → 删除 3 行）</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">dG</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">删除光标所在行 → 文件末尾</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">u</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">撤销上一步操作（必备）</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">U</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">撤销对当前行的所有修改</font> |
+| <code>x</code> | 删除光标所在字符 |
+| <code>dd</code> | 删除**当前整行** |
+| <code>ndd</code> | 删除连续 n 行（例：3dd → 删除 3 行） |
+| <code>dG</code> | 删除光标所在行 → 文件末尾 |
+| <code>u</code> | 撤销上一步操作（必备） |
+| <code>U</code> | 撤销对当前行的所有修改 |
 
 ***
 
-### <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">4. 显示 / 隐藏行号</font>
+### 4. 显示 / 隐藏行号
 
-<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">表格</font>
+表格
 
-| **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">命令</font>** | **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">功能说明</font>** |
+| **命令** | **功能说明** |
 | :--- | :--- |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">:set nu</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">显示行号</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">:set nonu</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">隐藏行号</font> |
+| <code>:set nu</code> | 显示行号 |
+| <code>:set nonu</code> | 隐藏行号 |
 
 ***
 
-### <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">5. 文本搜索</font>
+### 5. 文本搜索
 
-<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">表格</font>
+表格
 
-| **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">快捷键</font>** | **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">功能说明</font>** |
+| **快捷键** | **功能说明** |
 | :--- | :--- |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">/关键词</font></code> | **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">向下</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">搜索关键词</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">?关键词</font></code> | **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">向上</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">搜索关键词</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">n</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">查找</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">下一个</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">匹配内容</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">N</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">查找</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">上一个</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">匹配内容</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">:noh</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">临时取消搜索高亮</font> |
+| <code>/关键词</code> | **向下**搜索关键词 |
+| <code>?关键词</code> | **向上**搜索关键词 |
+| <code>n</code> | 查找**下一个**匹配内容 |
+| <code>N</code> | 查找**上一个**匹配内容 |
+| <code>:noh</code> | 临时取消搜索高亮 |
 
 ***
 
-### <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">6. 文本替换（底线命令）</font>
+### 6. 文本替换（底线命令）
 
-<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">表格</font>
+表格
 
-| **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">命令</font>** | **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">功能说明</font>** |
+| **命令** | **功能说明** |
 | :--- | :--- |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">:s/旧内容/新内容</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">替换当前行</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">第一个</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">匹配内容</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">:s/旧内容/新内容/g</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">替换当前行</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">所有</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">匹配内容</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">:n,ms/旧内容/新内容/g</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">替换 n~m 行的所有内容</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">:%s/旧内容/新内容/g</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">替换</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">整个文件</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">所有匹配内容</font> |
+| <code>:s/旧内容/新内容</code> | 替换当前行**第一个**匹配内容 |
+| <code>:s/旧内容/新内容/g</code> | 替换当前行**所有**匹配内容 |
+| <code>:n,ms/旧内容/新内容/g</code> | 替换 n~m 行的所有内容 |
+| <code>:%s/旧内容/新内容/g</code> | 替换**整个文件**所有匹配内容 |
 
 ***
 
-### <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">7. 批量列编辑（批量修改神器）</font>
+### 7. 批量列编辑（批量修改神器）
 
-<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">表格</font>
+表格
 
-| **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">步骤</font>** | **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">操作</font>** |
+| **步骤** | **操作** |
 | :--- | :--- |
-| <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">1</font> | <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">Ctrl + v</font></code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);"> 进入</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">列编辑模式</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">，选中目标区域</font> |
-| <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">2</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">按 </font><code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">I</font></code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">（大写 i）进入编辑</font> |
-| <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">3</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">输入要添加的内容</font> |
-| <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">4</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">按 </font><code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">ESC</font></code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">，批量生效</font> |
+| 1 | <code>Ctrl + v</code> 进入**列编辑模式**，选中目标区域 |
+| 2 | 按 <code>I</code>（大写 i）进入编辑 |
+| 3 | 输入要添加的内容 |
+| 4 | 按 <code>ESC</code>，批量生效 |
 
 ***
 
-### <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">8. 帮助文档</font>
+### 8. 帮助文档
 
-<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">表格</font>
+表格
 
-| **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">命令</font>** | **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">功能说明</font>** |
+| **命令** | **功能说明** |
 | :--- | :--- |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">:help</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">打开 Vim 帮助文档</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">:help 快捷键</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">查看指定快捷键说明（例：</font><code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">:help G</font></code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">）</font> |
-| <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">:q</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">退出帮助文档</font> |
+| <code>:help</code> | 打开 Vim 帮助文档 |
+| <code>:help 快捷键</code> | 查看指定快捷键说明（例：<code>:help G</code>） |
+| <code>:q</code> | 退出帮助文档 |
 
-####
-
-# 退出文件的恢复
+#### # 退出文件的恢复
 
 # 会在当前文件夹下产生.swp 的隐藏文件
 

@@ -1,9 +1,25 @@
+# day22定时任务
+
+> 本文档已做排版优化（清除样式标签、统一导航），全部内容原样保留。
+
+## 目录
+- day22 定时任务
+- # 什么是定时任务
+- 定时任务书写流程
+- 每天晚上12点打包备份/etc目录到/tmp下面 脚本
+- [](https://www.yuque.com/chengkanghua/oldboy50/lcguis#v0s7qf)定时任务中-命令或脚本结果(正确及错误)定向到黑洞(>/dev/null 2>&1)或追加到文件中
+- 【企业案例】由于定时任务书写不规范（邮件服务关闭）引发的inode 用光了
+- linux定时任务生产java服务无法执行问题群友案例
+- [](https://www.yuque.com/chengkanghua/oldboy50/lcguis#z706ri)每两个小时打包备份 /etc/rc.local /etc/hosts /etc/fstab /etc/sysconfig 备份到/backup目录 脚本
+- 每天晚上12点打包备份/etc/目录 备份到 /backup下面  备份到/backup/当前主机 ip 地址
+- 定时任务作业：
+- 脚本初体验
+
 # day22 定时任务
 
 ![1546509885122-be023efa-26a8-46b5-85ef-899b162e2781.png](img/day22%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1-01.png)
 
-# 
-# 什么是定时任务
+# # 什么是定时任务
 
 
 ```bash

@@ -1,5 +1,29 @@
 # linux运维必须熟练的150个linux命令
 
+> 本文档已做排版优化（清除样式标签、统一导航），全部内容原样保留。
+
+## 目录
+- linux运维必须熟练的150个linux命令
+  - 线上查询及帮助命令
+  - 文件和目录操作命令
+  - 查看文件及内容处理命令
+  - 文件压缩及解压缩命令
+  - 信息显示命令
+  - 搜索文件命令
+  - 用户管理命令
+  - 基础网络操作命令
+  - 深入网络操作命令
+  - 有关磁盘与文件系统的命令
+  - 关机和查看系统信息的命令
+  - 系统管理相关命令
+  - 系统安全相关命令
+  - 查看系统用户登录信息的命令
+  - 其他
+  - 系统性能监视高级命令
+  - linux bash快捷键
+
+# linux运维必须熟练的150个linux命令
+
 线上查询及帮助命令  
 文件和目录操作命令  
 查看文件及内容处理命令  
@@ -512,7 +536,7 @@ FILE：要转换编码的文件。如果未指定文件，iconv 将从标准输�
 -s：静默模式，不输出错误信息。
 --verbose：输出详细信息。
 # 假设有一个文件 old.txt 使用的是 GBK 编码，
-#  要将其转换为 UTF-8 编码并保存为新文件 new.txt：
+# 要将其转换为 UTF-8 编码并保存为新文件 new.txt：
 iconv -f GBK -t UTF-8 old.txt > new.txt
 
 
@@ -561,14 +585,14 @@ diff -r -x "*.log" dir1 dir2  # -x 忽略的文件
 +this is file2
 
 
-vimdiff #  Vim 编辑器的一个功能模式，主要用于比较和合并两个或多个文件之间的差异
+vimdiff # Vim 编辑器的一个功能模式，主要用于比较和合并两个或多个文件之间的差异
 vimdiff 文件 1 文件 2
 # -o或-O：-o表示水平分屏打开文件，-O表示垂直分屏打开文件
 # 使用Ctrl + w，然后再按w可以在不同的窗口之间切换。
 # 使用方向键或j（下）、k（上）、h（左）、l（右）在文件中移动。
 
 
-rev #  用于反转行中字符顺序的命令
+rev # 用于反转行中字符顺序的命令
 # rev [文件或输入流]
 [root@m01 tmp]# echo 'hello' |rev
 olleh
@@ -1114,7 +1138,7 @@ find . -type f -name "*.txt" -exec grep "search_text" {} \;
 find . -type f -name "*.txt" -ok rm {} \;
 find . -inum 12345 -print   #查找特定inode号文件
 
-#  -path "./node_modules" -prune   避免进入特定目录
+# -path "./node_modules" -prune   避免进入特定目录
 find . -path "./node_modules" -prune -o -type f -print
 # 查找所有比文件 reference.txt 更新的文件：
 find . -newer reference.txt
@@ -1894,7 +1918,7 @@ mail  #用于发送和接收电子邮件  #待添加
 
 
 
-mutt  #  流行的文本界面邮件用户代理（MUA）
+mutt  # 流行的文本界面邮件用户代理（MUA）
 
 
 
@@ -2191,7 +2215,7 @@ pv -tpreb /dev/snapshot | dd of=/dev/zero
 
 #创建一个大小为 10MB 的空文件empty_file
 dd if=/dev/zero of=empty_file bs=1M count=10
-#  ISO 文件刻录到 USB 设备
+# ISO 文件刻录到 USB 设备
 dd if=your_iso_file.iso of=/dev/sdc
 
 #dd命令和cp命令的区别?
@@ -2281,7 +2305,7 @@ quit：退出 restore。
 
 # 示例
 mkdir /mnt/restore
-mount -o loop /path/to/backup_file /mnt/restore  #  1挂载备份文件
+mount -o loop /path/to/backup_file /mnt/restore  # 1挂载备份文件
 restore -r -f /path/to/backup_file   #2进入交互式恢复模式
 在 restore 提示符下，使用 cd 和 ls 命令导航到你想要恢复的文件或目录。
 使用 add 命令添加文件或目录到恢复列表。
@@ -2360,7 +2384,7 @@ Sector size (logical/physical): 512 bytes / 512 bytes
 I/O size (minimum/optimal): 512 bytes / 512 bytes
 Disk label type: gpt  #显示了磁盘的分区表类型 dos表示mbr(Master boot Record)分区表
 Disk identifier: 23DF68CC-FEFC-4958-AF88-BFE61521B9D0  #磁盘的唯一标识符
-#         Start          End           Size  Type                Name
+# Start          End           Size  Type                Name
  1         2048     41943006     20G  Linux filesyste Linux filesystem
  
  -------------------------dos类型
@@ -2541,7 +2565,7 @@ cat /etc/fstab
 sync  #用于将所有未写入磁盘的文件系统缓冲区数据强制写入磁盘
 
 # 在关闭或重启系统之前，运行 sync 命令可以确保所有文件系统的更改都被写入磁盘。
-#  在编写脚本时，如果需要确保数据被写入磁盘，可以在脚本中加入 sync 命令
+# 在编写脚本时，如果需要确保数据被写入磁盘，可以在脚本中加入 sync 命令
 
 
 
@@ -3041,7 +3065,7 @@ chgrp -R newgroup directory
 
 
 
-chage  #  #用于管理用户密码过期信息  # 上面有
+chage  # #用于管理用户密码过期信息  # 上面有
 
 passwd  # 用于更改用户账户密码
 选项

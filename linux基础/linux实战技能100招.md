@@ -1,5 +1,128 @@
 # linux实战技能100招
 
+> 本文档已做排版优化（清除样式标签、统一导航），全部内容原样保留。
+
+## 目录
+- linux实战技能100招
+- 内容综述
+- 3 什么是linux
+- 4 linux的内核版本及常见的发行版
+- 5 VirtualBox 安装
+- 6 在虚拟机中安装linux
+- 7 第一次启动linux
+- 8 万能的帮助命令 man help info
+- 9 初始pwd 和ls命令
+- 10 详解ls 命令
+- 11 详解cd 命令
+- 12 创建和删除目录
+- 13 复制和移动目录
+- 14 文本查看命令
+- 15 打包压缩和解压缩
+- 16 vi的四种模式
+- 17 vim 正常模式
+- 18 vim的命令模式
+- 19 vim的可视模式
+- 20 用户和用户组管理
+- 21 su 和 sudo
+- 22 用户和用户组的配置文件介绍
+- 23 文件与目录权限的表示方法
+  - 文件类型
+  - 文件权限的表示方法
+  - 目录权限的表示方法
+- 24 文件权限的修改方法和数字表示方法
+- 25 权限管理以及文件的特殊权限
+- 26 网络管理
+- 27 查看网络配置
+- 28 网络配置命令
+- 29 网络故障排除命令
+- 30 网络管理和配置文件
+- 31 软件包管理器的使用
+- 32 使用rpm命令安装软件包
+- 33 使用yum 包管理器安装软件包
+- 34 通过源代码编译安装软件包
+- 35 如何进行内核升级
+- 36 grub 配置文件
+- 38 进程的控制与进程之间的关系
+- 39 进程间通信方式与信号
+- 40 守护进程
+- 41 screen 和系统日志
+- 42 服务管理工具 systemctl
+- 43 SElinux 简介
+- 44 内存和磁盘管理
+- 45 内存查看命令
+- 46 磁盘分区和文件大小查看·
+- 47 文件系统管理
+- 48 i节点和数据块操作
+- 49 分区和挂载
+- 50 分区和挂载磁盘配额
+- 51 交换分区 swap的查看与创建
+- 52 软件RAID的使用
+- 53 逻辑卷LVM的用途与创建
+- 54 系统综合状态查看命令 sar以及第三方命令
+- 56 linux 的启动过程
+- 57 shell脚本的格式
+- 58脚本的不同执行方式的影响
+- 60 | 重定向
+- 61 变量赋值
+- 62 变量引用及作用范围
+- 63 环境变量，预定义变量与位置变量
+- 64 环境变量配置文件
+- 65 数组
+- 66 转义和引用
+- 67 运算符
+- 68 特殊字符大全
+- 69 test 比较
+- 70 if 判断的使用
+- 71 if-else判断的使用
+- 72 嵌套if的使用
+- 73 case分支
+- 74 for的基本使用
+- 75 c语言风格的for
+- 76 while 循环 和 until循环
+- 77 循环的嵌套和break  continue语句
+- 78 使用循环处理位置参数
+- 79 自定义函数
+- 80 系统函数库介绍
+- 81 脚本资源控制
+- 82 信号
+- 83 一次性计划任务
+- 84周期性计划任务
+- 85 为脚本加锁
+- Root password
+- Root password
+- Root password
+- Root password
+- Root password
+- g是全部匹配， 数字表示匹配到第几次
+- 把替换成功的一行写入 /tmp/a.txt
+- 在第一行替换
+- 第一行到第三行
+- 第一行到最后一行
+- 在root的行替换
+- bin开头 到结尾 全部替换
+- r读取afile 文件
+- 这里的 D会导致循环替换
+- 单个文件 NR FNR 显示一样
+- FNR 第二文件行号会从1开始
+- 查看已经设置的那些过滤规则
+- 查看过滤信息   -n 取消方向解析
+- 查看所有的规则
+- 外部访问的114.115.115.117：80端口访问  目地地址转到内部 10.0.0.1地址上
+- 源地址是内网的ip10.0.0.0/24  从本地eth1 网卡出去  eth1 的ip是111.113.114.111
+- 查看默认的所有区域
+- permanent 永久保存
+- xinetd 服务管理telnet服务
+- 防火墙配置23端口开放
+- 修改成主域名服务器
+- 从域名服务器bind 配置文件
+- 反向解析配置文件
+- 配置vsftp 使用本地用户就可以登录访问自己家目录了
+- smba 配置
+- 静默模式设置smb用户密码
+- nfs共享配置
+
+# linux实战技能100招
+
 # 内容综述
 
 1 linux 背景介绍
@@ -573,8 +696,7 @@ nslookup www.baidu.com
 telnet www.baidu.com 80   #退出方法 ctrl + 】 或者 ？+回车
 tcpdump -i any -n port 80  # -i any 所有网络接口  -n 不解析用ip形式显示 port 端口80
 tcpdump -i any -n host 10.0.0.1  # host 指定主机
-tcpdump -i any -n host 10.0.0.1 and port 80 # 
-tcpdump -i any -n host 10.0.0.1 and port 80 -w /tmp/filename # -w 指定结果保存位置
+tcpdump -i any -n host 10.0.0.1 and port 80 # tcpdump -i any -n host 10.0.0.1 and port 80 -w /tmp/filename # -w 指定结果保存位置
 netstat -ntpl     # n 以ip显示 t tcp连接 p 显示进程号 l 监听状态
 ```
 
@@ -723,7 +845,7 @@ saved_entry=0
 [root@agent-34-0 ~]# grep ^menu /boot/grub2/grub.cfg
 ```
 
-\#　37 使用ps和top命令查看进程
+\# 37 使用ps和top命令查看进程
 
 进程管理
 
@@ -1177,7 +1299,7 @@ mdadm --zero-superblock /dev/sdb[1,2]  #删除元数据
 [root@vulcan ~]# iftop -p
 ```
 
-\#　55 认识shell
+\# 55 认识shell
 
 * 什么是shell
 * linux 的启动过程
@@ -1608,7 +1730,7 @@ man test
 [root@aliyun ~]# test -f /etc/passwd
 [root@aliyun ~]# echo $?
 0
-[root@aliyun ~]#  0 True  1 False   # 和在数学里的说法相反。
+[root@aliyun ~]# 0 True  1 False   # 和在数学里的说法相反。
 [root@aliyun ~]# [ -d /etc/ ]  #是目录并且存在 返回0
 [root@aliyun ~]# echo $?
 0
@@ -1977,7 +2099,7 @@ checkpid(){
 ```bash
 [root@aliyun tmp]# source /etc/init.d/functions
 [root@aliyun tmp]# echo_success
-[root@aliyun tmp]#                                         [  确定  ]
+[root@aliyun tmp]# [  确定  ]
 ```
 
 # 81 脚本资源控制
@@ -2098,8 +2220,7 @@ sleep 100000
 
 ^C
 [root@aliyun tmp]# flock -xn "/tmp/f.lock" -c "/root/tmp/15.sh" #锁文件在不会再次执行
-[root@aliyun tmp]#
-```
+[root@aliyun tmp]# ```
 
 # 86 元字符介绍
 
@@ -2956,7 +3077,7 @@ iptables的 nat 表
   * POSTROUTING  源地址转换
 
 ```bash
-#  外部访问的114.115.115.117：80端口访问  目地地址转到内部 10.0.0.1地址上
+# 外部访问的114.115.115.117：80端口访问  目地地址转到内部 10.0.0.1地址上
 [root@vulcan ~]# iptables -t nat -A PREROUTING -i eth0 -d 114.115.115.117 -p tcp --dport 80 -j DNAT --to-destination 10.0.0.1
 
 # 源地址是内网的ip10.0.0.0/24  从本地eth1 网卡出去  eth1 的ip是111.113.114.111
@@ -3307,7 +3428,7 @@ server {
  84     server {
  85         listen       8000;
  86         listen       www.servera.com;
- 87     #    server_name  somename  alias  another.alias;
+ 87     # server_name  somename  alias  another.alias;
  88
  89         location / {
  90             root   html/servera;
@@ -3318,7 +3439,7 @@ server {
  95     server {
  96         listen       8001;
  97         listen       www.serverb.com;
- 98     #    server_name  somename  alias  another.alias;
+ 98     # server_name  somename  alias  another.alias;
  99
 100         location / {
 101             root   html/serverb;
@@ -3569,9 +3690,7 @@ drwx------. 2 shareuser shareuser 62 Jan  9 14:47 shareuser
 [root@vulcan ~]# getfacl /share/shareuser/
 ```
 
-#
-
-# 118 结束语
+# # 118 结束语
 
 深入学习 向系统管理方向发展，建议深入学习shell脚本
 

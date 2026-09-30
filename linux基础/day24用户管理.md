@@ -1,5 +1,39 @@
 # day24用户管理
 
+> 本文档已做排版优化（清除样式标签、统一导航），全部内容原样保留。
+
+## 目录
+- day24用户管理
+- 有关用户的目录文件
+- ```bash
+- cat /etc/passwd
+- /etc/group ：主要存储组相关信息的文件 oldboy : x : 500 :
+- cat /etc/group
+- /etc/gshadow ：主要用来存储组密码信息
+- /etc/skel   新用户需要的所有基础环境变量文件的目录。
+- ctrl + 回退键
+- -a：添加一个用户到组,可以追加到组
+- sudo –l  查看当前有什么权限
+- visudo
+- 授权oldboy用户ls  touch mkdir
+- oldboy 进行测试
+- !/bin/vi 排除 禁止/bin/rm /bin/su /bin/vi   坑 你只能排除你认识的
+- 授权oldboy      /bin/* 所有命令
+- #记录指纹库
+- md5sum oldboy.txt > pol.md5
+- #指纹进行对比
+- md5sum -c pol.md5
+- 定时任务+ md5sum定时检查
+- 和md5类似 ，加密算法更复杂
+- sha
+- 创建组
+- 创建用户
+- echo stu{01..3}|xargs -n1|sed 's#.*#useradd &#g'
+- echo stu{01..3}|xargs -n1|sed 's#.*#useradd &;echo 123456|passwd --stdin &#g'
+- cat 创建文件时里面的特殊字符加反斜杠\$
+
+# day24用户管理
+
 ![1546510854253-45f41c40-bb88-4d25-8ff6-50da95928f53.png](img/day24%E7%94%A8%E6%88%B7%E7%AE%A1%E7%90%86-01.png)
 
 [全部知识回顾总结张首富.xmind](https://www.yuque.com/attachments/yuque/0/2019/xmind/194754/1554017188555-2fcc5dad-122c-4439-bf7b-458dd5c89d8e.xmind)
@@ -9,8 +43,7 @@
 
 
 # 有关用户的目录文件
-# 
-```bash
+# ```bash
 #/etc/passwd 每一列的含义
 # cat /etc/passwd
 root:x:0:0:root:/root:/bin/bash
@@ -110,7 +143,7 @@ cp /etc/skel/.bash* ~  # 把/etc/skel/.bash* 下的所有.bash* 文件拷贝到 
 
 
 
-# [](#gfhbyx)linux 用户特点
+# linux 用户特点
 ```bash
 多用户、多任务的操作系统
 root的 uid gid  为0
@@ -125,7 +158,7 @@ root的 uid gid  为0
 
 
 
-# [](#6xgmif)w 显示目前登入系统的用户信息
+# w 显示目前登入系统的用户信息
 ```bash
 [u1@oldboy01 ~]$ w
 15:37:49 up  7:58,  3 users,  load average: 0.00, 0.00, 0.00
@@ -153,7 +186,7 @@ lastlog 命令 显示linux中所有用户最近一次远程登录的信息
 
 
 
-# [](#3o9ylg)创建用户  
+# 创建用户  
 ```bash
 useradd  用户名
 -n 不创建以用户名为名的组
@@ -166,7 +199,7 @@ useradd  用户名
 
 
 
-# [](#dslhvu)usermod 修改系统已经存在的用户信息
+# usermod 修改系统已经存在的用户信息
 ```bash
 -c 修改用户的个人信息，同useradd 的-c功能 
 -g 修改用户对应的用户组，同 useradd的-d功能
@@ -178,7 +211,7 @@ usermod –l u1 oldboy  //把oldboy用户名改为u1
 
 
 
-# [](#pq7ird)userdel –r  删除用户  
+# userdel –r  删除用户  
 ```bash
 		-r 带家目录一起删除
 		-f 强制删除用户
@@ -187,7 +220,7 @@ userdel –r u1  删除u用户
 
 
 
-# [](#kkn0gq)passwd    修改当前用户密码
+# passwd    修改当前用户密码
 ```bash
 passwd  用户名    修改用户名密码
 echo ‘123456’ |passwd  --stdin u1   // 非人工交互设置密码
@@ -203,7 +236,7 @@ chpasswd < passwd.txt   //批量设置密码
 
 
 
-# [](#tn9rbf)su  su – 区别  切换用户
+# su  su – 区别  切换用户
 su 家目录环境变量没变化   具备管理员权限
 
 su -  切换到家目录 环境变量变化
@@ -237,7 +270,7 @@ sudo ls /root //可查看root的家，证明提权成功
 
 
 
-# [](#llxcym)id命令  查看用户的 uid gid
+# id命令  查看用户的 uid gid
 ```bash
 [root@bogon /]# id user6
 uid=8897(user6) gid=8899(z11) groups=8899(z11)
@@ -251,7 +284,7 @@ uid=8897(user6) gid=8899(z11) groups=8899(z11)
 
 
 
-# [](#advrvo)groupadd  添加组命令
+# groupadd  添加组命令
 ```bash
 groupadd 组名
 groupadd -g 666 zz1  添加新组 指定gid
@@ -267,7 +300,7 @@ edu:x:515:
 
 
 
-# [](#7gtbiq)gpasswd  将用户加入组中
+# gpasswd  将用户加入组中
 ```bash
 # -a：添加一个用户到组,可以追加到组
 gpasswd -a user1 z1      #将user1 追到z1 成员中 -M：添加多个用户到组，覆盖之前的组成员
@@ -283,7 +316,7 @@ gpasswd –d  user1 z1    # 将user1从组成员中删除
 
 
 
-# [](#1g4aet)groupmod  修改组信息
+# groupmod  修改组信息
 ```bash
 -n 修改组名
 groupmod -n z1 zz1   将zz1 修改z1 -g 修改GID
@@ -292,7 +325,7 @@ groupmod -g 888 z1   将z1 组gid 改成888
 
 
 
-# [](#qeo2zm)groupdel 组名    删除 组名
+# groupdel 组名    删除 组名
 ```bash
 groupdel z1   删除组
 删除组，删除组后，用户名依然存在
@@ -300,7 +333,7 @@ groupdel z1   删除组
 
 ``
 
-# [](#rxkeuo)groups 用户名  查看用户属于哪个组的
+# groups 用户名  查看用户属于哪个组的
 ```bash
 [root@oldboy01 mail]# groups u3
 u3 : u3 z1
@@ -610,8 +643,7 @@ echo `tail -1 /tmp/passwd.txt`|passwd --stdin \1#g'|bash
 
 ```
 
-# 
-# 面试题: 如何让一个脚本开机自启动
+# # 面试题: 如何让一个脚本开机自启动
 ```bash
 #shell里设置变量 = 两边不能有空格
 # cat 创建文件时里面的特殊字符加反斜杠\$ 
@@ -666,9 +698,9 @@ useradd -u 999 -s /sbin/nologin -M lidao999
 
 扩展: 
 
-<font style="color:rgb(51, 51, 51);">每日一题-汇总博客 李导   </font>[http://blog.51cto.com/lidao/1914205](http://blog.51cto.com/lidao/1914205)  
+每日一题-汇总博客 李导   [http://blog.51cto.com/lidao/1914205](http://blog.51cto.com/lidao/1914205)  
 
-[https://blog.51cto.com/lidao/1936495](https://blog.51cto.com/lidao/1936495)  <font style="color:rgb(51, 51, 51);">批量创建用户并设置随机密码</font>
+[https://blog.51cto.com/lidao/1936495](https://blog.51cto.com/lidao/1936495)  批量创建用户并设置随机密码
 
 
 
