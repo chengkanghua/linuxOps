@@ -1,217 +1,135 @@
-# nginx负载均衡之手机电脑应用案例
+# Nginx 负载均衡之手机/电脑应用案例
 
-## nginx负载均衡之 手机电脑应用案例
+> 场景：根据客户端 **User-Agent（浏览器/手机）** 或 **访问目录** 把请求转发到不同后端；并用 Keepalived 实现负载均衡器的双机热备。
 
-proxy 10.0.0.5\
-web01 10.0.0.7 # 模拟iphone页面\
-web02 10.0.0.8 # 模拟 anroid 页面
+环境：
+```
+proxy  10.0.0.5          # 负载均衡
+web01  10.0.0.7          # 模拟 iPhone 页面
+web02  10.0.0.8          # 模拟 Android 页面
+```
 
-### 根据不同的浏览器, 以及不同的手机, 访问的效果都将不一样。
+---
 
+## 一、按手机/浏览器类型分流（基于 `$http_user_agent`）
+
+### 1. 准备 web01 / web02 站点
 ```bash
-# web01的配置网站
-cat > /etc/nginx/conf.d/sj.conf<<EOF
+# web01
+cat > /etc/nginx/conf.d/sj.conf <<EOF
 server {
   listen 80;
   server_name sj.oldboy.com;
   location / {
     root /sj;
     index index.html;
-    }
+  }
 }
 EOF
-mkdir /sj
-echo "Ipone....." >/sj/index.html
-nginx -t
-systemctl restart nginx
+mkdir /sj && echo "Ipone....." > /sj/index.html
+nginx -t && systemctl restart nginx
 
-#windows hosts解析
-ip sj.oldboy.com
-#浏览器访问http://sj.oldboy.com/
----------------------------------------------
-# web02 配置conf 一样
-mkdir /sj
-echo "Android...." >/sj/index.html
-nginx -t
-systemctl restart nginx
+# web02（配置相同，内容不同）
+mkdir /sj && echo "Android...." > /sj/index.html
+nginx -t && systemctl restart nginx
 
-#windows hosts解析
-ip sj.oldboy.com
-#浏览器访问http://sj.oldboy.com/
----------------------------------------------
-# proxy lb-5 负载均衡配置
-# cat /etc/nginx/conf.d/sj_proxy.conf
-upstream iphone {
-  server 172.16.1.7:80;
-}
-upstream android {
-  server 172.16.1.8:80;
-}
-//server根据判断来访问不同的页面
+# Windows hosts：10.0.0.5 sj.oldboy.com  → 浏览器访问测试
+```
+
+### 2. 按手机型号分流（iPhone / Android）
+```nginx
+# lb-5：/etc/nginx/conf.d/sj_proxy.conf
+upstream iphone  { server 172.16.1.7:80; }
+upstream android { server 172.16.1.8:80; }
+
 server {
   listen 80;
   server_name sj.oldboy.com;
   location / {
     include proxy_params;
-    //iphone 手机访问效果
-    if ($http_user_agent ~* "iphone"){
-      proxy_pass http://iphone;
-      }
-    //android 手机访问效果
-    if ($http_user_agent ~* "android"){
-      proxy_pass http://android;
-      }
-    }
-}
-
-nginx -t
-systemctl restart nginx
-#windows hosts解析
-ip sj.oldboy.com;
-#浏览器访问http://sj.oldboy.com/   F12选安卓和ios设备访问看看
-
-
-```
-
-### 根据不同的浏览器跳转到不同的页面
-
-```bash
-//通过浏览器来分别连接不同的浏览器访问不同的效果。
-# cat /etc/nginx/conf.d/sj_proxy.conf
-upstream firefox {
-  server 172.16.1.7:80;
-}
-upstream chrome {
-  server 172.16.1.8:80;
-}
-upstream iphone {
-  server 172.16.1.7:80;
-}
-upstream android {
-  server 172.16.1.8:80;
-}
-upstream default {
-  server 172.16.1.7:80;
-}
-#server根据判断来访问不同的页面
-server {
-  listen 80;
-  server_name  sj.oldboy.com;
-  location / {
-    include proxy_params;
-    #firefox浏览器访问效果
-    if ($http_user_agent ~* "Firefox"){
-      proxy_pass http://firefox;
-      }
-    #chrome浏览器访问效果
-    if ($http_user_agent ~* "Chrome"){
-      proxy_pass http://chrome;
-      }
-    #iphone手机访问效果
-    if ($http_user_agent ~* "iphone"){
-      proxy_pass http://iphone;
-      }
-    #android手机访问效果
-    if ($http_user_agent ~* "android"){
-      proxy_pass http://android;
-      }
-    # 其他浏览器访问默认规则
-    proxy_pass http://default;
+    if ($http_user_agent ~* "iphone")  { proxy_pass http://iphone; }
+    if ($http_user_agent ~* "android") { proxy_pass http://android; }
   }
 }
 ```
+> 浏览器 F12 切换设备模拟（iOS / Android）即可看到不同页面。
 
-### 根据访问不同目录, 代理不同的服务器
+### 3. 按浏览器分流（Firefox / Chrome / iPhone / Android / 默认）
+```nginx
+upstream firefox { server 172.16.1.7:80; }
+upstream chrome  { server 172.16.1.8:80; }
+upstream iphone  { server 172.16.1.7:80; }
+upstream android { server 172.16.1.8:80; }
+upstream default { server 172.16.1.7:80; }
 
-```bash
-//默认动态，静态直接找设置的static，上传找upload
-# lb主机
-# cat /etc/nginx/conf.d/sj_proxy.conf
-upstream static_pools {
-  server 172.16.1.7:80;
-}
-upstream upload {
-  server 172.16.1.8:80;
-}
 server {
   listen 80;
   server_name sj.oldboy.com;
   location / {
     include proxy_params;
-    proxy_pass http://upload;
-    }
-  location /static/ {
-    include proxy_params;
-    proxy_pass http://static_pools;
-    }
-  location /upload/ {
-    include proxy_params;
-    proxy_pass http://upload;
-    }
+    if ($http_user_agent ~* "Firefox") { proxy_pass http://firefox; }
+    if ($http_user_agent ~* "Chrome")  { proxy_pass http://chrome;  }
+    if ($http_user_agent ~* "iphone")  { proxy_pass http://iphone;  }
+    if ($http_user_agent ~* "android") { proxy_pass http://android; }
+    proxy_pass http://default;     # 其他浏览器走默认
+  }
 }
-#创建对应的目录文件
-#web01主机
-echo "我是static页面" >/sj/static/index.html
-#web02 主机
-echo "我是upload页面" >/sj/upload/index.html
-
-# windows hosts 添加域名解析
-10.0.0.5 sj.oldboy.com
-#浏览器访问
-http://sj.oldboy.com/upload/
-http://sj.oldboy.com/static/
-
-# 方案2：以if语句实现。 // 报错语法错误
-if ($request_uri ~* "^/static/(.*)$") {
-  proxy_pass http://static_pools/$1;
-  }
-if ($request_uri ~* "^/upload/(.*)$") {
-  proxy_pass http://upload_pools/$1;
-  }
-location / {
-  proxy_pass http://default_pools;
-  include proxy.conf;
-  }
-  
 ```
 
-## Nginx双机热备
+---
 
-### 1.Keepalived高可用概述
+## 二、按访问目录分流（基于 `location`）
 
-*1.什么是高可用*
+```nginx
+upstream static_pools { server 172.16.1.7:80; }   # 静态
+upstream upload       { server 172.16.1.8:80; }   # 上传
 
-什么是高可用双击热备, 一般指2台机器启动着相同的业务系统,当有一台机器down机了, 另外一台 服务器能快速的接管, 对于访问的用户是无感知的。
+server {
+  listen 80;
+  server_name sj.oldboy.com;
+  location /       { include proxy_params; proxy_pass http://upload; }
+  location /static/ { include proxy_params; proxy_pass http://static_pools; }
+  location /upload/ { include proxy_params; proxy_pass http://upload; }
+}
+```
+```bash
+# 后端准备对应页面
+echo "我是static页面"  > /sj/static/index.html     # web01
+echo "我是upload页面"   > /sj/upload/index.html     # web02
+# Windows hosts：10.0.0.5 sj.oldboy.com
+# 访问 http://sj.oldboy.com/static/  和  /upload/  看不同结果
+```
 
-*2.高可用使用场景*
+**方案 2（用 if 实现，注意：原文作者实测会报语法错误，不推荐）**
+```nginx
+if ($request_uri ~* "^/static/(.*)$") { proxy_pass http://static_pools/$1; }
+if ($request_uri ~* "^/upload/(.*)$") { proxy_pass http://upload_pools/$1; }
+location / { proxy_pass http://default_pools; include proxy.conf; }
+```
+> ⚠️ `if` 在 `location` 中与 `proxy_pass` 混用容易踩坑，生产优先用 `location` 前缀匹配。
 
-那么高可用使用在什么场景，业务系统需要保证7x24小时不DOWN机, 作为业务来说随时都可用, 让你的业务系统更顽强。
+---
 
-### Keepalived高可用安装
+## 三、Nginx 双机热备（Keepalived）
 
-*1.环境准备*
+### 1. 高可用概述
+高可用双机热备：两台机器跑相同业务，一台宕机时另一台**快速接管**，用户无感知，保证业务 7×24 不中断。
 
-| 服务器系统 | 角色 | 外网IP | 内网IP |
+### 2. 环境准备
+| 系统 | 角色 | 外网 IP | 内网 IP |
 | --- | --- | --- | --- |
 | CentOS 7.5 | keepalived-master | eth0:10.0.0.5 | eth1:172.16.1.5 |
 | CentOS 7.5 | keepalived-slave | eth0:10.0.0.6 | eth1:172.16.1.6 |
 
-*2.在lb01与lb02上分别安装keepalived*
-
+### 3. 安装
 ```bash
-yum install keepalived -y
-yum install keepalived -y
+yum install keepalived -y       # lb01、lb02 都装
+rpm -qc keepalived             # 配置在 /etc/keepalived/keepalived.conf
 ```
 
-*3.配置lb01 , keepalived-master*
-
+### 4. 配置 lb01（MASTER）
 ```bash
-# rpm -qc keepalived
-/etc/keepalived/keepalived.conf
-/etc/sysconfig/keepalived
-
-# lb01
-cat > /etc/keepalived/keepalived.conf<<EOF
+cat > /etc/keepalived/keepalived.conf <<EOF
 global_defs {
   router_id lb01
 }
@@ -224,16 +142,18 @@ vrrp_instance VI_1 {
   authentication {
     auth_type PASS
     auth_pass 1111
-    }
+  }
   virtual_ipaddress {
     10.0.0.3
-    }
+  }
 }
 EOF
-systemctl restart keepalived.service
+systemctl restart keepalived
+```
 
-#lb02  配置
-cat > /etc/keepalived/keepalived.conf<<EOF
+### 5. 配置 lb02（BACKUP）
+```bash
+cat > /etc/keepalived/keepalived.conf <<EOF
 global_defs {
   router_id lb02
 }
@@ -246,161 +166,107 @@ vrrp_instance VI_1 {
   authentication {
     auth_type PASS
     auth_pass 1111
-    }
+  }
   virtual_ipaddress {
     10.0.0.3
-    }
+  }
 }
 EOF
 systemctl restart keepalived
-
-# 检查 是不是有 10.0.0.3 ip地址
-# ip a
-
-# 停止lb01停止keeplived ;lb02机器就有10.0.0.3ip地址 实现了地址漂移
-
 ```
 
-*5.对比keepalived的master与backup配置的区别*
-
-| Keepalived配置区别 | Master配置 | Backup节配置 |
+### 6. Master / Backup 配置区别
+| 配置项 | Master | Backup |
 | --- | --- | --- |
-| route_id(唯一标识) | route_id lb01 | route_id lb02 |
-| state(角色状态) | state Master | state Backup |
-| priority(竞选优先级) | priority 150(数大的优先) | priority 100 |
+| router_id（唯一标识） | lb01 | lb02 |
+| state（角色） | MASTER | BACKUP |
+| priority（竞选优先级，大者优先） | 150 | 100 |
 
-*6.启动lb01与lb02的keepalived*
-
+### 7. 启动并验证 VIP 漂移
 ```bash
-#lb01
-systemctl enable keepalived
-systemctl start keepalived
-#lb02
-systemctl enable keepalived
-systemctl start keepalived
-```
+# lb01、lb02 都启动
+systemctl enable keepalived && systemctl start keepalived
 
-*7.检查keepalived的虚拟IP地址是否漂移*
+# lb01 上应有 VIP
+ip addr | grep 10.0.0.3
 
-在`lb01`上进行如下操作
-
-```bash
-# lb01存在vip地址
-ip addr |grep 10.0.0.3
-
-# 停止lb01上的keepalived, 检测vip已不存在
+# 停掉 lb01 的 keepalived，VIP 漂移到 lb02
 systemctl stop keepalived
-ip addr |grep 10.0.0.3
-```
+ip addr | grep 10.0.0.3     # lb01 上已无
 
-*在lb02上进行如下操作*
+# lb02 上查看：VIP 已接管
+ip addr | grep 10.0.0.3
 
-```bash
-ip addr|grep 10.0.0.3
-```
-
-*lb01重新启动keepalived,发现地址被重新接管*
-
-```bash
+# lb01 重启 keepalived，优先级高会重新接管
 systemctl start keepalived
-ip addr |grep 10.0.0.3
-
+ip addr | grep 10.0.0.3     # 回到 lb01
 ```
 
-### Keepalived高可用配置
+---
 
-### 快速配置一台 lb02
+## 四、Keepalived 脑裂（Split-Brain）
 
+**脑裂**：因网络故障（网线松动、防火墙拦截、硬件崩溃等）导致两台 Keepalived 在指定时间内收不到对方心跳，各自抢占资源并持有 VIP，两台都「以为自己是主」。
+
+### 1. 备节点脑裂检测脚本
 ```bash
-scp -rp root@172.16.1.5:/etc/yum.repos.d /etc/
-yum install nginx -y
-scp -rp root@172.16.1.5:/etc/nginx /etc/
-ystemctl start nginx
-systemctl enable nginx
-```
-
-### keepalived高可用<font style="color:rgb(20, 21, 26);">脑裂</font>
-
-由于某些原因，导致两台`keepalived`高可用服务器在指定时间内，无法检测到对方的心跳消息，各自取得资源及服务的所有权，而此时的两台高可用服务器又都还活着。
-
-> 服务器网线松动等网络故障 服务器硬件故障发生损坏现象而崩溃 主备都开启`firewalld`防火墙 Nginx服务死掉等
-
-*1.在备上编写检测脚本, 测试如果能ping通主并且备节点还有VIP(虚拟ip地址)的话则认为产生了列脑*
-
-```bash
-# lb02 在备上运行
 mkdir /server/scripts
-# vim /server/scripts/check_split_brain.sh
+cat > /server/scripts/check_split_brain.sh <<'EOF'
 #!/bin/sh
 lb01_vip=10.0.0.3
 lb01_ip=10.0.0.5
-while true;do
-  # -w 3 间隔时间3秒  -c 次数
+while true; do
   ping -c 2 -W 3 $lb01_ip &>/dev/null
-  #ping通主并且备节点还有VIP的话
-  if [ $? -eq 0 -a `ip add|grep "$lb01_vip"|wc -l` -eq 1 ];then
+  if [ $? -eq 0 -a $(ip add | grep "$lb01_vip" | wc -l) -eq 1 ]; then
     echo "ha is split brain.warning."
   else
     echo "ha is ok"
   fi
   sleep 5
 done
+EOF
+chmod +x /server/scripts/check_split_brain.sh
 
-yum install screen -y # 安装
-screen   #进入另一个shell终端
+# 用 screen 后台运行
+yum install screen -y
+screen
 sh /server/scripts/check_split_brain.sh
-ctrl+ a  +d 退出当前shell
-#后台查询 是在后台运行的
-ps aux|grep check_split_brain
-
-# 其实是在另外一个shell 里面
-[root@lb02 ~]# screen -list
-There is a screen on:
-2542.pts-0.lb02    (Detached)
-1 Socket in /var/run/screen/S-root.
-# 进入/var/run/screen/S-root 里面可以删除对应的会话
-screen -r  pid(2542)   # 进入之前的shell终端
+# Ctrl+a 再按 d 脱离（Detached）
+ps aux | grep check_split_brain
+screen -list            # 查看会话（如 2542.pts-0.lb02）
+screen -r 2542         # 重新进入会话
 ```
 
-*2.如果Nginx宕机, 会导致用户请求失败, 但Keepalived并不会进行切换, 所以需要编写一个脚本检测Nginx的存活状态, 如果不存活则kill nginx和keepalived*
-
+### 2. Nginx 宕机自动切换脚本（主备都要）
+Nginx 挂了用户请求会失败，但 Keepalived 不会自动切换，需脚本检测：Nginx 不死就拉起，拉不起来就停 Keepalived 让 VIP 漂移。
 ```bash
-# lb01 lb02主备上都运行 使用screen 在后台运行
 mkdir -p /server/scripts
-
-# vim /server/scripts/check_web.sh
+cat > /server/scripts/check_web.sh <<'EOF'
 #!/bin/sh
-#使用while死循环
-while true;do
-  # no-header 不显示头部 第一行
-  nginxpid=$(ps -C nginx --no-header|wc -l)
-  #1.判断Nginx是否存活,如果不存活则尝试启动Nginx
-  if [ $nginxpid -eq 0 ];then
+while true; do
+  nginxpid=$(ps -C nginx --no-header | wc -l)
+  if [ $nginxpid -eq 0 ]; then
     systemctl start nginx
     sleep 5
-    #2.5秒后再次获取一次Nginx状态
-    nginxpid=$(ps -C nginx --no-header|wc -l)
-    #3.再次进行判断, 如Nginx还不存活则停止Keepalived,让地址进行漂移,并退出脚本  
-    if [ $nginxpid -eq 0 ];then
+    nginxpid=$(ps -C nginx --no-header | wc -l)
+    if [ $nginxpid -eq 0 ]; then
       systemctl stop keepalived
-    exit 1
+      exit 1
     fi
   fi
   sleep 5
 done
-
+EOF
 chmod +x /server/scripts/check_web.sh
 
-在keepalived配置文件中调用此脚本，lb01与lb02都需操作
-# cat /etc/keepalived/keepalived.conf
+# 在 keepalived.conf 中调用（lb01/lb02 都要加）
+cat > /etc/keepalived/keepalived.conf <<EOF
 global_defs {
   router_id Lb01
 }
 vrrp_script check_web {
   script "/server/scripts/check_web.sh"
-  # 每格2秒执行一次脚本
   interval 2
-  # 权重
   weight 50
 }
 vrrp_instance VI_1 {
@@ -414,67 +280,51 @@ vrrp_instance VI_1 {
     auth_pass 1111
   }
   virtual_ipaddress {
-    # 10.0.0.3/24 dev ens33
     10.0.0.3
   }
-  #调用上面定义的 check_web
   track_script {
     check_web
   }
 }
-
+EOF
 systemctl restart keepalived.service
-
-------------------------------------------------------------------
-# cat /etc/keepalived/keepalived.conf
-global_defs {
-  router_id lb02
-}
-vrrp_script check_web {
-  script "/server/scripts/check_web.sh"
-  # 每格2秒执行一次脚本
-  interval 2
-  # 权重
-  weight 50
-}
-vrrp_instance VI_1 {
-  state BACKUP
-  interface eth0
-  virtual_router_id 50
-  priority 100
-  advert_int 1
-  authentication {
-    auth_type PASS
-    auth_pass 1111
-    }
-  virtual_ipaddress {
-    10.0.0.100
-    }
-  #调用上面定义的 check_web
-  track_script {
-    check_web
-  }
-}
-
-
-systemctl restart keepalived.service
-
+# lb02 配置类似（router_id lb02、state BACKUP、priority 100、interface eth0）
 ```
 
-\_\_
+---
 
-翻译
+## 五、快速克隆一台 lb02
+```bash
+scp -rp root@172.16.1.5:/etc/yum.repos.d /etc/
+yum install nginx -y
+scp -rp root@172.16.1.5:/etc/nginx /etc/
+systemctl start nginx && systemctl enable nginx
+```
 
-Detached 独立的
+---
 
-Attached 附属的
+## 六、常见面试题
 
-Sockets 插座
+1. **如何用 Nginx 根据手机/浏览器返回不同页面？**
+   用 `if ($http_user_agent ~* "iphone") { proxy_pass ... }` 按 UA 分流；生产更推荐用 `map` 指令替代 `if`。
 
-![1547290160521-6b9f9a44-751e-4470-af05-703df0d0cb02.png](img/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E4%B9%8B%E6%89%8B%E6%9C%BA%E7%94%B5%E8%84%91%E5%BA%94%E7%94%A8%E6%A1%88%E4%BE%8B-01.png)
+2. **Keepalived 高可用怎么实现？**
+   两台 LB 配 VRRP 实例，MASTER 持有 VIP（priority 高），心跳丢失后 BACKUP 接管 VIP，实现地址漂移。
 
-![1547290218647-b1ecf54a-0af9-46e7-b02c-b640a44f05ea.png](img/nginx%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E4%B9%8B%E6%89%8B%E6%9C%BA%E7%94%B5%E8%84%91%E5%BA%94%E7%94%A8%E6%A1%88%E4%BE%8B-02.png)
+3. **Master 和 Backup 配置主要区别？**
+   `router_id` 唯一、`state` 角色（MASTER/BACKUP）、`priority` 优先级（大者为主）。
 
+4. **什么是脑裂？常见原因？**
+   两台 Keepalived 收不到对方心跳却都持有 VIP。原因：网线松动、防火墙拦截 VRRP、硬件故障、Nginx 死掉等。
 
-> 更新: 2026-05-05 20:44:34  
-> 原文: <https://www.yuque.com/chengkanghua/oldboy50/hp7gvv>
+5. **Nginx 挂了为什么 Keepalived 不切换？怎么解决？**
+   Keepalived 只管 VIP，不管应用。需 `vrrp_script` + `track_script` 检测 Nginx 存活，不健康就停 Keepalived 触发漂移。
+
+6. **`if` 在 Nginx location 里和 proxy_pass 混用有什么坑？**
+   容易触发「if is evil」语义陷阱导致配置异常，优先用 `location` 前缀匹配或 `map`。
+
+---
+
+> 词汇：Detached 独立的 / Attached 附属的 / Sockets 套接字
+> 更新：2026-05-05 20:44:34
+> 原文：<https://www.yuque.com/chengkanghua/oldboy50/hp7gvv>
