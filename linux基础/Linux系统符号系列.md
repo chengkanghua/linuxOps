@@ -1,67 +1,65 @@
 # Linux系统符号系列
 
-> 本文档已做排版优化（清除样式标签、统一导航），全部内容原样保留。
-
 ## 目录
 - Linux系统符号系列
-- 如何证明自己有经验？
-- 搜索技巧
-- 基础正则 （BRE Basic Regular Expression)
-- 扩展正则 （ERE Extented Regular Expression)
-  - 预定义字符类
-- 案例
-  - 匹配身份证号码
-  - 取出网卡的ip地址
-  - 正则表达式取权限
-  - 如何把文件中的空行过滤掉（要求命令行实现）。
-  - # 请使用grep或egrep正则匹配的方式过滤出前两行内容
-- 其他符号
-- 四剑客 find  grep sed awk
-  - find 使用
-  - sed
-  - sed 练习
-  - awk  模式匹配与处理语言
-    - (运算%) 显示出磁盘使用率大于20%的磁盘分区名称和挂载点
-    - 计算内存的使用率（使用率）
-    - 范围
-    - 特殊模式BEGIN{} END{}
-    - 练习题
-- awk 判断中循环与判断
-- awk循环
-- awk 数组  统计
-  - ## ```bash
-- 请给出输出test.txt文件内容时，不包含oldboy字符串的命令。
-- 方法2 -head 显示前两行
-- !取反
-- -n = 关闭默认自动打印，只打印你用 p 指定的内容
-- 准备环境
-- 有oldboy字符的行
-- m开头的行
-- m结尾的行  m后面又空格不会显示
-- 显示文件中所有符号， -A每行结尾会有个 $
-- ' $' 空格结尾的行
-- ^$ 表示空格  什么符号都没有
-- -n 显示行号
-- 排除空行
-- . 任意一个字符  不会匹配空行
-- grep -o 输出匹配到的部分
-- grep -o '.' oldboy.txt
-- 以. 结尾的行, \转义字符
-- 所有回车换行符 替换成tab
-- 正则表达式 坑1      0*   会把文件都显示出来
-- 0次   没有         会把文件内容都显示出来
-- 0次以上  					 00000000000000
-- ^.*o 贪婪性  按最大的范围匹配
-- my blo 算是符合匹配的, 实际按最大范围: my blog is http://oldboy.blog.51cto
-- -o, --only-matching       show only the part of a line matching PATTERN
-- 显示匹配模式的 部分内容,匹配一个换一行, 没匹配的不显示
-- a-z的所有小写字母
-- 所有大写字母
-- -i 不区分大小写
+  - 如何证明自己有经验？
+  - 搜索技巧
+  - 基础正则 （BRE Basic Regular Expression)
+  - 扩展正则 （ERE Extented Regular Expression)
+    - 预定义字符类
+  - 案例
+    - 匹配身份证号码
+    - 取出网卡的ip地址
+    - 正则表达式取权限
+    - 如何把文件中的空行过滤掉（要求命令行实现）。
+    - # 请使用grep或egrep正则匹配的方式过滤出前两行内容
+  - 其他符号
+  - 四剑客 find  grep sed awk
+    - find 使用
+    - sed
+    - sed 练习
+    - awk  模式匹配与处理语言
+      - (运算%) 显示出磁盘使用率大于20%的磁盘分区名称和挂载点
+      - 计算内存的使用率（使用率）
+      - 范围
+      - 特殊模式BEGIN{} END{}
+      - 练习题
+  - awk 判断中循环与判断
+  - awk循环
+  - awk 数组  统计
+    - ## ```bash
+  - 请给出输出test.txt文件内容时，不包含oldboy字符串的命令。
+  - 方法2 -head 显示前两行
+  - !取反
+  - -n = 关闭默认自动打印，只打印你用 p 指定的内容
+  - 准备环境
+  - 有oldboy字符的行
+  - m开头的行
+  - m结尾的行  m后面又空格不会显示
+  - 显示文件中所有符号， -A每行结尾会有个 $
+  - ' $' 空格结尾的行
+  - ^$ 表示空格  什么符号都没有
+  - -n 显示行号
+  - 排除空行
+  - . 任意一个字符  不会匹配空行
+  - grep -o 输出匹配到的部分
+  - grep -o '.' oldboy.txt
+  - 以. 结尾的行, \转义字符
+  - 所有回车换行符 替换成tab
+  - 正则表达式 坑1      0*   会把文件都显示出来
+  - 0次   没有         会把文件内容都显示出来
+  - 0次以上  					 00000000000000
+  - ^.*o 贪婪性  按最大的范围匹配
+  - my blo 算是符合匹配的, 实际按最大范围: my blog is http://oldboy.blog.51cto
+  - -o, --only-matching       show only the part of a line matching PATTERN
+  - 显示匹配模式的 部分内容,匹配一个换一行, 没匹配的不显示
+  - a-z的所有小写字母
+  - 所有大写字母
+  - -i 不区分大小写
 
 ![1546507679173-8dabaed9-7d6c-465c-ae16-5e2df24e6ce2.png](img/Linux%E7%B3%BB%E7%BB%9F%E7%AC%A6%E5%8F%B7%E7%B3%BB%E5%88%97-01.webp)
 
-# 如何证明自己有经验？
+## 如何证明自己有经验？
 
 1. 说出来
 2. 处理过的故障
@@ -71,7 +69,7 @@
    2. 三剑客
    3. 排版哥
 
-# 搜索技巧
+## 搜索技巧
 
 ```bash
 	1 linux + 关键词（词语）    例如  linux  command not found
@@ -87,7 +85,7 @@
 
 正则：  精确的过滤 三剑客使用
 
-# 基础正则 （BRE Basic Regular Expression)
+## 基础正则 （BRE Basic Regular Expression)
 
 | 符号 | 含义 | 用法示例 | 匹配结果 |
 | --- | --- | --- | --- |
@@ -117,7 +115,7 @@ my qq is 49000448
 not 4900000448.
 my god ,i am not oldbey,but OLDBOY!
 EOF
-# 正则表达式-坑2 [oldoby]  
+# 正则表达式-坑2 [oldoby]
 # o或l或d或o或b或y 匹配了, oldboy连续的也会匹配
 grep '[oldboy]' oldboy.txt
 
@@ -141,7 +139,7 @@ grep '[^0-Z]' oldboy.txt
 
 ```
 
-# 扩展正则 （ERE Extented Regular Expression)
+## 扩展正则 （ERE Extented Regular Expression)
 
 | 符号 | 含义 | 示例 | 匹配结果 |
 | --- | --- | --- | --- |
@@ -248,7 +246,7 @@ egrep '0{3,4}' oldboy.txt
 
 ```
 
-## 预定义字符类
+### 预定义字符类
 
 ```bash
 正则表达式的预定义字符类。
@@ -271,9 +269,9 @@ egrep '0{3,4}' oldboy.txt
 
 ```
 
-# 案例
+## 案例
 
-## 匹配身份证号码
+### 匹配身份证号码
 
 ```bash
 # cat > id.txt <<EOF
@@ -297,7 +295,7 @@ EOF
 
 ```
 
-## 取出网卡的ip地址
+### 取出网卡的ip地址
 
 ```bash
 [root@m01 ~]# ip a s eth0
@@ -364,7 +362,7 @@ ifconfig eth0|sed -n 2p|sed -r 's#.*inet (.*)  net.*$#\1#g'
 
 ```
 
-## 正则表达式取权限
+### 正则表达式取权限
 
 ```bash
 取出stat /etc/hosts 文件权限 644 0644  
@@ -387,7 +385,7 @@ stat -c%a /etc/hosts  #644
 
 ```
 
-## 如何把文件中的空行过滤掉（要求命令行实现）。
+### 如何把文件中的空行过滤掉（要求命令行实现）。
 
 ```bash
 # 文件内容
@@ -416,7 +414,7 @@ sed -n '/o/p' test.txt # -p 显示 带o的   -n取消默认输出
 
 ```
 
-## # 请使用grep或egrep正则匹配的方式过滤出前两行内容
+### # 请使用grep或egrep正则匹配的方式过滤出前两行内容
 
 ```bash
 # 文件内容
@@ -441,7 +439,7 @@ sed    过滤  替换 修改文件内容   取行
 awk    过滤  取列（-F）  计算 统计
 ```
 
-# 其他符号
+## 其他符号
 
 ```bash
 # &&  前面命令成功就执行后面的命令
@@ -450,7 +448,7 @@ ifdown eth0 && ifup eth0   //重启网卡
 # ||    前面的命令失败就后面的命令
 ls /tmp/ccc || echo 目录不存在
 
-# 注释    root用户的命令提示符    
+# 注释    root用户的命令提示符
 $ 普通用户命令提示符
     echo $PS1  $PATH  $LANG   坏境变量
 	  AWK 中取出某一列   $0 一行  $NF 最后一列
@@ -485,9 +483,9 @@ cp a.txt{,.bak}
 
 ```
 
-# 四剑客 find  grep sed awk
+## 四剑客 find  grep sed awk
 
-## find 使用
+### find 使用
 
 ```bash
 find /oldboy/ -type f  -name "*.sh"
@@ -505,7 +503,7 @@ find /root/  -type f –name "*.sh" –exec ls –l {} \;
 | 与 |xargs 区别
 | 管道  把前一个命令结果 通过管传递道给后面命令 传递的是文字 文本
 | xargs 把前一个命令结果 通过管道传递给后面命令  传递的是为文件名
-# find /oldboy/ -type f -name "*.sh"  
+# find /oldboy/ -type f -name "*.sh"
 # find /oldboy/ -type f -name "*.sh" |sed -i 's#old#you#g'
 sed: no input files
 
@@ -560,7 +558,7 @@ find /oldboy/  -type f -name "*.sh"|xargs cat
 
 ```
 
-## sed
+### sed
 
 ```bash
 # 先备份t.sh.bak 再修改文件内容
@@ -693,7 +691,7 @@ cat>person.txt<<EOF
 110,lidao,COCO
 EOF
 
-# 替换每行的第二个数字开始 
+# 替换每行的第二个数字开始
 sed 's#[0-9]##2' person.txt  
 #替换每行第二个匹配的内容到最后
 sed 's#[0-9]##2g' person.txt   
@@ -707,7 +705,7 @@ rename html '' *.jpg
 
 ```
 
-## sed 练习
+### sed 练习
 
 ```bash
 # 把文件的person.txt文件中的每一行的内容 替换为对应的行号
@@ -722,7 +720,7 @@ done
 touch oldboy_html{01..10}.jgp
 
 方法1:sed  拼接
-# mv  oldboy_html_01.jpg   oldboy_01.jpg 
+# mv  oldboy_html_01.jpg   oldboy_01.jpg
 
 ls *.jgp|sed -r 's#(.*)html(.*)#mv & \1\2#g'|bash
 
@@ -763,7 +761,7 @@ find ./ -type f -name "*.jgp" |xargs ls –l #文件名包含空格 提示报错
 
 ```
 
-## awk  模式匹配与处理语言
+### awk  模式匹配与处理语言
 
 ```bash
 
@@ -926,7 +924,7 @@ awk '{print $1","$2}' reg.txt
 awk -vOFS=',' '{print $1,$2}' reg.txt  #-vOFS=',' 输出分隔符
 ```
 
-### (运算%) 显示出磁盘使用率大于20%的磁盘分区名称和挂载点
+#### (运算%) 显示出磁盘使用率大于20%的磁盘分区名称和挂载点
 
 ```bash
 $5>20  对比的是字符 字符串（字母）
@@ -945,7 +943,7 @@ df -h|awk '$5+0>9'
 df |awk 'NR>1{print $3/$2}'
 ```
 
-### 计算内存的使用率（使用率）
+#### 计算内存的使用率（使用率）
 
 ```bash
 free -m | awk 'NR==2 {printf "Memory Usage: %s/%sMB (%.2f%%)\n", $3,$2,$3*100/$2}'
@@ -961,7 +959,7 @@ ree|awk 'NR==2{sum=$3+$4;print sum}' #内存总容量
 
 ```
 
-### 范围
+#### 范围
 
 从第1行到第5行内容
 
@@ -975,7 +973,7 @@ awk '/oldboy/,/yy/' person.txt
 
 ```
 
-### 特殊模式BEGIN{} END{}
+#### 特殊模式BEGIN{} END{}
 
 ```bash
 awk执行过程
@@ -1044,10 +1042,10 @@ awk -vOFS=#### '{$1=$1;print $0}' reg.txt
 
 ![1553425100244-de04ee66-5b3f-4ac9-b0da-2e10a40cd892.png](img/Linux%E7%B3%BB%E7%BB%9F%E7%AC%A6%E5%8F%B7%E7%B3%BB%E5%88%97-03.png)
 
-### 练习题
+#### 练习题
 
 ```bash
-# 取出/etc/passwd中uid在1到500之间的用户名和uid号码	
+# 取出/etc/passwd中uid在1到500之间的用户名和uid号码
 # 条件：uid 1-500
 # 动作 打印出来
 awk -F: '$3>=1 && $3<500' passwd.txt  # 1到499
@@ -1070,7 +1068,7 @@ awk '{i+=$10}END{print i/1024^3"G"}' access.log
 
 ```
 
-# awk 判断中循环与判断
+## awk 判断中循环与判断
 
 ```bash
 shell编程中
@@ -1119,7 +1117,7 @@ awk '/{/,/}/' range.txt |awk '/oldboy/' |wc -l
 awk '/{/,/}/{if(/oldboy/) i++}END{print i}' range.txt
 ```
 
-# awk循环
+## awk循环
 
 ```bash
 shell循环
@@ -1158,7 +1156,7 @@ awk -F: '/bash$/{i++}{print $NF,$1}END{print i}' /etc/passwd
 
 ```
 
-# awk 数组  统计
+## awk 数组  统计
 
 ```bash
 awk 'BEGIN{h[110] }'
@@ -1206,8 +1204,8 @@ awk '/Failed/{h[$(NF-5)]++}END{for(i in h)print i,h[i]}' secure-20161219|sort -r
 
 ```
 
-## ## ```bash
-# 请给出输出test.txt文件内容时，不包含oldboy字符串的命令。
+### ## ```bash
+## 请给出输出test.txt文件内容时，不包含oldboy字符串的命令。
 mkdir -p /data
 cat >/data/test.txt<<EOF
 test
@@ -1220,7 +1218,7 @@ EOF
 grep -v "oldboy"  /data/test.txt
 
 
-# 方法2 -head 显示前两行
+## 方法2 -head 显示前两行
 head -n2 /data/test.txt
 head -2 /data/test.txt
 #head 显示文件的前几行内容 默认显示前10行
@@ -1233,7 +1231,7 @@ tail -1 /data/test.txt
 #方法3  awk
 awk '/oldboy/'  /data/test.txt
 
-# !取反
+## !取反
 awk '!/oldboy/'  /data/test.txt
 
 #方法4 sed   d删除 不显示了 标准输出屏幕的时候不显示了， 并没有修改文件里内容
@@ -1251,7 +1249,7 @@ head -30 /data/ett.txt |tail -11
 
 awk 'NR==20,NR==30' /data/ett.txt
 
-# -n = 关闭默认自动打印，只打印你用 p 指定的内容
+## -n = 关闭默认自动打印，只打印你用 p 指定的内容
 sed -n  '20,30p' /data/ett.txt
 
 
@@ -1295,7 +1293,7 @@ alias grep='grep --color'
 
 
 
-# 准备环境
+## 准备环境
 cat >oldboy.txt <<EOF
 I am oldboy teacher!
 I teach linux.
@@ -1323,61 +1321,61 @@ $  以什么结尾的
 [ ]  将匹配一个字符范围
 
 
-# 有oldboy字符的行
+## 有oldboy字符的行
 grep oldboy oldboy.txt
-# m开头的行
+## m开头的行
 grep '^m' oldboy.txt
-# m结尾的行  m后面又空格不会显示
+## m结尾的行  m后面又空格不会显示
 grep 'm$' oldboy.txt
 
-# 显示文件中所有符号， -A每行结尾会有个 $
+## 显示文件中所有符号， -A每行结尾会有个 $
 cat -A oldboy.txt
 
-# ' $' 空格结尾的行
+## ' $' 空格结尾的行
 grep ' $' oldboy.txt
 
-# ^$ 表示空格  什么符号都没有
+## ^$ 表示空格  什么符号都没有
 cat -An oldboy.txt
 
 
-# -n 显示行号 
+## -n 显示行号
 grep -n '^$' oldboy.txt
 
-# 排除空行
+## 排除空行
 grep -v '^$' oldboy.txt
 
-# . 任意一个字符  不会匹配空行
+## . 任意一个字符  不会匹配空行
 grep '.' oldboy.txt
 
-# grep -o 输出匹配到的部分
-# grep -o '.' oldboy.txt
+## grep -o 输出匹配到的部分
+## grep -o '.' oldboy.txt
 I
 
 a
 m
 .........
 
-# 以. 结尾的行, \转义字符     
+## 以. 结尾的行, \转义字符
 grep -e "\.$" oldboy.txt
 
 
-# 所有回车换行符 替换成tab
+## 所有回车换行符 替换成tab
 tr "\n" "\t" < oldboy.txt
 
 * 表示连续出现了0次或者0次以上
 
-# 正则表达式 坑1      0*   会把文件都显示出来
-# 0次   没有         会把文件内容都显示出来
-# 0次以上  					 00000000000000
+## 正则表达式 坑1      0*   会把文件都显示出来
+## 0次   没有         会把文件内容都显示出来
+## 0次以上  					 00000000000000
 grep '0*' oldboy.txt
 
 .* 任意字符任意次数, 表示所有
 grep '.*' oldboy.txt
 
-# ^.*o 贪婪性  按最大的范围匹配 
+## ^.*o 贪婪性  按最大的范围匹配
 [root@m01 ~]# grep '^.*o' oldboy.txt
 ....
-# my blo 算是符合匹配的, 实际按最大范围: my blog is http://oldboy.blog.51cto
+## my blo 算是符合匹配的, 实际按最大范围: my blog is http://oldboy.blog.51cto
 my blog is http://oldboy.blog.51cto.com
 ....
 
@@ -1386,17 +1384,17 @@ our size is http://blog.oldboyedu.com
 
 
 [] [abc] 相当与是一个符号（每次匹配一个字符）找出a或b 或c
-# -o, --only-matching       show only the part of a line matching PATTERN
-# 显示匹配模式的 部分内容,匹配一个换一行, 没匹配的不显示
+## -o, --only-matching       show only the part of a line matching PATTERN
+## 显示匹配模式的 部分内容,匹配一个换一行, 没匹配的不显示
 grep -o '[abc]' oldboy.txt
 
  # [abc] 相当与是一个符号（每次匹配一个字符）找出a或b 或c
 grep '[abc]' oldboy.txt
 
-# a-z的所有小写字母
+## a-z的所有小写字母
 grep '[a-z]' oldboy.txt
 
-# 所有大写字母
+## 所有大写字母
 grep '[A-Z]' oldboy.txt
 
 grep '[0-9]' oldboy.txt
@@ -1404,7 +1402,7 @@ grep '[0-9]' oldboy.txt
 grep '[a-zA-Z]' oldboy.txt
 grep '[a-Z]' oldboy.txt
 
-# -i 不区分大小写
+## -i 不区分大小写
 grep -i '[a-z]' oldboy.txt
 
 
@@ -1425,5 +1423,6 @@ su - oldboy
 ctrl + d 退出当前用户
 ```
 
-# # > 更新: 2026-04-24 14:50:04  
+# # > 更新: 2026-04-24 14:50:04
 > 原文: <https://www.yuque.com/chengkanghua/oldboy50/axtqt3>
+```

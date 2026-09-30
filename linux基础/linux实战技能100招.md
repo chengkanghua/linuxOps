@@ -1,127 +1,125 @@
 # linux实战技能100招
 
-> 本文档已做排版优化（清除样式标签、统一导航），全部内容原样保留。
-
 ## 目录
 - linux实战技能100招
-- 内容综述
-- 3 什么是linux
-- 4 linux的内核版本及常见的发行版
-- 5 VirtualBox 安装
-- 6 在虚拟机中安装linux
-- 7 第一次启动linux
-- 8 万能的帮助命令 man help info
-- 9 初始pwd 和ls命令
-- 10 详解ls 命令
-- 11 详解cd 命令
-- 12 创建和删除目录
-- 13 复制和移动目录
-- 14 文本查看命令
-- 15 打包压缩和解压缩
-- 16 vi的四种模式
-- 17 vim 正常模式
-- 18 vim的命令模式
-- 19 vim的可视模式
-- 20 用户和用户组管理
-- 21 su 和 sudo
-- 22 用户和用户组的配置文件介绍
-- 23 文件与目录权限的表示方法
-  - 文件类型
-  - 文件权限的表示方法
-  - 目录权限的表示方法
-- 24 文件权限的修改方法和数字表示方法
-- 25 权限管理以及文件的特殊权限
-- 26 网络管理
-- 27 查看网络配置
-- 28 网络配置命令
-- 29 网络故障排除命令
-- 30 网络管理和配置文件
-- 31 软件包管理器的使用
-- 32 使用rpm命令安装软件包
-- 33 使用yum 包管理器安装软件包
-- 34 通过源代码编译安装软件包
-- 35 如何进行内核升级
-- 36 grub 配置文件
-- 38 进程的控制与进程之间的关系
-- 39 进程间通信方式与信号
-- 40 守护进程
-- 41 screen 和系统日志
-- 42 服务管理工具 systemctl
-- 43 SElinux 简介
-- 44 内存和磁盘管理
-- 45 内存查看命令
-- 46 磁盘分区和文件大小查看·
-- 47 文件系统管理
-- 48 i节点和数据块操作
-- 49 分区和挂载
-- 50 分区和挂载磁盘配额
-- 51 交换分区 swap的查看与创建
-- 52 软件RAID的使用
-- 53 逻辑卷LVM的用途与创建
-- 54 系统综合状态查看命令 sar以及第三方命令
-- 56 linux 的启动过程
-- 57 shell脚本的格式
-- 58脚本的不同执行方式的影响
-- 60 | 重定向
-- 61 变量赋值
-- 62 变量引用及作用范围
-- 63 环境变量，预定义变量与位置变量
-- 64 环境变量配置文件
-- 65 数组
-- 66 转义和引用
-- 67 运算符
-- 68 特殊字符大全
-- 69 test 比较
-- 70 if 判断的使用
-- 71 if-else判断的使用
-- 72 嵌套if的使用
-- 73 case分支
-- 74 for的基本使用
-- 75 c语言风格的for
-- 76 while 循环 和 until循环
-- 77 循环的嵌套和break  continue语句
-- 78 使用循环处理位置参数
-- 79 自定义函数
-- 80 系统函数库介绍
-- 81 脚本资源控制
-- 82 信号
-- 83 一次性计划任务
-- 84周期性计划任务
-- 85 为脚本加锁
-- Root password
-- Root password
-- Root password
-- Root password
-- Root password
-- g是全部匹配， 数字表示匹配到第几次
-- 把替换成功的一行写入 /tmp/a.txt
-- 在第一行替换
-- 第一行到第三行
-- 第一行到最后一行
-- 在root的行替换
-- bin开头 到结尾 全部替换
-- r读取afile 文件
-- 这里的 D会导致循环替换
-- 单个文件 NR FNR 显示一样
-- FNR 第二文件行号会从1开始
-- 查看已经设置的那些过滤规则
-- 查看过滤信息   -n 取消方向解析
-- 查看所有的规则
-- 外部访问的114.115.115.117：80端口访问  目地地址转到内部 10.0.0.1地址上
-- 源地址是内网的ip10.0.0.0/24  从本地eth1 网卡出去  eth1 的ip是111.113.114.111
-- 查看默认的所有区域
-- permanent 永久保存
-- xinetd 服务管理telnet服务
-- 防火墙配置23端口开放
-- 修改成主域名服务器
-- 从域名服务器bind 配置文件
-- 反向解析配置文件
-- 配置vsftp 使用本地用户就可以登录访问自己家目录了
-- smba 配置
-- 静默模式设置smb用户密码
-- nfs共享配置
+  - 内容综述
+  - 3 什么是linux
+  - 4 linux的内核版本及常见的发行版
+  - 5 VirtualBox 安装
+  - 6 在虚拟机中安装linux
+  - 7 第一次启动linux
+  - 8 万能的帮助命令 man help info
+  - 9 初始pwd 和ls命令
+  - 10 详解ls 命令
+  - 11 详解cd 命令
+  - 12 创建和删除目录
+  - 13 复制和移动目录
+  - 14 文本查看命令
+  - 15 打包压缩和解压缩
+  - 16 vi的四种模式
+  - 17 vim 正常模式
+  - 18 vim的命令模式
+  - 19 vim的可视模式
+  - 20 用户和用户组管理
+  - 21 su 和 sudo
+  - 22 用户和用户组的配置文件介绍
+  - 23 文件与目录权限的表示方法
+    - 文件类型
+    - 文件权限的表示方法
+    - 目录权限的表示方法
+  - 24 文件权限的修改方法和数字表示方法
+  - 25 权限管理以及文件的特殊权限
+  - 26 网络管理
+  - 27 查看网络配置
+  - 28 网络配置命令
+  - 29 网络故障排除命令
+  - 30 网络管理和配置文件
+  - 31 软件包管理器的使用
+  - 32 使用rpm命令安装软件包
+  - 33 使用yum 包管理器安装软件包
+  - 34 通过源代码编译安装软件包
+  - 35 如何进行内核升级
+  - 36 grub 配置文件
+  - 38 进程的控制与进程之间的关系
+  - 39 进程间通信方式与信号
+  - 40 守护进程
+  - 41 screen 和系统日志
+  - 42 服务管理工具 systemctl
+  - 43 SElinux 简介
+  - 44 内存和磁盘管理
+  - 45 内存查看命令
+  - 46 磁盘分区和文件大小查看·
+  - 47 文件系统管理
+  - 48 i节点和数据块操作
+  - 49 分区和挂载
+  - 50 分区和挂载磁盘配额
+  - 51 交换分区 swap的查看与创建
+  - 52 软件RAID的使用
+  - 53 逻辑卷LVM的用途与创建
+  - 54 系统综合状态查看命令 sar以及第三方命令
+  - 56 linux 的启动过程
+  - 57 shell脚本的格式
+  - 58脚本的不同执行方式的影响
+  - 60 | 重定向
+  - 61 变量赋值
+  - 62 变量引用及作用范围
+  - 63 环境变量，预定义变量与位置变量
+  - 64 环境变量配置文件
+  - 65 数组
+  - 66 转义和引用
+  - 67 运算符
+  - 68 特殊字符大全
+  - 69 test 比较
+  - 70 if 判断的使用
+  - 71 if-else判断的使用
+  - 72 嵌套if的使用
+  - 73 case分支
+  - 74 for的基本使用
+  - 75 c语言风格的for
+  - 76 while 循环 和 until循环
+  - 77 循环的嵌套和break  continue语句
+  - 78 使用循环处理位置参数
+  - 79 自定义函数
+  - 80 系统函数库介绍
+  - 81 脚本资源控制
+  - 82 信号
+  - 83 一次性计划任务
+  - 84周期性计划任务
+  - 85 为脚本加锁
+  - Root password
+  - Root password
+  - Root password
+  - Root password
+  - Root password
+  - g是全部匹配， 数字表示匹配到第几次
+  - 把替换成功的一行写入 /tmp/a.txt
+  - 在第一行替换
+  - 第一行到第三行
+  - 第一行到最后一行
+  - 在root的行替换
+  - bin开头 到结尾 全部替换
+  - r读取afile 文件
+  - 这里的 D会导致循环替换
+  - 单个文件 NR FNR 显示一样
+  - FNR 第二文件行号会从1开始
+  - 查看已经设置的那些过滤规则
+  - 查看过滤信息   -n 取消方向解析
+  - 查看所有的规则
+  - 外部访问的114.115.115.117：80端口访问  目地地址转到内部 10.0.0.1地址上
+  - 源地址是内网的ip10.0.0.0/24  从本地eth1 网卡出去  eth1 的ip是111.113.114.111
+  - 查看默认的所有区域
+  - permanent 永久保存
+  - xinetd 服务管理telnet服务
+  - 防火墙配置23端口开放
+  - 修改成主域名服务器
+  - 从域名服务器bind 配置文件
+  - 反向解析配置文件
+  - 配置vsftp 使用本地用户就可以登录访问自己家目录了
+  - smba 配置
+  - 静默模式设置smb用户密码
+  - nfs共享配置
 
-# 内容综述
+## 内容综述
 
 1 linux 背景介绍
 
@@ -135,7 +133,7 @@
 
 6 常用服务搭建
 
-# 3 什么是linux
+## 3 什么是linux
 
 Linux有两种含义
 
@@ -156,7 +154,7 @@ Linux有两种含义
 - 虚拟机（推荐方式）
 ```
 
-# 4 linux的内核版本及常见的发行版
+## 4 linux的内核版本及常见的发行版
 
 内核版本
 
@@ -185,13 +183,13 @@ debian
 ubuntu
 ```
 
-# 5 VirtualBox 安装
+## 5 VirtualBox 安装
 
-# 6 在虚拟机中安装linux
+## 6 在虚拟机中安装linux
 
 镜像下载地址  <http://isoredirect.centos.org/centos/7/isos/x86_64/>
 
-# 7 第一次启动linux
+## 7 第一次启动linux
 
 终端的使用
 
@@ -213,7 +211,7 @@ ubuntu
 * /sbin 管理命令目录
 * /usr/bin /usr/sbin  系统预装的其他命令
 
-# 8 万能的帮助命令 man help info
+## 8 万能的帮助命令 man help info
 
 万能帮助命令
 
@@ -247,7 +245,7 @@ info帮助比help更详细 作为help的补充
 * 海量的命令不适合 死记硬背
 * 你要升级你的大脑
 
-# 9 初始pwd 和ls命令
+## 9 初始pwd 和ls命令
 
 一切皆文件
 
@@ -279,11 +277,11 @@ ls \[选项， 选项...] 参数 。。。
 * -t 按照时间顺序显示
 * -R 递归显示
 
-# 10 详解ls 命令
+## 10 详解ls 命令
 
-# 11 详解cd 命令
+## 11 详解cd 命令
 
-# 12 创建和删除目录
+## 12 创建和删除目录
 
 ```plain
 mkdir /a
@@ -299,7 +297,7 @@ rmdir #只能删除空白目录
 rm -rf /a    # r 目录删除  f不需要确认
 ```
 
-# 13 复制和移动目录
+## 13 复制和移动目录
 
 ```plain
 cp -r /root/a /tmp  # r复制目录
@@ -316,7 +314,7 @@ cp -v file* /
 cp file? /  #只复制file后面一个字符的文件
 ```
 
-# 14 文本查看命令
+## 14 文本查看命令
 
 cat 文本内容显示到终端
 
@@ -328,7 +326,7 @@ tail  查看文件结尾
 
 wc  统计文件内容信息
 
-# 15 打包压缩和解压缩
+## 15 打包压缩和解压缩
 
 linux 的备份压缩
 
@@ -350,7 +348,7 @@ tar 打包命令
 tar xf /tmp/etc/backup.tar -C /root/   # -C 指定解压位置
 ```
 
-# 16 vi的四种模式
+## 16 vi的四种模式
 
 * 多模式产生的原因
 * 四种模式
@@ -359,7 +357,7 @@ tar xf /tmp/etc/backup.tar -C /root/   # -C 指定解压位置
   * 命令模式（command-mode)  按esc 正常模式  : 既是命令行模式
   * 可视模式（Visual-mode)   按esc 正常模式   ctrl + c   进入可视块模式  v 是可视模式
 
-# 17 vim 正常模式
+## 17 vim 正常模式
 
 ```plain
 插入模式
@@ -390,7 +388,7 @@ tar xf /tmp/etc/backup.tar -C /root/   # -C 指定解压位置
 	$  行尾
 ```
 
-# 18 vim的命令模式
+## 18 vim的命令模式
 
 ```plain
 :w /root/aa.txt   # 将文件保存
@@ -409,7 +407,7 @@ fg       #把后台任务调到前台继续执行
 echo "set nu " >> /etc/vimrc #vim配置文件添加显示行号命令
 ```
 
-# 19 vim的可视模式
+## 19 vim的可视模式
 
 三种进入可视模式的方式
 
@@ -430,7 +428,7 @@ ctrl+v 进入块可视模式
 然后按d 键
 ```
 
-# 20 用户和用户组管理
+## 20 用户和用户组管理
 
 用户管理常用命令
 
@@ -472,7 +470,7 @@ uid=1002(user2) gid=1001(group1) 组=1001(group1)
 [root@ckh ckh]# su - user1   # 完全切换用户
 ```
 
-# 21 su 和 sudo
+## 21 su 和 sudo
 
 * su 切换用户
   * su - USERNAME  使用 login shell 方式切换用户
@@ -502,7 +500,7 @@ Broadcast message from root@ckh (Thu 2019-11-21 19:24:57 CST):
 The system shutdown has been cancelled at Thu 2019-11-21 19:25:57 CST!
 ```
 
-# 22 用户和用户组的配置文件介绍
+## 22 用户和用户组的配置文件介绍
 
 ```plain
 /etc/passwd
@@ -510,13 +508,13 @@ The system shutdown has been cancelled at Thu 2019-11-21 19:25:57 CST!
 /etc/group
 ```
 
-# 23 文件与目录权限的表示方法
+## 23 文件与目录权限的表示方法
 
 -rw-r--r--  1 root root        9 5月   5 2019 demo3
 
 类型  权限      所属用户和组                       文件名
 
-## 文件类型
+### 文件类型
 
 `-`  普通文件
 
@@ -532,7 +530,7 @@ The system shutdown has been cancelled at Thu 2019-11-21 19:25:57 CST!
 
 `s`  套接字文件
 
-## 文件权限的表示方法
+### 文件权限的表示方法
 
 * 字符权限表示方法
   * r 读
@@ -554,7 +552,7 @@ r--   其他用户的权限
 
 创建新文件有默认权限，根据UMASK 值计算，属主和属组根据当前进程的用户来设定
 
-## 目录权限的表示方法
+### 目录权限的表示方法
 
 `x`   进入目录
 
@@ -562,7 +560,7 @@ r--   其他用户的权限
 
 `wx`  修改目录内的文件名
 
-# 24 文件权限的修改方法和数字表示方法
+## 24 文件权限的修改方法和数字表示方法
 
 ```plain
 chmod 修改文件、目录权限
@@ -574,7 +572,7 @@ chgrp  可以单独更改属组，不常用
 默认文件权限 666 减去 umask值 0022  = 644
 ```
 
-# 25 权限管理以及文件的特殊权限
+## 25 权限管理以及文件的特殊权限
 
 ```plain
 ls -ld /test
@@ -596,7 +594,7 @@ chmod 020 /test/bfile
 * SBIT      用于目录,该目录下新建的文件和目录,仅root和自己可以删除\
   · 如 /tmp      `chmod 1777 /test`
 
-# 26 网络管理
+## 26 网络管理
 
 * 网络状态查看
 * 网络配置
@@ -641,7 +639,7 @@ ifconfig
 | 组合1 | 1 | 0 | em1 |
 | 组合2 | 0 | 0 | eth0 |
 
-# 27 查看网络配置
+## 27 查看网络配置
 
 ```plain
 查看网卡物理连接情况
@@ -652,7 +650,7 @@ route -n
 使用 -n 参数不解析主机名
 ```
 
-# 28 网络配置命令
+## 28 网络配置命令
 
 ```plain
 ifconfig <接口> <ip地址> [netmask 子网掩码]
@@ -675,7 +673,7 @@ ip route add 10.0.0.0/24 via 192.168.0.1
 	route add -net 10.0.0.0 netmask 255.255.255.0 gw 192.168.0.1
 ```
 
-# 29 网络故障排除命令
+## 29 网络故障排除命令
 
 * ping			 查看与目标主机网络是否通
 * traceroute    追踪路由
@@ -698,7 +696,7 @@ tcpdump -i any -n host 10.0.0.1 and port 80 # tcpdump -i any -n host 10.0.0.1 an
 netstat -ntpl     # n 以ip显示 t tcp连接 p 显示进程号 l 监听状态
 ```
 
-# 30 网络管理和配置文件
+## 30 网络管理和配置文件
 
 网络服务管理程序分为两种，分别为SysV和systemd
 
@@ -713,7 +711,7 @@ netstat -ntpl     # n 以ip显示 t tcp连接 p 显示进程号 l 监听状态
 * ifcfg-eth0
 * /etc/hosts
 
-# 31 软件包管理器的使用
+## 31 软件包管理器的使用
 
 * 软件包管理器
 * rpm包和rpm命令
@@ -728,7 +726,7 @@ netstat -ntpl     # n 以ip显示 t tcp连接 p 显示进程号 l 监听状态
   * CentOS RedHat使用yum 包管理器，软件安装包格式为rpm
   * Debian Ubuntu使用apt 包管理器，软件安装包格式deb
 
-# 32 使用rpm命令安装软件包
+## 32 使用rpm命令安装软件包
 
 rpm 包格式
 
@@ -748,7 +746,7 @@ mount /dev/sr0 /mnt
 rpm -qa|more
 ```
 
-# 33 使用yum 包管理器安装软件包
+## 33 使用yum 包管理器安装软件包
 
 * rpm包的问题
   * 需要自己解决依赖关系
@@ -771,7 +769,7 @@ yum 命令常用选项
 * list|grouplist 查看软件包
 * update 升级软件包
 
-# 34 通过源代码编译安装软件包
+## 34 通过源代码编译安装软件包
 
 ```plain
 
@@ -785,7 +783,7 @@ make -j2  #使用两个逻辑cpu编译
 make install  #安装
 ```
 
-# 35 如何进行内核升级
+## 35 如何进行内核升级
 
 * rpm格式内核
   * 查看内核版本
@@ -825,7 +823,7 @@ yum install epel-release
 yum install kernel
 ```
 
-# 36 grub 配置文件
+## 36 grub 配置文件
 
 * grub是什么
 * grub配置文件
@@ -873,7 +871,7 @@ saved_entry=0
   * 进程也是树形结构
   * 进程和权限有着密不可分的关系
 
-# 38 进程的控制与进程之间的关系
+## 38 进程的控制与进程之间的关系
 
 进程的优先级调整
 
@@ -895,7 +893,7 @@ bg 1 # 放着后台继续运行
 ctrl + z #放在后台挂起
 ```
 
-# 39 进程间通信方式与信号
+## 39 进程间通信方式与信号
 
 * 信号是进程间通信方式之一,典型用法是:终端用户输入中断命令,通过信号机制停止一个程序的运行。
 * 信号的常用快捷键和命令
@@ -903,7 +901,7 @@ ctrl + z #放在后台挂起
   ·SIGINT 通知前台进程组终止进程 ctrl+C\
   ·SIGKILL 立即结束程序,不能被阻塞和处理 KILL -9 pid
 
-# 40 守护进程
+## 40 守护进程
 
 * 使用 nohup与&符号配合运行一个命令
   * nohup命令使进程忽略 hangup(挂起)信号
@@ -921,7 +919,7 @@ ctrl + z #放在后台挂起
 [root@aliyun ckh]# nohup: 忽略输入并把输出追加到"nohup.out"
 ```
 
-# 41 screen 和系统日志
+## 41 screen 和系统日志
 
 ```plain
 screen 
@@ -934,7 +932,7 @@ screen -r 23721
 [root@aliyun ~]# tail -f /var/log/cron   # 系统周期性任务
 ```
 
-# 42 服务管理工具 systemctl
+## 42 服务管理工具 systemctl
 
 * 服务(提供常见功能的守护进程) 集中管理工具
   * service
@@ -980,7 +978,7 @@ WantedBy=multi-user.target
 ------------------------------------------------------------------------------
 ```
 
-# 43 SElinux 简介
+## 43 SElinux 简介
 
 * MAC (强制访问控制) 与 DAC (自主访问控制）
 * 查看 SELinux的命令
@@ -991,7 +989,7 @@ WantedBy=multi-user.target
   * setenforce o
   * /etc/selinux/sysconfig
 
-# 44 内存和磁盘管理
+## 44 内存和磁盘管理
 
 * 内存和磁盘使用率查看
 * ext4文件系统
@@ -1002,7 +1000,7 @@ WantedBy=multi-user.target
 * 逻辑卷管理
 * 系统综合状态查看
 
-# 45 内存查看命令
+## 45 内存查看命令
 
 * 常用命令介绍
   * free
@@ -1013,7 +1011,7 @@ WantedBy=multi-user.target
   * du
   * du 与 ls 的区别
 
-# 46 磁盘分区和文件大小查看·
+## 46 磁盘分区和文件大小查看·
 
 ```bash
 [root@vulcan ~]# parted -l
@@ -1058,7 +1056,7 @@ tmpfs           199M     0  199M   0% /run/user/0
 [root@vulcan ~]# partprobe /dev/sdb
 ```
 
-# 47 文件系统管理
+## 47 文件系统管理
 
 * linux 支持多种文件系统 常见的有
   * ext4
@@ -1074,7 +1072,7 @@ tmpfs           199M     0  199M   0% /run/user/0
 [root@vulcan ~]# ll -i
 ```
 
-# 48 i节点和数据块操作
+## 48 i节点和数据块操作
 
 ```plain
 [root@vulcan ~]# touch afile
@@ -1104,7 +1102,7 @@ other::r--
 [root@vulcan ~]# setfacl -x g:group1:rw afile  # x是收回权限
 ```
 
-# 49 分区和挂载
+## 49 分区和挂载
 
 磁盘分区与挂载
 
@@ -1131,7 +1129,7 @@ Command (m for help): w
 [root@vulcan ~]# mount -t ext4 /dev/sdb1 /mnt/sdb1
 ```
 
-# 50 分区和挂载磁盘配额
+## 50 分区和挂载磁盘配额
 
 用户磁盘配额
 
@@ -1160,7 +1158,7 @@ Command (m for help): w
 touch: cannot touch ‘11’: Disk quota exceeded  #超出磁盘限额
 ```
 
-# 51 交换分区 swap的查看与创建
+## 51 交换分区 swap的查看与创建
 
 * 增加交换分区的大小
   * mkswap
@@ -1192,7 +1190,7 @@ vi /etc/fstab
 /swapfile swap swap default 0 0
 ```
 
-# 52 软件RAID的使用
+## 52 软件RAID的使用
 
 * RAID 的常见级别及含义
   * RAID 0 striping 条带方式，提高单盘吞吐率
@@ -1224,7 +1222,7 @@ cat /dev/null > /etc/mdadm/mdadm.conf  #删除配置文件
 mdadm --zero-superblock /dev/sdb[1,2]  #删除元数据
 ```
 
-# 53 逻辑卷LVM的用途与创建
+## 53 逻辑卷LVM的用途与创建
 
 逻辑卷管理
 
@@ -1273,7 +1271,7 @@ mdadm --zero-superblock /dev/sdb[1,2]  #删除元数据
 [root@vulcan ~]# xfs_growfs /dev/vg1/lv1
 ```
 
-# 54 系统综合状态查看命令 sar以及第三方命令
+## 54 系统综合状态查看命令 sar以及第三方命令
 
 * 使用sar命令查看系统综合状态
 * 使用第三方命令查看网络流量
@@ -1312,7 +1310,7 @@ mdadm --zero-superblock /dev/sdb[1,2]  #删除元数据
   * cat /etc/shells
 * Centos 7 默认使用的Shell是bash
 
-# 56 linux 的启动过程
+## 56 linux 的启动过程
 
 * BIOS-MBR-BootLoader(grub)-kernel-systemd-系统初始化-shell
 
@@ -1331,7 +1329,7 @@ mdadm --zero-superblock /dev/sdb[1,2]  #删除元数据
      --> /usr/lib/systemd/system/
 ```
 
-# 57 shell脚本的格式
+## 57 shell脚本的格式
 
 shell 脚本
 
@@ -1364,7 +1362,7 @@ du -sh *
   * source /filename.sh
   * filename.sh
 
-# 58脚本的不同执行方式的影响
+## 58脚本的不同执行方式的影响
 
 ```plain
 bash ./filename.sh  #产生一个子进程
@@ -1384,7 +1382,7 @@ filename.sh  #是source 的简写
 
 不需要   ./   方式来运行
 
-# 60 | 重定向
+## 60 | 重定向
 
 重定向符号
 
@@ -1419,7 +1417,7 @@ EOF
 echo "hello bash"
 ```
 
-# 61 变量赋值
+## 61 变量赋值
 
 变量赋值
 
@@ -1449,14 +1447,14 @@ echo "hello bash"
     * let=$(ls -l /etc)
   * 变量值有空格等特殊字符可以包含在" " 或'' 中
 
-# 62 变量引用及作用范围
+## 62 变量引用及作用范围
 
 * 变量的引用
   * ${变量名} 称作对变量的应用
   * echo ${变量名} 查看变量的值
   * ${变量名} 在部分情况下可以省略为 $变量名
 
-# 63 环境变量，预定义变量与位置变量
+## 63 环境变量，预定义变量与位置变量
 
 ```plain
 系统环境变量
@@ -1477,7 +1475,7 @@ echo $0  # 当前运行的程序 文件
 $1 $2 ...$9  ${10} #$10要加{}
 ```
 
-# 64 环境变量配置文件
+## 64 环境变量配置文件
 
 配置文件
 
@@ -1491,7 +1489,7 @@ $1 $2 ...$9  ${10} #$10要加{}
 
 * /etc/bashrc
 
-# 65 数组
+## 65 数组
 
 * 定义数组
   * IPTS=( 10.0.0.1 10.0.0.2 10.0.0.3 )
@@ -1514,7 +1512,7 @@ $1 $2 ...$9  ${10} #$10要加{}
 10.0.0.3
 ```
 
-# 66 转义和引用
+## 66 转义和引用
 
 * 特殊字符
 * 转义
@@ -1561,7 +1559,7 @@ $var1
 123
 ```
 
-# 67 运算符
+## 67 运算符
 
 * 赋值运算符
 * 算数运算符
@@ -1609,7 +1607,7 @@ $var1
 12
 ```
 
-# 68 特殊字符大全
+## 68 特殊字符大全
 
 * 引号
 * 括号
@@ -1685,7 +1683,7 @@ $var1
 - & 后台运行
 - \_ 空格
 
-# 69 test 比较
+## 69 test 比较
 
 测试与判断
 
@@ -1741,7 +1739,7 @@ man test
 [root@aliyun ~]# [[ 5 > 4 ]]   #使用> 符号 就要改成 [[]]
 ```
 
-# 70 if 判断的使用
+## 70 if 判断的使用
 
 使用if-then 语句
 
@@ -1765,7 +1763,7 @@ root user
 pwd running
 ```
 
-# 71 if-else判断的使用
+## 71 if-else判断的使用
 
 if-then-else 语句可以在条件不成立时也运行相应的命令
 
@@ -1827,7 +1825,7 @@ else
 fi
 ```
 
-# 72 嵌套if的使用
+## 72 嵌套if的使用
 
 if条件测试中可以再嵌套if条件测试
 
@@ -1857,7 +1855,7 @@ else
 fi
 ```
 
-# 73 case分支
+## 73 case分支
 
 分支
 
@@ -1894,7 +1892,7 @@ case "$1" in
 esac
 ```
 
-# 74 for的基本使用
+## 74 for的基本使用
 
 循环
 
@@ -1933,7 +1931,7 @@ esac
 a.mp4  b.mp4  c.mp4
 ```
 
-# 75 c语言风格的for
+## 75 c语言风格的for
 
 ```plain
 for((变量初始值;循环判断条件;变量变化))
@@ -1947,7 +1945,7 @@ done
 > done
 ```
 
-# 76 while 循环 和 until循环
+## 76 while 循环 和 until循环
 
 死循环
 
@@ -1971,7 +1969,7 @@ until 循环
 [root@aliyun tmp]# until [ 5 -lt 4 ]; do echo always;done
 ```
 
-# 77 循环的嵌套和break  continue语句
+## 77 循环的嵌套和break  continue语句
 
 循环的使用
 
@@ -1995,7 +1993,7 @@ until 循环
 [root@aliyun ~]# for num in {1..9}; do    if [ $num -eq 5 ];then continue; fi; echo $num;done
 ```
 
-# 78 使用循环处理位置参数
+## 78 使用循环处理位置参数
 
 * 命令行参数可以使用 $1 $2 ...${10}...$n 进行读取
 * $0 代表脚本名称
@@ -2029,7 +2027,7 @@ do
 done
 ```
 
-# 79 自定义函数
+## 79 自定义函数
 
 函数
 
@@ -2085,7 +2083,7 @@ checkpid(){
 }
 ```
 
-# 80 系统函数库介绍
+## 80 系统函数库介绍
 
 系统脚本
 
@@ -2100,7 +2098,7 @@ checkpid(){
 [root@aliyun tmp]# [  确定  ]
 ```
 
-# 81 脚本资源控制
+## 81 脚本资源控制
 
 * 脚本优先级控制
 * 捕获信号
@@ -2120,7 +2118,7 @@ checkpid(){
 [root@aliyun tmp]# func() {func | func&};func
 ```
 
-# 82 信号
+## 82 信号
 
 蒱获信号脚本的编写
 
@@ -2142,7 +2140,7 @@ do
 done
 ```
 
-# 83 一次性计划任务
+## 83 一次性计划任务
 
 计划任务
 
@@ -2166,7 +2164,7 @@ at> <EOT>  # ctrl + d 结束
 job 2 at Thu Dec 26 14:15:00 2019
 ```
 
-# 84周期性计划任务
+## 84周期性计划任务
 
 cron
 
@@ -2197,7 +2195,7 @@ crontab -l
 root
 ```
 
-# 85 为脚本加锁
+## 85 为脚本加锁
 
 计划任务加锁
 
@@ -2245,18 +2243,18 @@ sleep 100000
 
 ```bash
 [root@vulcan ~]# grep password /root/anaconda-ks.cfg
-# Root password
+## Root password
 [root@vulcan ~]# grep pass.... /root/anaconda-ks.cfg
 auth --enableshadow --passalgo=sha512
-# Root password
+## Root password
 [root@vulcan ~]# grep pass....$ /root/anaconda-ks.cfg
-# Root password
+## Root password
 [root@vulcan ~]# grep pass.* /root/anaconda-ks.cfg
 auth --enableshadow --passalgo=sha512
-# Root password
+## Root password
 [root@vulcan ~]# grep pass.*$ /root/anaconda-ks.cfg
 auth --enableshadow --passalgo=sha512
-# Root password
+## Root password
 [root@vulcan ~]# # grep [Hh]ello hello Hello
 [root@vulcan ~]# # grep ^# anaconda-ks.cfg
 [root@vulcan ~]# # grep "\." anaconda-ks.cfg
@@ -2432,7 +2430,7 @@ s@old@new@g
 
 ```bash
 [root@aliyun tmp]# head -5 /etc/passwd|sed 's/root/!!!!/g'
-# g是全部匹配， 数字表示匹配到第几次
+## g是全部匹配， 数字表示匹配到第几次
 [root@aliyun tmp]# head -5 /etc/passwd|sed 's/root/!!!!/2'
 ```
 
@@ -2452,7 +2450,7 @@ s/old/new/标志位
 
 ```bash
 [root@aliyun tmp]# head -5 /etc/passwd|sed 's/root/!!!!/w /tmp/a.txt'
-# 把替换成功的一行写入 /tmp/a.txt
+## 把替换成功的一行写入 /tmp/a.txt
 ```
 
 寻址
@@ -2465,15 +2463,15 @@ s/old/new/标志位
 * 可以使用两个寻址符号，也可以混合使用行号和正则地址
 
 ```bash
-# 在第一行替换
+## 在第一行替换
 [root@aliyun tmp]# head -6 /etc/passwd| sed '1s/adm/!/'
-# 第一行到第三行
+## 第一行到第三行
 [root@aliyun tmp]# head -6 /etc/passwd| sed '1,3s/adm/!/'
-# 第一行到最后一行
+## 第一行到最后一行
 [root@aliyun tmp]# head -6 /etc/passwd| sed '1,$s/adm/!/'
-# 在root的行替换
+## 在root的行替换
 [root@aliyun tmp]# head -6 /etc/passwd| sed '/root/s/bash/!/'
-# bin开头 到结尾 全部替换
+## bin开头 到结尾 全部替换
 [root@aliyun tmp]# head -6 /etc/passwd| sed '/^bin/,$s/nologin/!/g'
 ```
 
@@ -2530,7 +2528,7 @@ abbb
 [root@aliyun tmp]# sed '/ab/a hello' bfile
 [root@aliyun tmp]# sed '/ab/c hello' bfile
 
-# r读取afile 文件
+## r读取afile 文件
 [root@aliyun tmp]# sed '/ab/r afile' bfile
 ```
 
@@ -2611,7 +2609,7 @@ lo
 > o bash hel
 > lo bash
 > EOF
-# 这里的 D会导致循环替换
+## 这里的 D会导致循环替换
 [root@aliyun tmp]# sed 'N;s/\n//;s/hello bash/hello sed\n/;P;D' b.txt
 hello sed
  hello sed
@@ -2724,11 +2722,11 @@ awk 的字段引用和分离
 
 [root@aliyun ckh]# head -5 /etc/passwd|awk 'BEGIN{RS=":"}{print $0}'
 
-# 单个文件 NR FNR 显示一样
+## 单个文件 NR FNR 显示一样
 [root@aliyun ckh]# head -5 /etc/passwd|awk '{print FNR,$0}'
 [root@aliyun ckh]# head -5 /etc/passwd|awk '{print NR,$0}'
 
-# FNR 第二文件行号会从1开始
+## FNR 第二文件行号会从1开始
 [root@aliyun ckh]# awk '{print FNR,$0}' /etc/hosts /etc/hosts
 [root@aliyun ckh]# awk '{print NR,$0}' /etc/hosts /etc/hosts
 
@@ -3030,7 +3028,7 @@ iptables 的表和链
     -N -X -E
 
 ```bash
-# 查看已经设置的那些过滤规则
+## 查看已经设置的那些过滤规则
 [root@vulcan ~]# iptables -t filter -L   
 Chain INPUT (policy ACCEPT)   #外部进来数据包的规则
 	 
@@ -3040,7 +3038,7 @@ Chain OUTPUT (policy ACCEPT)  #本机数据包出去的规则
 	
 #允许 10.0.0.1 ip访问
 [root@vulcan ~]# iptables -t filter -A INPUT -s 10.0.0.1 -j ACCEPT
-# 查看过滤信息   -n 取消方向解析
+## 查看过滤信息   -n 取消方向解析
 [root@vulcan ~]# iptables -t filter -nL
 [root@vulcan ~]# iptables -t filter -vnL
 ```
@@ -3048,7 +3046,7 @@ Chain OUTPUT (policy ACCEPT)  #本机数据包出去的规则
 # 103 iptables 过滤规则的使用
 
 ```bash
-# 查看所有的规则
+## 查看所有的规则
 [root@vulcan ~]# iptables -vnL
 [root@vulcan ~]# # -A 在已有规则后面添加
 [root@vulcan ~]# # -I 添加到规则第一条  
@@ -3075,10 +3073,10 @@ iptables的 nat 表
   * POSTROUTING  源地址转换
 
 ```bash
-# 外部访问的114.115.115.117：80端口访问  目地地址转到内部 10.0.0.1地址上
+## 外部访问的114.115.115.117：80端口访问  目地地址转到内部 10.0.0.1地址上
 [root@vulcan ~]# iptables -t nat -A PREROUTING -i eth0 -d 114.115.115.117 -p tcp --dport 80 -j DNAT --to-destination 10.0.0.1
 
-# 源地址是内网的ip10.0.0.0/24  从本地eth1 网卡出去  eth1 的ip是111.113.114.111
+## 源地址是内网的ip10.0.0.0/24  从本地eth1 网卡出去  eth1 的ip是111.113.114.111
 [root@vulcan ~]# iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -o eth1 -j SNAT --to-source 111.113.114.111
 ```
 
@@ -3131,7 +3129,7 @@ public                   # 公共区域
   
 [root@vulcan ~]# firewall-cmd --zone=public --list-services
 
-# 查看默认的所有区域
+## 查看默认的所有区域
 [root@vulcan ~]# firewall-cmd --get-zones
 block dmz drop external home internal public trusted work
 [root@vulcan ~]# firewall-cmd --get-default-zone
@@ -3140,7 +3138,7 @@ block dmz drop external home internal public trusted work
 [root@vulcan ~]# # port service source
 [root@vulcan ~]# firewall-cmd --add-service=https
 [root@vulcan ~]# firewall-cmd --add-port=81/tcp
-# permanent 永久保存
+## permanent 永久保存
 [root@vulcan ~]# firewall-cmd --add-port=82/tcp --permanent
 [root@vulcan ~]# firewall-cmd --reload
 [root@vulcan ~]# firewall-cmd --remove-source=10.0.0.1
@@ -3163,11 +3161,11 @@ SSH服务介绍
 
 ```bash
 [root@vulcan ~]# yum install telnet telnet-server xinetd -y
-# xinetd 服务管理telnet服务
+## xinetd 服务管理telnet服务
 [root@vulcan ~]# systemctl start xinetd
 [root@vulcan ~]# systemctl status xinetd
 [root@vulcan ~]# systemctl start telnet.socket
-# 防火墙配置23端口开放
+## 防火墙配置23端口开放
 iptables -I INPUT -p tcp --dport 23 -j ACCEPT
 firewall-cmd --permanent --add-port=23/tcp
 firewall-cmd --reload
@@ -3563,7 +3561,7 @@ zone "." IN {
 
 [root@vulcan html]# vi /var/named/named.ca  # 默认缓存域名服务器
 
-# 修改成主域名服务器
+## 修改成主域名服务器
 [root@vulcan html]# vim /etc/named.conf
 zone "test.com" IN {
         type master;
@@ -3571,14 +3569,14 @@ zone "test.com" IN {
 };
 [root@vulcan html]# cp -p /var/named/named.ca /var/named/test.com.zone
 
-# 从域名服务器bind 配置文件
+## 从域名服务器bind 配置文件
 zone "etst.com" IN{
 	type slave;
 	file "slaves/test.com.zone";
 	masters {10.211.55.3;};
 }
 
-# 反向解析配置文件
+## 反向解析配置文件
 zone "0.20.10.in-addr.arpa" IN{
 	type master;
 	file "10.20.0.zone";
@@ -3627,7 +3625,7 @@ Command (m for help): w
 
 [root@vulcan ~]# useradd shareuser -d /share/shareuser
 [root@vulcan ~]# echo 123456 |passwd --stdin shareuser
-# 配置vsftp 使用本地用户就可以登录访问自己家目录了
+## 配置vsftp 使用本地用户就可以登录访问自己家目录了
 [root@vulcan ~]# vim /etc/vsftpd/vsftpd.conf
 pam_service_name=vsftpd
 local_enable=YES
@@ -3640,7 +3638,7 @@ echo 123456 | passwd --stdin $1
 
 [root@vulcan ~]# systemctl restart vsftpd
 
-# smba 配置
+## smba 配置
 [root@vulcan ~]# pdbedit -L
 user1:1000:
 [root@vulcan ~]# smbasswd -a shareuser  #交互模式添加用户设置密码
@@ -3657,14 +3655,14 @@ echo $pass > smbpass.tmp
 echo $pass >> smbpass.tmp
 smbpasswd -s -a $1 <smbpass.tmp
 
-# 静默模式设置smb用户密码
+## 静默模式设置smb用户密码
 [root@vulcan ~]# smbpasswd -s -a shareuser <smbpass.tmp
 [root@vulcan ~]# pdbedit -L
 
 [root@vulcan ~]# vim /etc/samba/smb.conf
 [root@vulcan ~]# systemctl restart smb
 
-# nfs共享配置
+## nfs共享配置
 [root@vulcan ~]# cat /etc/exports
 /data/share *(rw,sync,all_squash)
 /share/shareuser *(ro)
@@ -3697,3 +3695,4 @@ drwx------. 2 shareuser shareuser 62 Jan  9 14:47 shareuser
 
 > 更新: 2024-11-12 11:24:48  
 > 原文: <https://www.yuque.com/chengkanghua/oldboy50/og6lrt>
+```
