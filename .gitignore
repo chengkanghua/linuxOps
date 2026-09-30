@@ -1,0 +1,58 @@
+# ============================================================
+# 运维笔记库 .gitignore
+# 说明：只忽略系统/编辑器/缓存/备份等无关文件，
+#      笔记(.md)与配图(.png/.jpeg/.webp)均正常纳入版本库。
+# ============================================================
+
+# ---------- 操作系统产生的垃圾文件 ----------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+Network Trash Folder
+Temporary Items
+
+# ---------- 编辑器/IDE 临时与配置 ----------
+*.swp
+*.swo
+*~
+*.tmp
+*.temp
+*.orig
+*.bak
+*.log
+.vscode/
+.idea/
+*.sublime-*
+.project
+*.komodoproject
+
+# ---------- 笔记软件缓存(Obsidian/Typora 等) ----------
+.obsidian/cache
+.obsidian/workspace
+.obsidian/workspace.json
+.typora/
+.trash/
+
+# ---------- Python 相关(python基础/运维脚本) ----------
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+env/
+
+# ---------- 其它通用缓存/依赖目录 ----------
+node_modules/
+.cache/
+.temp/
