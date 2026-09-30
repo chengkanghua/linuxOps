@@ -1,18 +1,97 @@
+# Shell 编程（五行）综合教程
+
+> 本文档已做排版优化（清除样式标签、统一导航），全部代码示例原样保留。
+
+## 目录
+- vim
+- git   脚本的本地版本管理
+- shell编程基础
+  - 什么是shell
+  - shell命令分类
+  - 登录式shell加载配置文件顺序
+  - 什么是shell脚本
+  - shell脚本语言的种类
+  - 子shell
+  - shell脚本执行
+  - 脚本注释
+  - shell中常用命令
+    - echo命令
+    - 读其赋给一个变量
+    - cat命令
+    - tee命令
+    - exec命令
+    - printf命令
+    - trap命令
+    - declare
+    - eval命令
+- shell帮助与资料
+- shell变量
+  - 自定义环境变量
+- **env**
+  - 定义本地变量
+  - 位置变量
+  - 特殊变量
+  - 变量子串
+  - 变量数值运算
+- shell函数
+- shell 条件表达式
+  - 条件测试与比较
+  - 文件测试表达式
+- shell中的普通数组
+- shell中的关联数组（associative arrays）
+- 条件控制语句 if
+- 条件控制语句case
+- for循环
+- while 循环
+- 循环条件控制语句 select
+- shell脚本实战
+  - 企业Shell面试题1：批量生成随机字符文件名案例
+  - 企业Shell面试题2：批量改名特殊案例
+  - 企业Shell面试题3：批量创建特殊要求用户案例
+  - 企业Shell面试题4：扫描网络内存活主机案例
+  - 企业Shell面试题5：解决DOS攻击生产案例
+  - 企业Shell面试题6：MySQL数据库分库备份
+  - 企业Shell面试题7：MySQL数据库分库分表备份
+  - 企业Shell面试题8：筛选符合长度的单词案例
+  - 企业Shell面试题9：MySQL主从复制异常监控案例
+  - 企业Shell面试题10：比较整数大小经典案例
+  - 企业Shell面试题11：菜单自动化软件部署经典案例
+- sh menu.sh
+  - 企业Shell面试题12：Web及MySQL服务异常监测案例
+  - 企业Shell面试题13：监控Memcached缓存服务是否正常
+  - 企业Shell面试题14：开发脚本入侵检测与报警案例
+  - 企业Shell面试题15：开发Rsync服务启动脚本案例
+  - 企业Shell面试题16：开发MySQL多实例启动脚本
+  - 企业Shell面试题17：天津项目学生实践抓阄案例
+  - 企业Shell面试题18：破解RANDOM随机数案例
+  - 企业Shell面试题19：批量检查多个网站地址是否正常
+  - 企业Shell面试题20：单词及字母去重排序案例
+  - 企业Shell面试题21：开发脚本管理服务端LVS案例
+  - 企业Shell面试题22：LVS节点健康检查及管理脚本案例
+  - 企业Shell面试题23：LVS客户端配置脚本案例
+  - 企业Shell面试题24：模拟keepalved软件高可用案例
+  - 企业Shell面试题25：编写正（或长）方形图形案例
+  - 企业Shell面试题26：编写等腰三角形图形字符案例
+  - 企业Shell面试题27：编写直角梯形图形字符案例
+  - 企业Shell面试题28：51CTO博文爬虫案例
+  - 企业Shell面试题30：企业代码上线发布系统案例
+  - 企业shell面试题31：在之前的30道shell编程题目中给每个伙伴随机抽取10道题目
+
 #  vim
 官方文档
 
-<font style="background-color:#ffff00;">http://vimdoc.sourceforge.net/htmldoc/usr_toc.html</font>
+http://vimdoc.sourceforge.net/htmldoc/usr_toc.html
 
 
 
 1. **vim配置**
 
-| <font style="color:#000000;">相关配置文件</font> | <font style="color:#000000;">功能描述</font> |
+| 相关配置文件 | 功能描述 |
 | :--- | :--- |
-| <font style="color:#000000;">.viminfo </font> | <font style="color:#000000;">用户使用vim的操作历史</font> |
-| <font style="color:#000000;">.vimrc </font> | <font style="color:#000000;">当前用户vim的配置文件</font> |
-| <font style="color:#000000;">/etc/vimrc </font> | <font style="color:#000000;">所有用户vim的配置文件</font> |
-| <font style="color:#000000;">/usr/share/vim/vim74/colors/ </font> | <font style="color:#000000;">配色模板文件存放路径</font> |
+| .viminfo  | 用户使用vim的操作历史 |
+| .vimrc  | 当前用户vim的配置文件 |
+| /etc/vimrc  | 所有用户vim的配置文件 |
+| /usr/share/vim/vim74/colors/  | 配色模板文件存放路径 |
 
 
 1. ** vim配置方案 **
@@ -277,7 +356,7 @@ xxd  -g 1  -i  -u  -l 1000  cp >cp.txt
 | git checkout  revision | 检出修订版本 |
 | git reset --hard  revision | 回退到某个修订版本 |
 | git log -all | 查看历史修订版本 |
-| git re<font style="background-color:#ffff00;">set</font> --hard <font style="background-color:#ffff00;">3628164</font> | 版本回退 |
+| git reset --hard 3628164 | 版本回退 |
 
 
 
@@ -315,7 +394,7 @@ alias  git_log="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Cr
 #  shell编程基础
 http://www.gnu.org/software/
 
-<font style="background-color:#ffff00;">http://www.gnu.org/software/bash/manual/</font>
+http://www.gnu.org/software/bash/manual/
 
 
 
@@ -438,13 +517,13 @@ shell脚本是实现linux系统及运维自动化管理的重要且必备的工�
 
 1. ** 如何学好shell编程**
 
-学好shell编程的核心：<font style="background-color:#ffff00;">练 ---> 思考 ---> 再练 ---> 再思考</font>，坚持如此循环即可！
+学好shell编程的核心：练 ---> 思考 ---> 再练 ---> 再思考，坚持如此循环即可！
 
 
 
 2017最新企业Shell面试题及企业运维实战共30道案例
 
-<font style="background-color:#ffff00;">http://oldboy.blog.51cto.com/2561410/1867160</font>
+http://oldboy.blog.51cto.com/2561410/1867160
 
 
 
@@ -527,7 +606,7 @@ shell脚本是实现linux系统及运维自动化管理的重要且必备的工�
 
 
 ##   shell脚本语言的种类
-   shell脚本语言是<font style="background-color:#ffff00;">弱类型语言</font>，较为通用的shell有标准的Bourne shell （sh）和 C shell（csh）。
+   shell脚本语言是弱类型语言，较为通用的shell有标准的Bourne shell （sh）和 C shell（csh）。
 
 其中Bourne shell  (sh)已经被bash shell取代，但是我们还是习惯称之为sh
 
@@ -582,19 +661,19 @@ yum update -y bash
 
 1. ** 常见的脚本语言**
 
-<font style="background-color:#ffff00;">php</font>
+php
 
     php是网页程序，也是脚本语言。是一款更专注于web页面开发（前端展示）的脚本语言，例如:dedecms，discuz  php程序也可以处理系统日志，配置文件等，php也可以调用系统命令
 
 
 
-<font style="background-color:#ffff00;">perl</font>
+perl
 
     perl脚本语言。比shell脚本强大很多，2010年以前很火，语法灵活、复杂、实现方式很多，不易读，团队协作困难，但仍不失为很好的脚本语言，存世大量的程序软件，运维人员了解就好了，无需学习这个。MHA高可用perl写的
 
 
 
-<font style="background-color:#ffff00;">python</font>
+python
 
     python是近几年很火的语言，不但可以做脚本程序开发，也可以实现web程序以及软件的开发。近两年越来越多的公司都要求会python
 
@@ -602,7 +681,7 @@ yum update -y bash
 
 1. ** shell脚本与php/perl/python语言的区别和优势**
 
-   shell脚本的优势在于<font style="background-color:#ffff00;">处理操作系统底层的业务</font>（linux系统内部的应用都是shell脚本完成），
+   shell脚本的优势在于处理操作系统底层的业务（linux系统内部的应用都是shell脚本完成），
 
 因为有大量的linux系统命令为它做支撑，2000多个命令都是shell脚本编程的有力支撑，特别是
 
@@ -626,11 +705,11 @@ grep,awk,sed等。例如：一键软件安装、优化，监控报警脚本，�
 
 1. ** 工作中使用shell脚本的好处**
 
-<font style="color:#000000;">1）减少重复劳动，提高工作效率</font>
+1）减少重复劳动，提高工作效率
 
-<font style="color:#000000;">2）规范我们的工作方式，保证结果的正确性</font>
+2）规范我们的工作方式，保证结果的正确性
 
-<font style="color:#000000;">3）便于提供给他人使用</font>
+3）便于提供给他人使用
 
 
 
@@ -783,7 +862,7 @@ echo "hello world" #注释  打印hello world
 
 
 
-<font style="background-color:#ffff00;">特殊技巧：设置crond 任务时，最好把系统环境变量在定时任务脚本中重新定义，否则，一些系统环境变量将不被加载，这个问题要注意！</font>
+特殊技巧：设置crond 任务时，最好把系统环境变量在定时任务脚本中重新定义，否则，一些系统环境变量将不被加载，这个问题要注意！
 
 
 
@@ -1445,7 +1524,7 @@ http://manual.51yip.com/shell
 
 
 
-  通过上面的例子我们可以得出一个变量的概念小结论：<font style="background-color:#ffff00;">简单的说，变量就是用一个固定的字符串</font>（也可能是字符数字等的组合），<font style="background-color:#ffff00;">代替更多更复杂的内容</font>，这个内容里可能还会包含变量、路径、字符串等其它的内容
+  通过上面的例子我们可以得出一个变量的概念小结论：简单的说，变量就是用一个固定的字符串（也可能是字符数字等的组合），代替更多更复杂的内容，这个内容里可能还会包含变量、路径、字符串等其它的内容
 
 
 
@@ -1455,7 +1534,7 @@ http://manual.51yip.com/shell
 
 
 
-  变量是暂时存储数据的地方，这个存储的数据存在<font style="background-color:#ffff00;">内存空间</font>中，通过调用变量的名字就可以取出变量对应的数据。使用变量的最大好处就是方便程序开发，当然，除了方便以外，在编程中使用变量也是必须的，否则就很难完成相关的程序开发工作
+  变量是暂时存储数据的地方，这个存储的数据存在内存空间中，通过调用变量的名字就可以取出变量对应的数据。使用变量的最大好处就是方便程序开发，当然，除了方便以外，在编程中使用变量也是必须的，否则就很难完成相关的程序开发工作
 
 
 
@@ -1473,7 +1552,7 @@ http://manual.51yip.com/shell
 
 1. ** 变量类型**
 
-  变量可分为两类：<font style="background-color:#ffff00;">环境变量</font>和<font style="background-color:#ffff00;">普通变量</font>
+  变量可分为两类：环境变量和普通变量
 
 
 
@@ -1491,9 +1570,9 @@ http://manual.51yip.com/shell
 
 /etc/bashrc  或  /etc/profile 文件或者 /etc/profile.d/ 中定义。将环境变量放入上述文件中，每次用户登录时这些变量值都将被初始化一次
 
-    传统上，所有<font style="background-color:#ffff00;">环境变量名字格式均为大写</font>。环境变量应用于用户进程程序前，都应该用
+    传统上，所有环境变量名字格式均为大写。环境变量应用于用户进程程序前，都应该用
 
-export 命令导出定义，例如：正确的环境变量定义方法为  <font style="background-color:#ffff00;">export OLDGIRL=1</font>
+export 命令导出定义，例如：正确的环境变量定义方法为  export OLDGIRL=1
 
     环境变量可用在创建它们的shell和从该shell派生的任意子shell或进程中。它们通常被称为全局变量以区别局部变量。通常，环境变量应该大写。环境变量是已经用export内置命令导出的变量
 
@@ -1517,15 +1596,15 @@ set
 
 
 
-<font style="background-color:#ffff00;">在一个环境中定义的变量，在另一个环境中不能使用</font>
+在一个环境中定义的变量，在另一个环境中不能使用
 
-<font style="background-color:#ffff00;">同一个环境中定义的变量，可以相互使用</font>
+同一个环境中定义的变量，可以相互使用
 
 
 
-**<font style="color:#FF0000;background-color:#ffff00;">export  变量    可以让一个变量在最大的环境中生效</font>**
+**export  变量    可以让一个变量在最大的环境中生效**
 
-**<font style="color:#FF0000;background-color:#ffff00;">一个shell就是一个环境</font>**
+**一个shell就是一个环境**
 
 
 
@@ -1535,13 +1614,13 @@ set
 
 1. ** 几种变量的区别**
 
-<font style="background-color:#ff0000;">环境变量：在当前shell及其子shell中可以引用</font>
+环境变量：在当前shell及其子shell中可以引用
 
 
 
 变量提升为环境变量
 
-<font style="background-color:#ffff00;">export DDD</font>
+export DDD
 
 
 
@@ -1551,7 +1630,7 @@ set
 
 局部变量：在shell中的一个函数内部可以引用
 
-<font style="background-color:#ffff00;">local DDD</font>
+local DDD
 
 
 
@@ -1625,7 +1704,7 @@ NAME=oldboy;export NAME
 
 
 
-<font style="background-color:#ffff00;">需要登录后显示加载内容可以把脚本文件放在 /etc/profile.d/下，设置可执行权限即可</font>
+需要登录后显示加载内容可以把脚本文件放在 /etc/profile.d/下，设置可执行权限即可
 
 
 
@@ -1639,7 +1718,7 @@ export PATH=$JAVA_HOME/bin:$JAVA_HOME/jre/bin:$PATH:$HOME/bin
 
 export RESIN_HOME=/application/resin
 
-以上内容经常放在 <font style="background-color:#ffff00;">/etc/profile</font> 文件中
+以上内容经常放在 /etc/profile 文件中
 
 **如果写一个JAVA脚本，还要把java环境配置放在脚本内，特别是定时任务**
 
@@ -1665,7 +1744,7 @@ $USER     当前用户
 
 1. ** 查看环境变量**
 
-# **<font style="color:#FF0000;">env</font>**
+# **env**
 
 
 
@@ -1706,11 +1785,11 @@ $USER     当前用户
 
 1. ** shell中变量名及变量内容的要求**
 
-  <font style="background-color:#ffff00;">变量名</font>一般是由字母，数字，下划线组成，以字母或者下划线开头，例如：
+  变量名一般是由字母，数字，下划线组成，以字母或者下划线开头，例如：
 
   oldboy   oldboy123   oldboy_training
 
-  <font style="background-color:#ffff00;">变量的内容</font>，可以使用单引号或者双引号引起来，或不加引号
+  变量的内容，可以使用单引号或者双引号引起来，或不加引号
 
 
 
@@ -1725,11 +1804,11 @@ echo "b=$b"
 echo "c=${c}"
 ```
 
-**<font style="color:#548DD4;">提示：</font>**
+**提示：**
 
-**<font style="color:#548DD4;">1、$变量名表示输出变量，可以用$c 和 ${c}</font>**
+**1、$变量名表示输出变量，可以用$c 和 ${c}**
 
-**<font style="color:#548DD4;">2、需要在命令行实践以上内容</font>**
+**2、需要在命令行实践以上内容**
 
 
 
@@ -1737,29 +1816,29 @@ echo "c=${c}"
 
 
 
-**<font style="color:rgb(20, 21, 26);">单引号（' '）</font>**<font style="color:rgb(20, 21, 26);">：</font>
+**单引号（' '）**：
 
-    - <font style="color:rgb(20, 21, 26);">单引号内的所有字符都会被视为字面量，即使其中包含特殊字符或变量，它们也不会被扩展或解释。</font>
-    - <font style="color:rgb(20, 21, 26);">例如：</font>`<font style="color:rgb(88, 113, 162);background-color:rgb(247, 248, 249);">echo '$HOME'</font>`<font style="color:rgb(20, 21, 26);"> 会输出 </font>`<font style="color:rgb(88, 113, 162);background-color:rgb(247, 248, 249);">$HOME</font>`<font style="color:rgb(20, 21, 26);"> 而不是用户的家目录路径。</font>
+    - 单引号内的所有字符都会被视为字面量，即使其中包含特殊字符或变量，它们也不会被扩展或解释。
+    - 例如：`echo '$HOME'` 会输出 `$HOME` 而不是用户的家目录路径。
 
-**<font style="color:rgb(20, 21, 26);">双引号（" "）</font>**<font style="color:rgb(20, 21, 26);">：</font>
+**双引号（" "）**：
 
-    - <font style="color:rgb(20, 21, 26);">双引号内的特殊字符（如</font>`<font style="color:rgb(88, 113, 162);background-color:rgb(247, 248, 249);">$</font>`<font style="color:rgb(20, 21, 26);">,</font><font style="color:rgb(20, 21, 26);"> </font>`<font style="color:rgb(88, 113, 162);background-color:rgb(247, 248, 249);">`</font>`<font style="color:rgb(20, 21, 26);">,</font><font style="color:rgb(20, 21, 26);"> </font>`<font style="color:rgb(88, 113, 162);background-color:rgb(247, 248, 249);">\</font>`<font style="color:rgb(20, 21, 26);">等）会被扩展，但大多数命令和控制字符不会被解释。</font>
-    - <font style="color:rgb(20, 21, 26);">变量会被扩展到它们的值。</font>
-    - <font style="color:rgb(20, 21, 26);">例如：</font>`<font style="color:rgb(88, 113, 162);background-color:rgb(247, 248, 249);">echo "$HOME"</font>`<font style="color:rgb(20, 21, 26);"> 会输出当前用户的家目录路径。</font>
+    - 双引号内的特殊字符（如`$`, ```, `\`等）会被扩展，但大多数命令和控制字符不会被解释。
+    - 变量会被扩展到它们的值。
+    - 例如：`echo "$HOME"` 会输出当前用户的家目录路径。
 
-**<font style="color:rgb(20, 21, 26);">反引号（` `）</font>**<font style="color:rgb(20, 21, 26);">：</font>
+**反引号（` `）**：
 
-    - <font style="color:rgb(20, 21, 26);">反引号用于命令替换，它会执行其中的命令，并将输出替换到当前命令行中。</font>
-    - <font style="color:rgb(20, 21, 26);">例如：</font>`<font style="color:rgb(88, 113, 162);background-color:rgb(247, 248, 249);">echo "Today is</font><font style="color:rgb(88, 113, 162);background-color:rgb(247, 248, 249);"> </font>`<font style="color:rgb(20, 21, 26);">date +%A</font>`<font style="color:rgb(88, 113, 162);background-color:rgb(247, 248, 249);">"</font>`<font style="color:rgb(20, 21, 26);"> </font><font style="color:rgb(20, 21, 26);">会输出当前的星期几。</font>
-    - <font style="color:rgb(20, 21, 26);">注意：现代Shell脚本推荐使用</font>`<font style="color:rgb(88, 113, 162);background-color:rgb(247, 248, 249);">$(command)</font>`<font style="color:rgb(20, 21, 26);">来替代反引号，因为其可读性更好，且可以嵌套使用。</font>
+    - 反引号用于命令替换，它会执行其中的命令，并将输出替换到当前命令行中。
+    - 例如：`echo "Today is `date +%A`"` 会输出当前的星期几。
+    - 注意：现代Shell脚本推荐使用`$(command)`来替代反引号，因为其可读性更好，且可以嵌套使用。
 
-**<font style="color:rgb(20, 21, 26);">无引号（无引号）</font>**<font style="color:rgb(20, 21, 26);">：</font>
+**无引号（无引号）**：
 
-    - <font style="color:rgb(20, 21, 26);">如果字符串没有引号，Shell会尝试对字符串中的内容进行扩展和解释。</font>
-    - <font style="color:rgb(20, 21, 26);">变量会被扩展，命令替换也会发生。</font>
-    - <font style="color:rgb(20, 21, 26);">例如：</font>`<font style="color:rgb(88, 113, 162);background-color:rgb(247, 248, 249);">echo $HOME</font>`<font style="color:rgb(20, 21, 26);"> </font><font style="color:rgb(20, 21, 26);">会输出当前用户的家目录路径。</font>
-    - <font style="color:rgb(20, 21, 26);">但是，如果字符串中包含空格或特殊字符，可能会导致错误或意外的行为，因为Shell会将空格视为参数分隔符。</font>
+    - 如果字符串没有引号，Shell会尝试对字符串中的内容进行扩展和解释。
+    - 变量会被扩展，命令替换也会发生。
+    - 例如：`echo $HOME` 会输出当前用户的家目录路径。
+    - 但是，如果字符串中包含空格或特殊字符，可能会导致错误或意外的行为，因为Shell会将空格视为参数分隔符。
 
 
 
@@ -1828,7 +1907,7 @@ $ETT
 
 ```
 
-提示：以上的结果正好与前面的结论相反。这是**<font style="color:#FF0000;">awk调用shell变量</font>**的特殊用法
+提示：以上的结果正好与前面的结论相反。这是**awk调用shell变量**的特殊用法
 
 
 
@@ -2077,7 +2156,7 @@ print t;
 
 1. ** 变量定义总结**
 
-   <font style="background-color:#ffff00;">多学习模仿操作系统自带的/etc/init.d/functions  函数库脚本的定义思路，多学习linux系统脚本中的定义</font>
+   多学习模仿操作系统自带的/etc/init.d/functions  函数库脚本的定义思路，多学习linux系统脚本中的定义
 
 
 
@@ -2138,17 +2217,17 @@ print t;
 
 
 ##  位置变量
-<font style="background-color:#ffff00;">$0</font>   获取当前执行的shell脚本的文件名，如果执行脚本带路径那么就包括脚本路径
+$0   获取当前执行的shell脚本的文件名，如果执行脚本带路径那么就包括脚本路径
 
-<font style="background-color:#ffff00;">$n</font>   获取当前执行的shell脚本的第n个参数值，n=1..9   当n为0时表示脚本的文件名，
+$n   获取当前执行的shell脚本的第n个参数值，n=1..9   当n为0时表示脚本的文件名，
 
 如果n大于9  用大括号括起来  ${10}  参数以空格隔开
 
-<font style="background-color:#ffff00;">$*</font>   获取当前shell脚本所有传参的参数，将所有的参数视为单个字符串，相当于  "$1$2$3"  注意与$@ 的区别
+$*   获取当前shell脚本所有传参的参数，将所有的参数视为单个字符串，相当于  "$1$2$3"  注意与$@ 的区别
 
-<font style="background-color:#ffff00;">$#</font>   获取当前执行的shell脚本后面的参数的总个数
+$#   获取当前执行的shell脚本后面的参数的总个数
 
-<font style="background-color:#ffff00;">$@</font>  这个程序的所有参数  "$1"   "$2"   "$3"   "..."  这是将参数传递给其他程序的最佳方式，因为它会保留所有内嵌在每个参数里的任何空白 。  "$@"  和  "$*"  都要加双引号
+$@  这个程序的所有参数  "$1"   "$2"   "$3"   "..."  这是将参数传递给其他程序的最佳方式，因为它会保留所有内嵌在每个参数里的任何空白 。  "$@"  和  "$*"  都要加双引号
 
 
 
@@ -2505,9 +2584,9 @@ abcABC123ABC
 
 
 
-<font style="background-color:#008000;">一个 /  表示替换匹配的第一个字符串</font>
+一个 /  表示替换匹配的第一个字符串
 
-<font style="background-color:#008000;">两个 /  表示替换匹配的所有字符串</font>
+两个 /  表示替换匹配的所有字符串
 
 
 
@@ -2642,7 +2721,7 @@ UNSET
 
 1. ** 整数比较大小**
 
-<font style="background-color:#ffff00;">正确返回1  错误返回0</font>
+正确返回1  错误返回0
 
 ```bash
 [root@oldboy scripts]# echo $((3>2))
@@ -2655,11 +2734,11 @@ UNSET
 0
 ```
 
-<font style="background-color:#ffff00;">记忆方法：++  --</font>
+记忆方法：++  --
 
-<font style="background-color:#ffff00;">   变量a在符号前，表达式的值为a，然后a自增或自减</font>
+   变量a在符号前，表达式的值为a，然后a自增或自减
 
-<font style="background-color:#ffff00;">   变量a在符号后，表达式的值为自增或自减，然后a值自增或自减</font>
+   变量a在符号后，表达式的值为自增或自减，然后a值自增或自减
 
 
 
@@ -2804,7 +2883,7 @@ getPower
 
 
 
-<font style="background-color:#ffff00;">有余数就是正确的，表示执行成功，返回0，即不能整除，反之亦然</font>
+有余数就是正确的，表示执行成功，返回0，即不能整除，反之亦然
 
 ```bash
 [root@db02 scripts]# expr 2 + 2
@@ -2981,9 +3060,9 @@ user    0m1.774s
 sys     0m4.301s
 ```
 
-<font style="background-color:#ffff00;">我们看到速度相差几十到上百倍，一般情况调用外部命令处理，与内置功能操作性能相差较大</font>
+我们看到速度相差几十到上百倍，一般情况调用外部命令处理，与内置功能操作性能相差较大
 
-<font style="background-color:#ffff00;">在shell编程中，我们应尽量用内置操作或函数完成</font>
+在shell编程中，我们应尽量用内置操作或函数完成
 
 
 
@@ -3113,11 +3192,11 @@ man ascii
 
 
 
-<font style="background-color:#ffff00;">函数定义相当于变量定义</font>
+函数定义相当于变量定义
 
 
 
-<font style="background-color:#ff0000;">函数本质就是linux命令</font>
+函数本质就是linux命令
 
 ```bash
 cat fun.sh
@@ -3182,7 +3261,7 @@ MyFunction
 
 2、一些特殊符号不能直接当作参数，例如  &  |  &&  ||   \ 等
 
-3、**<font style="color:#FF0000;background-color:#ffff00;">$0  比较特殊，它仍然是父脚本的名称</font>**
+3、**$0  比较特殊，它仍然是父脚本的名称**
 
 4、函数的参数变量是在函数的定义体里定义，如果是普通变量一般会使用 local  xxxx  定义
 
@@ -3490,17 +3569,17 @@ function Msg(){
 
 有时也会通过与if等条件语句相结合，更方便的完成判断
 
-<font style="background-color:#ff0000;">真   1</font>
+真   1
 
-<font style="background-color:#ff0000;">假   0</font>
+假   0
 
 条件测试通常有如下3种语法形式
 
-<font style="background-color:#ffff00;">语法格式1：test <测试表达式></font>
+语法格式1：test <测试表达式>
 
-<font style="background-color:#ffff00;">语法格式2：[ 测试表达式 ]</font>
+语法格式2：[ 测试表达式 ]
 
-<font style="background-color:#ffff00;">语法格式3：[[ 测试表达式 ]]</font>
+语法格式3：[[ 测试表达式 ]]
 
 | 使用方法 | 功能描述 |
 | :--- | :--- |
@@ -3683,7 +3762,7 @@ expr $num2 + 1 &> /dev/null
 
 
 
-常用文件测试操作符，<font style="background-color:#ffff00;">同test表达式</font>
+常用文件测试操作符，同test表达式
 
 ```bash
 # touch oldboy
@@ -4444,7 +4523,7 @@ main
 
 
 #  shell中的关联数组（associative arrays）
-**<font style="color:#FF0000;background-color:#ffff00;">关联数组的下标可以是字符串</font>**
+**关联数组的下标可以是字符串**
 
 关联数组用于字符串转换
 
@@ -4991,7 +5070,7 @@ done < FILE
 
 
 
-<font style="background-color:#ffff00;">倒计时</font>
+倒计时
 
 ```bash
 # cat while.sh  
@@ -5369,7 +5448,7 @@ dos2unix windows.sh
 
 sh  [-nvx]
 
-<font style="background-color:#ffff00;">-n</font>  <font style="background-color:#ffff00;">不会执行该脚本，仅查询脚本语法是否有问题，并给出错误提示</font>。可用于生产服务器那些只能执行一次不可逆的脚本
+-n  不会执行该脚本，仅查询脚本语法是否有问题，并给出错误提示。可用于生产服务器那些只能执行一次不可逆的脚本
 
 -v  在执行脚本时，先将脚本的内容输出到屏幕上然后执行脚本，如果有错误，也会给出错误提示（不用）
 
@@ -5397,7 +5476,7 @@ http://blog.51cto.com/oldboy/1867160
 
 
 
-## <font style="color:#2C2C2C;"> </font>企业Shell面试题1：批量生成随机字符文件名案例
+##  企业Shell面试题1：批量生成随机字符文件名案例
 ```bash
 使用for循环在/oldboy目录下批量创建10个html文件，其中每个文件需要包含10个随机小写字母加固定字符串oldboy，名称示例如下：
 # ls /oldboy
@@ -5497,7 +5576,7 @@ mknod sdb b 8 5
 
 
 
-## <font style="color:#2C2C2C;"> </font>企业Shell面试题2：批量改名特殊案例
+##  企业Shell面试题2：批量改名特殊案例
 ```bash
 将以上面试题19.1.1中结果文件名中的oldboy字符串全部改成oldgirl(最好用for循环实现),并且将扩展名html全部改成大写。
 解答：
@@ -5536,7 +5615,7 @@ done
 
 
 
-## <font style="color:#2C2C2C;"> </font>企业Shell面试题3：批量创建特殊要求用户案例
+##  企业Shell面试题3：批量创建特殊要求用户案例
 ```bash
 批量创建10个系统帐号oldboy01-oldboy10并设置密码（密码为随机数，要求字符和数字等混合）。
 
@@ -5635,7 +5714,7 @@ done
 
 ip地址在线计算器
 
-**<font style="color:#FF0000;">http://help.bitscn.com/ip/</font>**
+**http://help.bitscn.com/ip/**
 
 ```bash
 # cat oldboy_19_5_1.sh
@@ -5726,13 +5805,13 @@ NETWORK=10.0.0.0
 ##  企业Shell面试题5：解决DOS攻击生产案例
 写一个Shell脚本解决DOS攻击生产案例。
 
-请根据web日志或者或者网络连接数，监控当某个IP并发连接数或者短时内PV达到100（读者根据实际情况设定），即调用防火墙命令封掉对应的IP。防火墙命令为：iptables-I INPUT -s IP地址<font style="color:#2C2C2C;"> </font>-j DROP。
+请根据web日志或者或者网络连接数，监控当某个IP并发连接数或者短时内PV达到100（读者根据实际情况设定），即调用防火墙命令封掉对应的IP。防火墙命令为：iptables-I INPUT -s IP地址 -j DROP。
 
 解答：
 
- **<font style="color:#2C2C2C;background-color:#ffff00;">网站DDOS攻击防护实战老男孩经验心得分享</font>**
+ **网站DDOS攻击防护实战老男孩经验心得分享**
 
-<font style="background-color:#ffff00;">http://oldboy.blog.51cto.com/2561410/845349</font>
+http://oldboy.blog.51cto.com/2561410/845349
 
 
 
@@ -5901,7 +5980,7 @@ done
 
 
 ##  企业Shell面试题8：筛选符合长度的单词案例
-利用bash for循环打印下面这句话中字母数不大于6的单词(<font style="color:#2C2C2C;">某企业面试真题</font>)。
+利用bash for循环打印下面这句话中字母数不大于6的单词(某企业面试真题)。
 
 I am oldboy teacher welcome to oldboy trainingclass
 
@@ -6016,7 +6095,7 @@ main
 
 1、当用户输入1时，输出“startinstalling lamp.提示”然后执行/server/scripts/lamp.sh，脚本内容输出"lampis installed"后退出脚本，工作中就是正式lamp一键安装脚本；
 
-2、当用户输入2时，输出“startinstalling lnmp.提示”<font style="color:#2C2C2C;"> </font>然后执行/server/scripts/lnmp.sh输出"lnmpis installed"后退出脚本，工作中就是正式lnmp一键安装脚本；
+2、当用户输入2时，输出“startinstalling lnmp.提示” 然后执行/server/scripts/lnmp.sh输出"lnmpis installed"后退出脚本，工作中就是正式lnmp一键安装脚本；
 
 3、当输入3时，退出当前菜单及脚本；
 
@@ -6062,7 +6141,7 @@ main
 
 
 
-## <font style="color:#2C2C2C;"> </font>企业Shell面试题12：Web及MySQL服务异常监测案例
+##  企业Shell面试题12：Web及MySQL服务异常监测案例
 用if条件语句实现对Nginx Web服务以及MySQL数据库服务是否正常进行检测，如果服务未启动，则启动相应服务。
 
 解答：
@@ -6147,7 +6226,7 @@ fi
 
 
 
-## <font style="color:#FF0000;"> </font>企业Shell面试题13：监控Memcached缓存服务是否正常
+##  企业Shell面试题13：监控Memcached缓存服务是否正常
 监控Memcached缓存服务是否正常，模拟用户（web客户端）检测。
 
 使用nc命令加上set/get来模拟检测。
@@ -6202,7 +6281,7 @@ fi
 
 
 
-## <font style="color:#2C2C2C;"> 企业Shell面试题14：开发脚本入侵检测与报警案例</font>
+##  企业Shell面试题14：开发脚本入侵检测与报警案例
 面试及实战考试题：监控web站点目录（/var/html/www）下所有文件是否被恶意篡改（文件内容被改了），如果有就打印改动的文件名（发邮件），定时任务每3分钟执行一次。
 
 解答：
@@ -6260,7 +6339,7 @@ main
 
 ```
 
-## <font style="color:#2C2C2C;"> 企业Shell面试题15：开发Rsync服务启动脚本案例</font>
+##  企业Shell面试题15：开发Rsync服务启动脚本案例
 写网络服务独立进程模式下Rsync的系统启动脚本，例如：/etc/init.d/rsyncd {start|stop|restart}。
 
 要求：
@@ -6359,7 +6438,7 @@ esac
 
 
 
-## <font style="color:#2C2C2C;"> 企业Shell面试题16：开发MySQL多实例启动脚本</font>
+##  企业Shell面试题16：开发MySQL多实例启动脚本
 开发MySQL多实例启动脚本：
 
 已知MySQL多实例启动命令为：mysqld_safe --defaults-file=/data/3306/my.cnf&
@@ -6374,7 +6453,7 @@ esac
 
 
 
-## <font style="color:#2C2C2C;"> 企业Shell面试题17：天津项目学生实践抓阄案例</font>
+##  企业Shell面试题17：天津项目学生实践抓阄案例
 好消息，老男孩培训学生外出企业项目实践机会（第6次）来了（本月中旬），但是，名额有限，队员限3人（班长带队）。
 
 因此需要挑选学生，因此需要一个抓阄的程序：
@@ -6383,7 +6462,7 @@ esac
 
 1、执行脚本后，想去的同学输入英文名字全拼，产生随机数01-99之间的数字，数字越大就去参加项目实践，前面已经抓到的数字，下次不能在出现相同数字。
 
-2、第一个输入名字后，屏幕输出信息，并将名字和数字记录到文件里，<font style="color:#2C2C2C;">程序不能退出继续等待别的学生输入</font>。
+2、第一个输入名字后，屏幕输出信息，并将名字和数字记录到文件里，程序不能退出继续等待别的学生输入。
 
  解答：
 
@@ -6485,7 +6564,7 @@ main
 
 
 
-## <font style="color:#2C2C2C;"> 企业Shell面试题18：破解RANDOM随机数案例</font>
+##  企业Shell面试题18：破解RANDOM随机数案例
 已知下面的字符串是通过RANDOM随机数变量md5sum后，再截取一部分连续字符串的结果，请破解这些字符串对应的使用md5sum处理前的RANDOM对应的数字？
 
 21029299
@@ -6513,7 +6592,7 @@ egrep "21029299|00205d1c|a3da1677|1f6d12dd|890684b" /tmp/dict.txt
 
 
 
-## <font style="color:#2C2C2C;"> 企业Shell面试题19：批量检查多个网站地址是否正常</font>
+##  企业Shell面试题19：批量检查多个网站地址是否正常
 企业面试题：批量检查多个网站地址是否正常
 
 要求：
@@ -6540,8 +6619,8 @@ http://10.0.0.7
 
 
 
-## <font style="color:#2C2C2C;"> 企业Shell面试题20：单词及字母去重排序案例</font>
-<font style="color:#2C2C2C;">用shell处理以下内容</font>
+##  企业Shell面试题20：单词及字母去重排序案例
+用shell处理以下内容
 
 1、按单词出现频率降序排序！
 
@@ -6574,7 +6653,7 @@ echo "the squid project provides a number of resources toassist users design,imp
 
 
 
-## <font style="color:#2C2C2C;"> 企业Shell面试题21：开发脚本管理服务端LVS案例</font>
+##  企业Shell面试题21：开发脚本管理服务端LVS案例
 请在LVS负载均衡主节点上，开发管理LVS服务的脚本ip_vs。
 
 实现：利用ipvsadm可以启动并配置好LVS服务，脚本形式：/etc/init.d/lvs{start|stop|restart}
@@ -6585,7 +6664,7 @@ echo "the squid project provides a number of resources toassist users design,imp
 
 
 
-## <font style="color:#2C2C2C;"> 企业Shell面试题22：LVS节点健康检查及管理脚本案例</font>
+##  企业Shell面试题22：LVS节点健康检查及管理脚本案例
 请在LVS负载均衡主节点上，模拟keepalived健康检查功能管理LVS节点，
 
 当节点挂掉从服务器池中剔除，好了再加到服务器池中来。
@@ -6596,7 +6675,7 @@ echo "the squid project provides a number of resources toassist users design,imp
 
 
 
-## <font style="color:#2C2C2C;"> 企业Shell面试题23：LVS客户端配置脚本案例</font>
+##  企业Shell面试题23：LVS客户端配置脚本案例
 请在LVS客户端节点上，开发LVS客户端设置VIP以及抑制ARP的管理脚本
 
 实现：/etc/init.d/lvsclient{start|stop|restart}
@@ -6605,14 +6684,14 @@ echo "the squid project provides a number of resources toassist users design,imp
 
 
 
-## <font style="color:#2C2C2C;"> 企业Shell面试题24：模拟keepalved软件高可用案例</font>
+##  企业Shell面试题24：模拟keepalved软件高可用案例
     请在LVS服务端备用节点上，模拟keepalved vrrp功能，监听主节点，如果主节点不可访问则备节点启动并配置LVS实现接管主节点的资源提供服务（提醒：注意ARP缓存），提示此题要借助19.1.21的功能。
 
 
 
 
 
-## <font style="color:#2C2C2C;"> 企业Shell面试题25：编写正（或长）方形图形案例</font>
+##  企业Shell面试题25：编写正（或长）方形图形案例
 请用shell或Python编写一个正（或长）方形，接收用户输入的数字。
 
 解答：
@@ -6675,7 +6754,7 @@ done
 
 
 
-<font style="background-color:#ffff00;">一行一行打印</font>
+一行一行打印
 
 ```bash
 # cat 26.sh
@@ -6699,7 +6778,7 @@ done
 
 
 
-## <font style="color:#2C2C2C;"> 企业Shell面试题27：编写直角梯形图形字符案例</font>
+##  企业Shell面试题27：编写直角梯形图形字符案例
 请用shell或Python编写一个画直角梯形程序，接收用户输入的参数n（n>2），m。
 
 解答
@@ -6763,7 +6842,7 @@ http://oldboy.blog.51cto.com/2561410/1764820
 
 http://oldboy.blog.51cto.com/2561410/1862041
 
-<font style="color:#2C2C2C;">解答：</font>
+解答：
 
 ```bash
 #!/bin/sh
@@ -6785,7 +6864,7 @@ done
 
 抓取网页的脚本
 
-<font style="color:#2C2C2C;">http://life2death.blog.51cto.com/7550586/1657133</font>
+http://life2death.blog.51cto.com/7550586/1657133
 
 ```bash
 [root@mysql scripts]# cat html_to_table.sh        
@@ -6896,9 +6975,9 @@ done
 
 
 
-1. ** 企业Shell面试题29****<font style="color:#FF0000;">：</font>****Nginx负载节点状态监测案例**
+1. ** 企业Shell面试题29****：****Nginx负载节点状态监测案例**
 
-   <font style="color:#2C2C2C;"> </font>开发通过Web界面展示监控Nginx代理节点状态，效果图如下，当节点宕机时，以红色展示，当节点正常时以绿色展示。
+    开发通过Web界面展示监控Nginx代理节点状态，效果图如下，当节点宕机时，以红色展示，当节点正常时以绿色展示。
 
 ![](img/shell编程五行-03.jpeg)
 
@@ -6918,7 +6997,7 @@ done
 节点宕机（down）时，对应整行以红色展示
 ```
 
-<font style="color:#2C2C2C;">解答：</font>
+解答：
 
 
 
@@ -7037,7 +7116,7 @@ main
 
 
 
-##  企业Shell面试题30<font style="color:#FF0000;">：</font>企业代码上线发布系统案例
+##  企业Shell面试题30：企业代码上线发布系统案例
 写一套简单的企业代码上线发布系统案例，利用SVN对代码及配置文件进行管理，在办公室服务器上从svn取出指定版本的代码和配置，发布到IDC机房分发机服务器上，在分发服务器或者负载均衡器上或者应用服务器本地实现代码平滑发布、上线、回滚脚本（具体设计请参考课堂讲解的企业代码发布方案）
 
 
