@@ -1,414 +1,222 @@
-# linux发行版本安装
+# Linux 发行版本与系统安装
 
-> 本文档已做排版优化（清除样式标签、统一导航），全部内容原样保留。
+> 本文涵盖 Linux 发展史、系统组成、各发行版本区别、下载地址、学习环境、虚拟机与 CentOS 安装要点、磁盘分区规则、网络配置、无法上网排查、VMware 三种网络模式，以及 CentOS 6.9 字符集修改。
 
-## 目录
-- linux发行版本 安装
-- Linux发展史
-- Linux系统的组成
-  - 操作系统就是人硬件之前的中介、桥梁
-      - Linux=Linux内核+命令解释器shell+程序软件
-- Linux不同发行版本的区别：
-- CentOS与RedHat区别
-- 32位系统和64位系统的区别
-- Linux发行的不同版本（常见Linux系统）
-- Centos下载地址
-- 学习环境
-- Linux系统安装
-  - 创建虚拟机着重注意的几个地方
-    - （1）注意安装过程中选择稍后安装
-    - （2）注意最后一步创建虚拟机保存的位置，一般不放在C盘
-  - 安装CentOS系统过程注意的几个地方
-    - 第一个注意系统镜像挂载的位置和启动时连接对勾要勾上
-    - 安装过程注意时间问题
-    - 安装分区注意事项
-    - 安装好后配置网络
-- Linux下面磁盘区分区
-- 网络配置
-- linux服务器无法上网排查过程
-- VMare网络模式
-    - 一、桥接模式（Bridged，VMnet0）
-    - 二、NAT 模式（Network Address Translation，VMnet8）—— 最常用默认
-    - 三  仅主机模式（Host-Only，VMnet1）—— 封闭隔离
-- centos 6.9修改系统默认字符集
+## 一、Linux 发展史
 
-# Linux发展史
-1诞生 于1969年在贝尔实验室开发UNIX操作系统，，于1969年在贝尔实验室开发
+1. **1969 年**，贝尔实验室开发 **UNIX** 操作系统。
+2. **谭宁邦**：1984 年因为 UNIX 规定"不能对学生提供源码"，谭宁邦老师自己编写了兼容 UNIX 的 **Minix** 用于教学。
+3. **斯托曼（Stallman）**：1984 年发起 **GNU**（GNU's Not Unix）项目，创办 FSF 基金会。
+   - 产品：GCC、Emacs、Bash Shell、GLIBC；倡导"自由软件"。
+4. **托瓦兹（Linus Torvalds）**：1991 年，芬兰赫尔辛基大学研究生托瓦兹基于 gcc、bash 开发了针对 386 机器的 **Linux 内核**。
 
-2 人： 谭宁邦 --1984年因为UNIX规定‘不能对学生提供源码’谭宁邦老师自己编写兼容与UNIX的Minix用于教学
+## 二、Linux 系统的组成
 
-3 人：斯托曼 1984 年，Stallman 开始 GNU（GNU's Not Unix）项目，创办 FSF（基金会；
+**操作系统就是人与硬件之间的中介、桥梁。**
 
-（产品：GCC、Emacs、Bash Shell、GLIBC； 倡导“自由软件”； 
+![系统组成](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-01.png)
 
-4 人: 托瓦兹 --1991年，芬兰赫尔辛基大学的研究生托瓦斯基于gcc、bash开发针对368机器的Linux内核
+**Linux = Linux 内核 + 命令解释器 shell + 程序软件**
 
-# Linux系统的组成
-## 操作系统就是人硬件之前的中介、桥梁
+## 三、Linux 不同发行版本的区别
 
+| 发行版 | 特点 / 使用场景 |
+| --- | --- |
+| **Ubuntu**（乌班图） | 开发人员使用，有操作界面，有点像 Windows |
+| **RedHat**（红帽） | 国企、金融使用，收费；含 Red Hat Linux 9.0 与 RHEL 企业版（如 7.5） |
+| **CentOS** | 国内最火爆、使用最多，免费 |
+| **Fedora** | RedHat 的测试版，新功能新想法先放入 Fedora，稳定后再进 RedHat |
+| **Debian / FreeBSD** | 安全性要求比较高 |
+| **SUSE / OpenSUSE** | 德国，高级数据库、邮件服务 |
+| **红旗 Linux / 中标麒麟** | 国产，国企使用 |
 
-![1546417158326-e056ca3f-470a-43d0-856e-ce25514a7893-image2.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-01.png)
+> 演进关系：**Fedora → RedHat → CentOS**
 
-#### Linux=Linux内核+命令解释器shell+程序软件
-# Linux不同发行版本的区别：
-Ubuntu  乌班图 开发人员      
+## 四、CentOS 与 RedHat 区别
 
-RedHat  红帽   国企 金融
+1. **RedHat**：免费下载，但**项目收费、无法更新**。
+2. **CentOS**：做到与红帽一模一样，只是
+   - 去掉红帽的收费项目
+   - 去掉红帽的 logo
 
-     Red Hat Linux  9.0
+## 五、32 位系统和 64 位系统的区别
 
-     Red Hat Enterprise Linux 红帽企业版  RHEL  7.5  
+**运算速度（通俗类比）**
+- 32 位系统相当于 **4 车道马路**
+- 64 位系统相当于 **8 车道马路**
 
-CentOS  国内最火爆
+**设计定位**
+- 64 位主要给**服务器**使用，用于大量计算。
 
-Fedora  redhat的测试版 新功能 新想法放入到Fedora 稳定
+**从存储容量角度**
+一个字的字长是 32/64 位。假设主存/高速缓存中有 a 个字块，一个字块有 b 个字，那么 32 位操作系统主存总容量为 32ab 字节，64 位为 64ab 字节。
 
-       Fedora ------>RedHat------>CentOS
+**从寻址角度**
+指操作系统拥有的最大寻址能力。32 位操作系统有 32 根地址总线，最大寻址能力为 2^32 = **4G**，所以它能读取的最大物理内存就是 4G。
 
-       
+> 当下 64 位操作系统已成为主流，32 位越来越少。
 
-Debian/FreeBSD  安全性要求比较高
+## 六、CentOS 下载地址
 
-SUSE/OpenSUSE   德国 高级数据库 邮件服务
+**国内镜像站**：<https://developer.aliyun.com/mirror/>
 
-红旗Linux  中标麒麟
+**CentOS 7 ISO 最新版（Minimal）**：
+<https://mirrors.aliyun.com/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2207-02.iso>
 
-# CentOS与RedHat区别
-1.Redhat 免费下载 项目收费 无法更新
+**CentOS 官网归档**：<https://vault.centos.org/>
 
-2.CentOS 做到与红帽一模一样
+**VMware Workstation 官网**
+> 现在 VMware 被博通（Broadcom）收购，并宣布 17.5 版本的 VMware Workstation Pro 对**个人用户免费**许可使用。需要有一个博通账号（可用 QQ 邮箱注册）；下载时地址等必填项可随便填，没有影响。
 
- 1）红帽收费项目去掉
+<https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware+Workstation+Pro>
 
- 2）红帽logo去掉
+## 七、学习环境
 
-# 32位系统和64位系统的区别
-**运算速度**
+- 虚拟机软件：**VMware Workstation 12.0 / 8.0**
+- 计算机要求配置：**I5 处理器、8G 内存、500G 硬盘**
 
-32位系统相当于4车道马路
+## 八、Linux 系统安装
 
-64位系统相当于8车道马路
+### 创建虚拟机着重注意的两个地方
 
-**设计定位  **
+#### （1）安装过程中选择"稍后安装"
 
-64位主要是给服务器使用 大量计算
+![稍后安装](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-02.png)
+![稍后安装](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-03.png)
+![稍后安装](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-04.png)
 
+#### （2）最后一步创建虚拟机保存的位置，一般不放在 C 盘
 
+### 安装 CentOS 系统过程注意的几个地方
 
-从存储容量角度上来看：一个字的字长是32/64位，假设是32位，假设主存/高速缓存中有a个字块，一个字块有b个字，那么32位操作系统中的主存总容量就是32ab字节，64位操作系统就是64ab字节
+#### 1. 系统镜像挂载的位置和"启动时连接"对勾要勾上
 
+![镜像挂载](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-05.png)
 
+#### 2. 安装过程注意时间问题
+**UTO 选项的对勾记得要去掉**，不然会和计算机有时差。
 
-从寻址角度上来看：指的是操作系统拥有的最大寻址能力。
+#### 3. 安装分区注意事项
 
-如32位操作系统有32根地址总线，那么它的最大寻址能立就是2へ32=4G，所以它能读取的最大物理内存就是4G
-
-当下随着计算机性能的迭代进化，64位操作系统已成为主流，我们编程使用的电脑大多都是64位的操作系统，32位操作系统越来越少了。
-
-
-
-
-
-
-
-# Linux发行的不同版本（常见Linux系统）
-  Ubuntu  （乌班图）一般都是开发人员使用 有操作界面 有点像Windows
-
-  Redhat   （红帽） 一般国企、金融使用 收费
-
-  Centos     国内使用最多 免费
-
-  Fedora      红帽的测试版
-
-  Debian/freebsd  类似Unix安全性要求高的 使用
-
-  SUSE/OPENSUSE   德国使用最多 因为是德国开发的
-
-  麒麟Linux（中标麒麟）/红旗Linux     国企使用
-
-# Centos下载地址
-国内镜像站 [https://developer.aliyun.com/mirror/](https://developer.aliyun.com/mirror/)
-
-centos7  iso 最新版
-
-[https://mirrors.aliyun.com/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2207-02.iso](https://mirrors.aliyun.com/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2207-02.iso)
-
-Centos官网 [https://vault.centos.org/](https://vault.centos.org/)   
-
-
-
-vmware workstation 官网
-
-众所周知，现在VMware被博通（broadcom）收购且宣布了17.5版本的VMware Workstation Pro对个人用户免费许可使用
-
-需要有一个博通的账号。博主使用QQ邮箱注册成功，没什么问题。
-
-下载的时候需要输入地址等其他信息必填项什么的，可随便填即可，这个没有影响。
-
-[https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware+Workstation+Pro](https://support.broadcom.com/group/ecx/productdownloads?subfamily=VMware%20Workstation%20Pro)
-
-
-
-# 学习环境
-虚拟机软件： VMware Workstation 12.0/8.0
-
-计算机要求配置 I5 处理器 8G内存 500G硬盘
-
-# Linux系统安装
-## 创建虚拟机着重注意的几个地方
-### （1）注意安装过程中选择稍后安装
-![1546417158347-ae072dae-b682-449d-8168-3dc311a3e429-image3.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-02.png)
-
-![1546417158367-97dac204-b065-4444-bc71-354baf736bdd-image4.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-03.png)
-
-
-
-![1546417158388-bad6ac02-b5ba-4e3f-90d6-f866c82c359d-image5.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-04.png)
-
-### （2）注意最后一步创建虚拟机保存的位置，一般不放在C盘
-## 安装CentOS系统过程注意的几个地方
-### 第一个注意系统镜像挂载的位置和启动时连接对勾要勾上
-![1546417158406-c1b785a7-6a2f-40ff-ad6e-0d70eaa0a964-image6.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-05.png)
-
-### 安装过程注意时间问题
-   UTO 选项的对勾记得要去掉  不然会和计算机有时差
-
-### 安装分区注意事项
-/boot  引导分区  200M
-
-swap   交换分区 内存不足的时候 临时把swap当做内存使用  # 生产环境中内存(现在内存也便宜)都很大 swap不设置
-
-      内存<8G   swap是内存的1.5倍
-
-      内存>=8G swap 就是8G
-
-/      根分区    所有程序软件 存放的位置
-
-      剩余多少给多少
-
-### 安装好后配置网络
-主要用到 setup 命令后 一个图形界面的配置eth0网卡 注意dhcp要关掉 On boot 要记得启动
-
-
-
-
-
-![1546417158431-b45919ad-caa8-40ed-8bed-9340102e59c6-image7.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-06.png)
-
-
-
-
-
-![1546417158457-13f8ec33-3c9e-4ed0-826f-88ac21ec4469-image8.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-07.png)
-
-
-
-![1546417158492-708d2cfb-289e-4d52-b4e5-fc3b1b95be01-image9.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-08.png)
-
-![1546417158522-26fb59bb-35e0-4c48-9e00-27b1c1e24fd6-image10.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-09.png)
-
-
-
-![1546417158559-bc26a2a9-7815-468c-bfb4-dfe2d799ea80-image11.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-10.png)
-
-
-
-看不到next  使用快捷键F12	
-
-
-
-![1546417158585-9dd23609-e9a0-49d8-8f56-aa7c3934ed06-image12.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-11.png)
-
-![1546417158609-a7af3267-989c-469e-92c3-051730aeacb4-image13.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-12.png)
-
-	![1546417158635-84a83a83-b33f-4d45-8980-71140374e0ee-image14.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-13.png)
-
-![1546417158655-ff29ae25-bc04-439a-8baf-354cafb13eba-image15.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-14.png)
-
-
-
-![1546417158680-e33e04d4-3760-4f79-a67e-5702171a3cfc-image16.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-15.png) ![1546417158705-1e1c0e0c-1d3c-4867-8018-fffe2de08087-image17.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-16.png)
-
-![1546417158733-941a13e4-d93d-4e3c-8fbb-38ce81f3a694-image18.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-17.png)
-
-
-
-	![1546417158761-e9c4ac47-5ff7-4d0c-9085-705e63fc20c0-image19.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-18.png)
-
-	![1546417158792-78e7ec46-bf3f-485b-b2ea-2823fb9bcc03-image20.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-19.png)
-
-
-
-
-
-	![1546417158816-0c250ccc-7836-4ff3-8447-2e89176b1002-image21.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-20.png)
-
-	![1546417158844-1895f0af-2575-4187-ae8b-a86e0878d327-image22.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-21.png)
-
-
-
-![1546417158871-56576c07-5a21-43b7-a825-66d92162b57b-image23.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-22.png)
-
-
-
-	![1546417158894-eb76ca03-c5ee-47c1-8ecf-264b705b3ab6-image24.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-23.png)
-
-
-
-	![1546417158924-d7b7efaf-1048-4b73-983e-bf341582b3c1-image25.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-24.png)
-
-
-
-# Linux下面磁盘区分区
-**适用于数据不重要**
-
-/boot 引导分区 200M (centos 7 1G)
-
-swap  交换分区 <8G  1.5G
-
-              >=8G  8G
-
-/     根分区   剩余所有
-
-
-
-
-
-**适于数据重要**
-
-/boot 引导分区 200M (centos 7 1G)
-
-swap  交换分区 <8G  1.5G
-
-              >=8G  8G
-
-/     根分区   20-200G
-
-/data 数据分区 剩余所有（当系统出问题的时候date区的文件不会丢失）
-
-
-
-**适于不知道里面文件重不重要**
-
-/boot 引导分区 200M (centos 7 1G)
-
-swap  交换分区 <8G  1.5G
-
-              >=8G  8G
-
-/     根分区   20-200G
-
-剩余的不分配  留着 谁使用谁分配
-
-
-
-# 网络配置
-![1546417158953-3db1ee87-b657-46ce-b69e-5265c831d5a7-image26.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-25.png)
-
-![1546417158997-cfb9c72f-afe2-4760-b593-81a5ed6410ea-image27.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-26.png)
-
-
-
-vmnet8 地址应该是上面的 10.0.0.254
-
-![1546417159052-34142e18-32f6-462c-9006-65bf3e4085ec-image29.png](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-27.png)
-
-
-
-# linux服务器无法上网排查过程
-1.ip是否正确
-
-2.网卡配置文件 是否正确
-
-网关配置错误
-
-DNS
-
-3.编辑--->虚拟网络编辑器---> NAT模式 ---->子网ip 10.0.0.0
-
-NAT设置:--->网关IP:10.0.0.254
-
-
-
-4.vmware服务
-
-win+r 输入 services.msc
-
-
-
-VMware Authorization Service    正在运行/已启动         自动
-
-VMware NAT Service              正在运行/已启动      自动
-
-VMware DHCP Service             正在运行/已启动      自动
-
-
-
-1 重启NAT service  
-
-2 端口虚拟机网卡  再连接上
-
-3 linux系统里重启网络   systemctl restart network
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# VMare网络模式
-### 一、桥接模式（Bridged，VMnet0）
-**核心原理**：虚拟机虚拟网卡直接 “桥接” 到主机物理网卡（有线 / 无线），**相当于局域网里一台独立的真实电脑**，和主机平级、同网段。
-
-### 二、NAT 模式（Network Address Translation，VMnet8）—— 最常用默认
-**核心原理**：VMware 内置虚拟 NAT 路由器 + DHCP，虚拟机在**私有虚拟子网**，**共享主机的物理 IP 上网**，外部看不到虚拟机真实 IP。
-
-### 三  仅主机模式（Host-Only，VMnet1）—— 封闭隔离
-**核心原理**：仅创建**纯内部虚拟网络**，无 NAT、无外网出口，虚拟机只能和主机、同 Host-Only 的虚拟机通信，完全隔离物理网络与外网。
-
-
-
-
-
-
-
-# centos 6.9修改系统默认字符集
-
-
-```bash
-centos 6.9修改系统默认字符集
-
-# locale –a   #列出系统所支持的所有字符集
-
-yum -y groupinstall chinese-support    安装中文支持包
-
-修改方法： 
-		1 export LANG=zh_CN.UTF8   #临时修改
-		2 vim /etc/sysconfig/i18n   
-			LANG=”zh_CN.UTF8”     					#永久修改文件
-		source /etc/sysconfig/i18n     # 生效配置文件
-
-
-# centos7 修改方法
-cp /etc/locale.conf  /etc/local.conf.bak
-echo 'LANG="zh_CN.UTF-8"' > /etc/locale.conf
-source /etc/locale.conf
-
-    
-
+| 分区 | 作用 | 大小 |
+| --- | --- | --- |
+| `/boot` | 引导分区 | 200M |
+| `swap` | 交换分区（内存不足时临时把 swap 当内存使用） | 内存 <8G → 1.5 倍；内存 ≥8G → 8G |
+| `/` | 根分区（所有程序软件存放的位置） | 剩余多少给多少 |
+
+> 生产环境中内存都很大（内存也便宜），**swap 可以不设置**。
+
+#### 4. 安装好后配置网络
+主要用到 `setup` 命令，进入图形界面配置 eth0 网卡。注意：
+- **DHCP 要关掉**
+- **On boot 要记得启动**
+
+![网络配置](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-06.png)
+![网络配置](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-07.png)
+![网络配置](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-08.png)
+![网络配置](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-09.png)
+![网络配置](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-10.png)
+
+> 看不到 next 按钮时使用快捷键 **F12**。
+
+![安装步骤](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-11.png)
+![安装步骤](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-12.png)
+![安装步骤](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-13.png)
+![安装步骤](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-14.png)
+![安装步骤](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-15.png)
+![安装步骤](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-16.png)
+![安装步骤](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-17.png)
+![安装步骤](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-18.png)
+![安装步骤](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-19.png)
+![安装步骤](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-20.png)
+![安装步骤](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-21.png)
+![安装步骤](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-22.png)
+![安装步骤](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-23.png)
+![安装步骤](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-24.png)
+
+## 九、Linux 下磁盘分区规则
+
+### 适用于数据不重要
+```
+/boot  引导分区   200M（CentOS 7 为 1G）
+swap   交换分区   <8G → 1.5G；>=8G → 8G
+/      根分区     剩余所有
 ```
 
+### 适用于数据重要
+```
+/boot  引导分区   200M（CentOS 7 为 1G）
+swap   交换分区   <8G → 1.5G；>=8G → 8G
+/      根分区     20-200G
+/data  数据分区   剩余所有（系统出问题时 data 区文件不会丢失）
+```
 
+### 适用于不知道文件重不重要
+```
+/boot  引导分区   200M（CentOS 7 为 1G）
+swap   交换分区   <8G → 1.5G；>=8G → 8G
+/      根分区     20-200G
+剩余的不分配，留着谁使用谁分配
+```
 
+## 十、网络配置
 
+![网络配置](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-25.png)
+![网络配置](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-26.png)
 
-> 更新: 2026-04-24 14:13:31  
-> 原文: <https://www.yuque.com/chengkanghua/oldboy50/dossrq>
+> **vmnet8 地址应该是 10.0.0.254**
+
+![vmnet8](img/linux%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC%E5%AE%89%E8%A3%85-27.png)
+
+## 十一、Linux 服务器无法上网排查过程
+
+1. **IP 是否正确**
+2. **网卡配置文件是否正确**
+   - 网关配置错误
+   - DNS
+3. **VMware 虚拟网络编辑器**
+   - 编辑 → 虚拟网络编辑器 → NAT 模式 → 子网 IP `10.0.0.0`
+   - NAT 设置 → 网关 IP `10.0.0.254`
+4. **VMware 服务**（win+r 输入 `services.msc`）
+
+| 服务 | 状态 | 启动类型 |
+| --- | --- | --- |
+| VMware Authorization Service | 正在运行 / 已启动 | 自动 |
+| VMware NAT Service | 正在运行 / 已启动 | 自动 |
+| VMware DHCP Service | 正在运行 / 已启动 | 自动 |
+
+**修复步骤**：
+```bash
+1. 重启 NAT service
+2. 断开虚拟机网卡再连接上
+3. Linux 系统里重启网络： systemctl restart network
+```
+
+## 十二、VMware 三种网络模式
+
+### 一、桥接模式（Bridged，VMnet0）
+**核心原理**：虚拟机虚拟网卡直接"桥接"到主机物理网卡（有线/无线），**相当于局域网里一台独立的真实电脑**，和主机平级、同网段。
+
+### 二、NAT 模式（Network Address Translation，VMnet8）—— 最常用、默认
+**核心原理**：VMware 内置虚拟 NAT 路由器 + DHCP，虚拟机处于**私有虚拟子网**，**共享主机的物理 IP 上网**，外部看不到虚拟机真实 IP。
+
+### 三、仅主机模式（Host-Only，VMnet1）—— 封闭隔离
+**核心原理**：仅创建**纯内部虚拟网络**，无 NAT、无外网出口，虚拟机只能和主机、同 Host-Only 的虚拟机通信，完全隔离物理网络与外网。
+
+## 十三、CentOS 6.9 修改系统默认字符集
+
+```bash
+# locale -a        # 列出系统所支持的所有字符集
+
+yum -y groupinstall chinese-support      # 安装中文支持包
+
+# 修改方法：
+# 1. 临时修改
+export LANG=zh_CN.UTF8
+
+# 2. 永久修改文件
+vim /etc/sysconfig/i18n
+LANG="zh_CN.UTF8"
+
+source /etc/sysconfig/i18n              # 生效配置文件
+```
