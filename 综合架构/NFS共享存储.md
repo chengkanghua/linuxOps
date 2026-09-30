@@ -1,518 +1,362 @@
 # NFS 共享存储
 
-# NFS基本概述
+## 一、基本概述
 
-NFS（Network File System，网络文件系统）是\*\*<font style="background-color:rgba(0, 0, 0, 0);">Linux/Unix 系统最常用的轻量级网络共享协议</font>\*\*
+NFS（Network File System，网络文件系统）是 **Linux/Unix 系统最常用的轻量级网络共享协议**，基于 **RPC（远程过程调用）** 实现，允许不同主机通过 TCP/IP 网络共享文件和目录。客户端可像访问本地磁盘一样挂载远程 NFS 共享目录，是中小规模集群中**成本最低、部署最快**的共享存储方案。大型网站会用更复杂的分布式文件系统（Ceph、FastDFS、GlusterFS、HDFS）。
 
-基于 RPC（远程过程调用）实现，允许不同主机通过 TCP/IP 网络共享文件和目录。客户端可以像访问本地磁盘一样挂载和使用远程 NFS 共享目录，是中小规模集群环境中成本最低、部署最快的共享存储方案。如果是大型网站, 会用到更复杂的分布式文件系统 ceph,FastDFS,glusterfs,HDFS
-
-## 与其他共享存储对比
-
+### 与其他共享存储对比
 | 方案 | 优点 | 缺点 | 适用场景 |
 | --- | --- | --- | --- |
-| NFS | 部署简单、成本低、兼容性好、使用方便 | 单点故障、性能依赖网络、安全性一般 | 中小规模集群、非核心业务 |
-| Samba | 支持 Windows/Linux 跨平台共享 | 性能差、配置复杂 | 跨平台文件共享 |
+| **NFS** | 部署简单、成本低、兼容性好 | 单点故障、性能依赖网络、安全性一般 | 中小规模集群、非核心业务 |
+| Samba | 跨 Windows/Linux 共享 | 性能差、配置复杂 | 跨平台文件共享 |
 | GlusterFS | 分布式、高可用、横向扩展 | 部署复杂、运维成本高 | 大规模集群、高并发读取 |
-| Ceph | 统一存储（块 / 文件 / 对象）、高可用 | 极其复杂、资源消耗大 | 大规模云环境、核心业务 |
+| Ceph | 统一存储（块/文件/对象）、高可用 | 极复杂、资源消耗大 | 大规模云环境、核心业务 |
 
-为什么要使用NFS服务进行数据存储
+### 为什么用 NFS
+1. 实现多台服务器之间**数据共享**；
+2. 实现多台服务器之间**数据一致**。
 
-1.实现多台服务器之间数据共享
+### 典型生产场景
+- Web 集群**静态资源共享**（图片、CSS、JS、用户上传文件）；
+- 应用集群**配置文件统一管理**；
+- 日志**集中存储与分析**（ELK 直接采集 NFS 日志）；
+- 数据**备份中转服务器**；
+- CI/CD 流水线构建产物共享。
 
-2.实现多台服务器之间数据的一致
+### 不适用场景
+- 高并发随机写入（如数据库存储）；
+- 强一致性和高可用的核心业务；
+- 跨公网文件共享（延迟高、安全性差）。
 
-# NFS应用场景
+![应用场景1](img/NFS%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8-01.png)
+![应用场景2](img/NFS%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8-02.png)
 
-![1547285149676-07979dba-7088-4df3-893d-0b8a1ad5a678-image1.png](img/NFS%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8-01.png)
+---
 
-![1547285149740-e6ced790-ce46-4005-98bb-b0e2f4ed9173-image2.png](img/NFS%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8-02.png)
+## 二、实现原理（含常见错误纠正）
 
-## 典型生产场景
+![原理图](img/NFS%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8-03.png)
 
-* <font style="background-color:rgba(0, 0, 0, 0);">Web 集群</font>**<font style="background-color:rgba(0, 0, 0, 0);">静态资源共享</font>**<font style="background-color:rgba(0, 0, 0, 0);">（图片、CSS、JS、用户上传文件）</font>
-* <font style="background-color:rgba(0, 0, 0, 0);">应用集群</font>**<font style="background-color:rgba(0, 0, 0, 0);">配置文件统一管理</font>**
-* <font style="background-color:rgba(0, 0, 0, 0);">日志</font>**<font style="background-color:rgba(0, 0, 0, 0);">集中存储与分析</font>**<font style="background-color:rgba(0, 0, 0, 0);">（ELK 直接采集 NFS 日志）</font>
-* <font style="background-color:rgba(0, 0, 0, 0);">数据</font>**<font style="background-color:rgba(0, 0, 0, 0);">备份中转服务器</font>**
-* <font style="background-color:rgba(0, 0, 0, 0);">CI/CD 流水线</font>**<font style="background-color:rgba(0, 0, 0, 0);">构建产物共享</font>**
+**本地文件操作**：用户执行 `mkdir` → shell 解释给内核 → 内核驱动硬件。
 
-## <font style="background-color:rgba(0, 0, 0, 0);">不适用场景</font>
+**NFS 实现原理**（先理解程序/进程/线程）：
+1. 用户进程访问 NFS 客户端，用不同函数处理数据；
+2. NFS 客户端通过 TCP/IP 把请求传给 NFS 服务端；
+3. NFS 服务端接收请求后，先调用 portmap 做端口映射；
+4. nfsd 进程判断客户端是否有权限连接；
+5. rpc.mount 判断客户端是否有对应权限验证；
+6. portmap 实现用户映射和压缩；
+7. NFS 服务端把请求函数转成本地命令交内核驱动硬件。
 
-* <font style="background-color:rgba(0, 0, 0, 0);">高并发随机写入场景（如数据库存储）</font>
-* <font style="background-color:rgba(0, 0, 0, 0);">要求强一致性和高可用的核心业务</font>
-* <font style="background-color:rgba(0, 0, 0, 0);">跨公网的文件共享（延迟高、安全性差）</font>
-
-# NFS实现原理
-
-![1547285149775-be4f6b4e-1330-4b0d-8358-b734478d4d00-image3.png](img/NFS%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8-03.png)
-
-本地文件操作方式
-
-1.当用户执行mkdir命令, 该命令会通过shell解释器翻译给内核,由内核解析完成后驱动硬件，完成相应的操作。
-
-NFS实现原理(需要先了解\[程序|进程|线程])
-
-1.用户进程访问NFS客户端，使用不同的函数对数据进行处理
-
-2.NFS客户端通过TCP/IP的方式传递给NFS服务端。
-
-3.NFS服务端接收到请求后，会先调用portmap进程进行端口映射。
-
-4.nfsd进程用于判断NFS客户端是否拥有权限连接NFS服务端。
-
-5.Rpc.mount进程判断客户端是否有对应的权限进行验证。
-
-6.protmap进程实现用户映射和压缩
-
-7.最后NFS服务端会将对应请求的函数转换为本地能识别的命令，传递至内核，由内核驱动硬件。
-
-rpc是一个远程过程调用，那么使用nfs必须有rpc服务
-
-# 上面说法 整体方向正确，但存在多个核心原理错误和不严谨的地方
+> ⚠️ 上面这套说法**整体方向正确，但有多处核心错误和不严谨**，逐一纠正：
 
 | 序号 | 原说法 | 错误 / 不严谨之处 |
 | --- | --- | --- |
-| 1 | "NFS 服务端接收到请求后，会先调用 portmap 进程进行端口映射" | **完全错误**。Portmap 是**客户端先调用**的，服务端是**启动时主动向 Portmap 注册自己的端口**，服务端接收到请求后根本不会调用 Portmap |
-| 2 | "protmap 进程实现用户映射和压缩" | **完全错误**。Portmap 唯一的功能就是**端口映射**，用户映射（root_squash）、权限压缩是**nfsd 进程**的核心功能 |
-| 3 | "nfsd 进程用于判断客户端是否能够登录服务器；rpc.mount 判断文件权限" | **顺序颠倒**。客户端先通过 rpc.mount 验证**挂载权限**，通过后才能和 nfsd 通信；nfsd 负责**文件操作权限**和实际的文件读写 |
-| 4 | "nfsd、mountd、portmap 是 NFS 服务器调用的外部进程" | **架构错误**。这三个都是**运行在服务端的独立 RPC 服务进程**，共同组成 NFS 服务，不是被某个 "总控 NFS 服务器" 调用的子模块 |
-| 5 | "NFS 服务端将请求转换为本地能识别的命令，传递至内核" | **不严谨**。Linux 下的 nfsd 是**内核线程**（不是用户态进程），它直接和内核 VFS 层交互，不需要 "转换命令传递给内核" |
-| 6 | 原理图中三个进程画在 NFS 服务器框外 | **架构错误**。三个进程都运行在服务端内核 / 用户态，属于 NFS 服务的一部分 |
+| 1 | "服务端接收请求后先调用 portmap 做端口映射" | **错**。Portmap 是**客户端先调用**的；服务端是**启动时主动向 Portmap 注册自己的端口**，接收请求后不会再调用 Portmap |
+| 2 | "portmap 实现用户映射和压缩" | **错**。Portmap 唯一功能是**端口映射**；用户映射（root_squash）、权限压缩是 **nfsd** 的功能 |
+| 3 | "nfsd 判断能否登录；rpc.mount 判断文件权限" | **顺序颠倒**。客户端先经 rpc.mount 验证**挂载权限**，通过后才能和 nfsd 通信；nfsd 负责**文件操作权限**和读写 |
+| 4 | "nfsd/mountd/portmap 是 NFS 服务器调用的外部进程" | **架构错**。三者都是**运行在服务端的独立 RPC 服务进程**，共同组成 NFS，不是被某"总控"调用的子模块 |
+| 5 | "NFS 服务端将请求转换命令传递给内核" | **不严谨**。Linux 下 nfsd 是**内核线程**（非用户态进程），直接和内核 VFS 交互 |
+| 6 | 原理图把三个进程画在 NFS 服务器框外 | **架构错**。三进程都运行在服务端内核/用户态，属 NFS 一部分 |
 
-![1777517973781-97ea424d-dfca-4f51-86c3-be726e80a18b.png](img/NFS%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8-04.png)
+![正确原理图](img/NFS%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8-04.png)
 
-### <font style="background-color:rgba(0, 0, 0, 0);">前置说明</font>
+### 前置说明
+NFS 基于 RPC 的客户端-服务器架构，所有交互遵循 **"客户端先查 Portmap 找端口，再直接和对应服务通信"** 的 RPC 标准流程。
 
-<font style="background-color:rgba(0, 0, 0, 0);">NFS 是基于 RPC 的客户端 - 服务器架构，所有交互都遵循 "</font>**<font style="background-color:rgba(0, 0, 0, 0);">客户端先查 Portmap 找端口，再直接和对应服务通信</font>**<font style="background-color:rgba(0, 0, 0, 0);">" 的 RPC 标准流程。</font>
+### 1. 服务端启动流程（先于任何客户端请求）
+1. 启动 `rpcbind`（Portmap），监听**固定 111 端口**，等待 RPC 服务注册；
+2. 启动 `rpc.mountd`，随机绑端口，向本地 rpcbind 注册：`(程序号100005, 版本3, TCP, 端口xxx)`；
+3. 启动 `nfsd`（Linux 下为内核线程），绑定**固定 2049 端口**，向 rpcbind 注册：`(程序号100003, 版本3, TCP, 2049)`；
+4. nfsd 读取 `/etc/exports`，加载共享目录和权限规则。
 
-### <font style="background-color:rgba(0, 0, 0, 0);">1. 服务端启动流程（先于任何客户端请求）</font>
+### 2. 客户端挂载流程（第一步）
+客户端执行 `mount -t nfs server:/share /mnt`：
+1. 客户端内核 NFS 模块向**服务端 111 端口**发 RPC："查程序号 100005（mountd）的 TCP 端口"；
+2. 服务端 rpcbind 返回 mountd 端口（如 20048）；
+3. 客户端连接 mountd，发 `MNT` RPC，携带要挂载的共享目录路径；
+4. **rpc.mountd 读 `/etc/exports`**，验证客户端 IP 是否有权限挂载；
+5. 验证通过，rpc.mountd 生成共享目录**根文件句柄（FH）**返回客户端；
+6. 客户端本地挂载点 `/mnt` 建立 NFS 文件系统，保存根 FH 到内核。
 
-1. <font style="background-color:rgba(0, 0, 0, 0);">系统启动</font><code><font style="background-color:rgba(0, 0, 0, 0);">rpcbind</font></code><font style="background-color:rgba(0, 0, 0, 0);">（Portmap）服务，监听</font>**<font style="background-color:rgba(0, 0, 0, 0);">固定 111 端口</font>**<font style="background-color:rgba(0, 0, 0, 0);">，等待 RPC 服务注册</font>
-2. <font style="background-color:rgba(0, 0, 0, 0);">启动</font><code><font style="background-color:rgba(0, 0, 0, 0);">rpc.mountd</font></code><font style="background-color:rgba(0, 0, 0, 0);">服务，随机绑定一个端口，向本地 rpcbind 注册自己的信息：</font><code><font style="background-color:rgba(0, 0, 0, 0);">(程序号100005, 版本3, TCP, 端口xxx)</font></code>
-3. <font style="background-color:rgba(0, 0, 0, 0);">启动</font><code><font style="background-color:rgba(0, 0, 0, 0);">nfsd</font></code><font style="background-color:rgba(0, 0, 0, 0);">服务（Linux 下是内核线程），绑定</font>**<font style="background-color:rgba(0, 0, 0, 0);">固定 2049 端口</font>**<font style="background-color:rgba(0, 0, 0, 0);">，向本地 rpcbind 注册自己的信息：</font><code><font style="background-color:rgba(0, 0, 0, 0);">(程序号100003, 版本3, TCP, 2049)</font></code>
-4. <font style="background-color:rgba(0, 0, 0, 0);">nfsd 读取</font><code><font style="background-color:rgba(0, 0, 0, 0);">/etc/exports</font></code><font style="background-color:rgba(0, 0, 0, 0);">配置文件，加载共享目录和权限规则</font>
+### 3. 客户端文件操作流程（挂载完成后）
+客户端执行 `cat /mnt/test.txt`：
+1. 用户进程调用 `read()` 进入内核 VFS；
+2. VFS 判断是 NFS 文件系统，调用内核 NFS 客户端模块函数；
+3. NFS 客户端向**服务端 111 端口**发 RPC："查程序号 100003（nfsd）的 TCP 端口"；
+4. rpcbind 返回 nfsd 端口 2049；
+5. 客户端连 2049 发 `LOOKUP` RPC，携带**根 FH + 文件名 test.txt**；
+6. **nfsd** 据 FH 找到本地文件，生成 test.txt 的 FH 返回；
+7. 客户端发 `READ` RPC，携带 FH、偏移、长度；
+8. **nfsd** 执行：① 验证操作权限 ② **用户映射**（root_squash：客户端 root 映射为服务端 nfsnobody）③ 调内核 VFS 读盘；
+9. nfsd 序列化数据返回客户端；
+10. 客户端 NFS 模块复制到用户空间，`read()` 返回。
 
-### <font style="background-color:rgba(0, 0, 0, 0);">2. 客户端挂载 NFS 共享流程（第一步）</font>
+### 关键补充澄清
+1. **nfsd 身份**：Linux 下是**内核线程**（非用户态进程），是 NFS 性能高的重要原因，直接运行在内核态与 VFS/磁盘驱动交互。
+2. **rpcbind 唯一作用**：就是"RPC 服务电话本"，只记"哪个 RPC 服务在哪个端口"，不参与权限验证和传输。
+3. **权限两层结构**：第一层**挂载权限**（rpc.mountd 挂载时验证，决定能不能挂）；第二层**文件操作权限**（nfsd 每次操作时验证，决定能不能读写具体文件）。
+4. **用户映射**：root_squash、all_squash 等都是 nfsd 功能，执行文件操作前按 `/etc/exports` 规则把客户端 UID/GID 替换为服务端 UID/GID。
 
-<font style="background-color:rgba(0, 0, 0, 0);">当客户端执行</font><code><font style="background-color:rgba(0, 0, 0, 0);">mount -t nfs server:/share /mnt</font></code><font style="background-color:rgba(0, 0, 0, 0);">时：</font>
+---
 
-1. <font style="background-color:rgba(0, 0, 0, 0);">客户端内核的 NFS 模块向</font>**<font style="background-color:rgba(0, 0, 0, 0);">服务端的 111 端口</font>**<font style="background-color:rgba(0, 0, 0, 0);">发送 RPC 请求："查询程序号 100005（mountd）的 TCP 端口"</font>
-2. <font style="background-color:rgba(0, 0, 0, 0);">服务端 rpcbind 返回 mountd 的端口号（如 20048）</font>
-3. <font style="background-color:rgba(0, 0, 0, 0);">客户端连接服务端的 mountd 端口，发送</font><code><font style="background-color:rgba(0, 0, 0, 0);">MNT</font></code><font style="background-color:rgba(0, 0, 0, 0);"> RPC 请求，携带要挂载的共享目录路径</font>
-4. **<font style="background-color:rgba(0, 0, 0, 0);">rpc.mountd 读取 /etc/exports</font>**<font style="background-color:rgba(0, 0, 0, 0);">，验证客户端 IP 是否有权限挂载该共享目录</font>
-5. <font style="background-color:rgba(0, 0, 0, 0);">验证通过后，rpc.mountd 生成该共享目录</font>**<font style="background-color:rgba(0, 0, 0, 0);">根目录的文件句柄（FH）</font>**<font style="background-color:rgba(0, 0, 0, 0);">，返回给客户端</font>
-6. <font style="background-color:rgba(0, 0, 0, 0);">客户端在本地挂载点</font><code><font style="background-color:rgba(0, 0, 0, 0);">/mnt</font></code><font style="background-color:rgba(0, 0, 0, 0);">建立 NFS 文件系统，将根文件句柄保存到内核中</font>
+## 三、实战操作
 
-### <font style="background-color:rgba(0, 0, 0, 0);">3. 客户端文件操作流程（挂载完成后）</font>
-
-<font style="background-color:rgba(0, 0, 0, 0);">当客户端执行</font><code><font style="background-color:rgba(0, 0, 0, 0);">cat /mnt/test.txt</font></code><font style="background-color:rgba(0, 0, 0, 0);">时：</font>
-
-1. <font style="background-color:rgba(0, 0, 0, 0);">用户进程调用</font><code><font style="background-color:rgba(0, 0, 0, 0);">read()</font></code><font style="background-color:rgba(0, 0, 0, 0);">系统调用，进入内核 VFS 层</font>
-2. <font style="background-color:rgba(0, 0, 0, 0);">VFS 判断这是 NFS 文件系统，调用内核 NFS 客户端模块的对应函数</font>
-3. <font style="background-color:rgba(0, 0, 0, 0);">NFS 客户端向</font>**<font style="background-color:rgba(0, 0, 0, 0);">服务端的 111 端口</font>**<font style="background-color:rgba(0, 0, 0, 0);">发送 RPC 请求："查询程序号 100003（nfsd）的 TCP 端口"</font>
-4. <font style="background-color:rgba(0, 0, 0, 0);">服务端 rpcbind 返回 nfsd 的端口号 2049</font>
-5. <font style="background-color:rgba(0, 0, 0, 0);">客户端连接服务端的 2049 端口，发送</font><code><font style="background-color:rgba(0, 0, 0, 0);">LOOKUP</font></code><font style="background-color:rgba(0, 0, 0, 0);"> RPC 请求，携带</font>**<font style="background-color:rgba(0, 0, 0, 0);">根文件句柄 + 文件名 test.txt</font>**
-6. **<font style="background-color:rgba(0, 0, 0, 0);">nfsd 进程</font>**<font style="background-color:rgba(0, 0, 0, 0);">根据文件句柄找到本地文件，生成 test.txt 的文件句柄返回给客户端</font>
-7. <font style="background-color:rgba(0, 0, 0, 0);">客户端发送</font><code><font style="background-color:rgba(0, 0, 0, 0);">READ</font></code><font style="background-color:rgba(0, 0, 0, 0);"> RPC 请求，携带 test.txt 的文件句柄、偏移量、读取长度</font>
-8. **<font style="background-color:rgba(0, 0, 0, 0);">nfsd 进程</font>**<font style="background-color:rgba(0, 0, 0, 0);">执行以下操作：</font>
-   * <font style="background-color:rgba(0, 0, 0, 0);">验证客户端对该文件的操作权限</font>
-   * <font style="background-color:rgba(0, 0, 0, 0);">执行</font>**<font style="background-color:rgba(0, 0, 0, 0);">用户映射</font>**<font style="background-color:rgba(0, 0, 0, 0);">（如 root_squash：将客户端 root 用户映射为服务端 nfsnobody）</font>
-   * <font style="background-color:rgba(0, 0, 0, 0);">调用内核 VFS 层读取本地磁盘文件</font>
-9. <font style="background-color:rgba(0, 0, 0, 0);">nfsd 将读取到的数据序列化后返回给客户端</font>
-10. <font style="background-color:rgba(0, 0, 0, 0);">客户端 NFS 模块将数据复制到用户空间，</font><code><font style="background-color:rgba(0, 0, 0, 0);">read()</font></code><font style="background-color:rgba(0, 0, 0, 0);">系统调用返回</font>
-
-## <font style="background-color:rgba(0, 0, 0, 0);">关键补充澄清</font>
-
-1. **<font style="background-color:rgba(0, 0, 0, 0);">关于 nfsd 的身份</font>**<font style="background-color:rgba(0, 0, 0, 0);">：Linux 下 nfsd 是</font>**<font style="background-color:rgba(0, 0, 0, 0);">内核线程</font>**<font style="background-color:rgba(0, 0, 0, 0);">（不是用户态进程），这是 NFS 性能高的重要原因，它直接运行在内核态，和 VFS、磁盘驱动无缝交互。</font>
-2. **<font style="background-color:rgba(0, 0, 0, 0);">关于 rpcbind 的唯一作用</font>**<font style="background-color:rgba(0, 0, 0, 0);">：它就是一个 "RPC 服务电话本"，只负责记录 "哪个 RPC 服务在哪个端口"，除此之外不做任何其他事情，不参与任何权限验证和数据传输。</font>
-3. **<font style="background-color:rgba(0, 0, 0, 0);">关于权限验证的两层结构</font>**<font style="background-color:rgba(0, 0, 0, 0);">：</font>
-   * <font style="background-color:rgba(0, 0, 0, 0);">第一层：</font>**<font style="background-color:rgba(0, 0, 0, 0);">挂载权限</font>**<font style="background-color:rgba(0, 0, 0, 0);">，由 rpc.mountd 在挂载时验证，决定客户端能不能挂载这个共享目录</font>
-   * <font style="background-color:rgba(0, 0, 0, 0);">第二层：</font>**<font style="background-color:rgba(0, 0, 0, 0);">文件操作权限</font>**<font style="background-color:rgba(0, 0, 0, 0);">，由 nfsd 在每次文件操作时验证，决定客户端能不能读 / 写这个具体的文件</font>
-4. **<font style="background-color:rgba(0, 0, 0, 0);">关于用户映射</font>**<font style="background-color:rgba(0, 0, 0, 0);">：root_squash、all_squash 等都是 nfsd 的功能，它会在执行文件操作前，将 RPC 请求中携带的客户端 UID/GID，按照 /etc/exports 的规则替换成服务端的 UID/GID</font>
-
-<font style="background-color:rgba(0, 0, 0, 0);"></font>
-
-<font style="background-color:rgba(0, 0, 0, 0);"></font>
-
-<font style="background-color:rgba(0, 0, 0, 0);"></font>
-
-# 实战操作：
-
-## 1.环境准备
-
-| **服务器系统** | **角色** | **外网IP** | **内网IP** |
+### 1. 环境准备
+| 服务器系统 | 角色 | 外网IP | 内网IP |
 | --- | --- | --- | --- |
-| CentOS 7.5 | NFS服务端 | eth0:10.0.0.31 | eth1:172.16.1.31 |
-| CentOS 7.5 | NFS客户端 | eth0:10.0.0.41 | eth1:172.16.1.41 |
+| CentOS 7.5 | NFS 服务端 | eth0:10.0.0.31 | eth1:172.16.1.31 |
+| CentOS 7.5 | NFS 客户端 | eth0:10.0.0.41 | eth1:172.16.1.41 |
 
-注意: 不要忘记关闭防火墙, 以免默认的防火墙策略禁止正常的NFS共享服务
+> 注意：关闭防火墙，避免默认策略禁止 NFS 共享。
 
 ```bash
-#关闭Firewalld防火墙
-systemctl disable firewalld
-systemctl stop firewalld
-
-#关闭selinux防火墙
+# 关闭 Firewalld
+systemctl disable firewalld && systemctl stop firewalld
+# 关闭 SELinux
 sed -ri '#^SELINUX=#cSELINUX=Disabled' /etc/selinux/config
 setenforce 0
 ```
 
+### 2. 服务端配置
 ```bash
-1.安装nfs
+# 1. 安装
 yum -y install nfs-utils
-2.配置nfs
-我们可以按照共享目录的路径 允许访问的NFS客户端（共享权限参数）格式，定义要共享的目录与相应的权限。
-exports配置文件格式
-/data 172.16.1.0/24(rw,sync,all_squash)
-NFS共享目录 NFS客户端地址1(参数1,参数2,...) 客户端地址2(参数1,参数2,...) 
-NFS共享目录 NFS客户端地址(参数1,参数2,...)
-如果想要把/data目录共享给172.16.1.0/24网段内的所有主机 
-  1.主机都拥有读写权限 
-  2.在将数据写入到NFS服务器的硬盘中后才会结束操作，最大限度保证数据不丢失 
-  3.将所有用户映射为本地的匿名用户(nfsnobody)
 
+# 2. /etc/exports 格式：共享目录  客户端地址(参数1,参数2,...)
+# 例：把 /data 共享给 172.16.1.0/24，要求：读写 / 写入硬盘后返回 / 全部映射为匿名用户
 cat > /etc/exports <<EOF
 /data 172.16.1.0/24(rw,sync,all_squash)
 EOF
 
-# 3.创建对应的目录
+# 3. 创建目录
 mkdir /data
-# 4.启动服务，并将服务加入开机自启动
+
+# 4. 启动并开机自启
 systemctl enable rpcbind nfs-server
 systemctl start rpcbind nfs-server
-# 5.检查端口
+
+# 5. 检查端口
 netstat -lntp
 
-# 6检查共享的内容
+# 6. 检查共享内容
 cat /var/lib/nfs/etab
-
-#这个也可以检查配置文件
 exportfs -arv
 
-# 7.检查匿名用户对应的真实账户,并授权共享目录为nfsnobody
+# 7. 授权共享目录为 nfsnobody
 grep "65534" /etc/passwd
 chown -R nfsnobody.nfsnobody /data
+```
 
-# 8.配置客户端
+### 3. 客户端配置
+```bash
+# 8. 安装（只需安装工具，无需启动服务）
 yum install nfs-utils -y
-systemctl enable rpcbind
-systemctl start rpcbind
+systemctl enable rpcbind && systemctl start rpcbind
 
-# showmount -e 172.16.1.31
-Export list for 172.16.1.31:
-/data 172.16.1.0/24
+# 查看服务端共享
+showmount -e 172.16.1.31
+# Export list for 172.16.1.31:
+# /data 172.16.1.0/24
 
-# 9.配置客户端-创建挂载点目录，执行挂载命令
+# 9. 创建挂载点并挂载
 mkdir /data
 mount -t nfs 172.16.1.31:/data /data/
-# df -h
-文件系统                 容量  已用  可用 已用% 挂载点
-172.16.1.31:/data         50G  2.6G   48G    6% /data
+df -h
+# 172.16.1.31:/data   50G  2.6G  48G   6% /data
 
-# 10.测试客户端是否拥有写的权限
+# 10. 测试写入
 echo "123" > /data/test
 
-
-11.卸载本地客户端的挂载信息
+# 11. 卸载
 umount /data/
-# ll /data/
 
-
-12.检查nfs客户端是否存在数据 #服务端查看
-# ll /data/
-
-
-
-作业：
-   1.将所有的机器还原
-   2.准备2台web挂载至nfs服务
-   3.模拟a写，b删
-
-nfs结束，实时同步
-
-
+# 12. 服务端查看数据
+ll /data/
 ```
 
-## 核心配置参数详解
+**作业**
+1. 将机器还原；
+2. 准备 2 台 web 挂载至 NFS；
+3. 模拟 A 写、B 删。
 
-执行man exports命令，然后切换到文件结尾，可以快速查看如下样例格式：
+> NFS 结束后接「实时同步」。
 
-<code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">/etc/exports</font></code> 常用权限选项
+---
 
-| **nfs共享参数** | **参数作用** |
+## 四、核心配置参数详解
+
+`man exports` 可查样例。常用权限选项：
+
+| 参数 | 作用 |
 | --- | --- |
-| rw\* | 读写权限 |
-| ro | 只读权限 |
-| root_squash | 当NFS客户端以root管理员访问时，映射为NFS服务器的匿名用户(不常用) |
-| no_root_squash | 当NFS客户端以root管理员访问时，映射为NFS服务器的root管理员(不常用) |
-| all_squash | 无论NFS客户端使用什么账户访问，均映射为NFS服务器的匿名用户(常用) |
-| no_all_squash | 无论NFS客户端使用什么账户访问，都不进行压缩 |
-| sync\* | 同时将数据写入到内存与硬盘中，保证不丢失数据 |
-| async | 优先将数据保存到内存，然后再写入硬盘；这样效率更高，但可能会丢失数据 |
-| anonuid\* | 配置all_squash使用,指定NFS的用户UID,必须存在系统 |
-| <font style="background-color:#FFFFFF;">secure </font> | <font style="background-color:#FFFFFF;"> </font><font style="background-color:#FFFFFF;">NFS通过1024以下的安全TCP/IP端口发送 </font> |
-| insecure  | NFS通过1024以上的端口发送  |
-|  wdelay  | 如果多个用户要写入NFS目录，则归组写入（默认） |
-|  no_wdelay | 如果多个用户要写入NFS目录，则立即写入，当使用async时，无需此设置 |
-|  Hide | 在NFS共享目录中不共享其子目录  |
-|  no_hide   | 共享NFS目录的子目录  |
-| <font style="background-color:#FFFFFF;">subtree_check  </font><font style="background-color:#FFFFFF;"> </font> | 如果共享/usr/bin之类的子目录时，强制NFS检查父目录的权限（默认）  |
-| no_subtree_check | <font style="background-color:#FFFFFF;">和上面相对，不检查父目录权限 </font> |
+| `rw`（常用） | 读写权限 |
+| `ro` | 只读权限 |
+| `root_squash`（默认） | 客户端用 root 访问时映射为服务端匿名用户（nfsnobody） |
+| `no_root_squash` | 客户端 root 访问时映射为服务端 root（**不安全**） |
+| `all_squash`（常用） | 无论客户端用什么账户，都映射为服务端匿名用户 |
+| `no_all_squash` | 不压缩账户 |
+| `sync`（生产必须） | 同时写入内存与硬盘，保证不丢数据 |
+| `async` | 先写内存再刷盘，效率高但可能丢数据 |
+| `anonuid`/`anongid` | 配合 all_squash 指定匿名用户的 UID/GID（必须系统存在） |
+| `secure` | 通过 1024 以下安全端口发送 |
+| `insecure` | 通过 1024 以上端口发送（Docker volume 常需） |
+| `wdelay` | 多个用户写目录时归组写入（默认） |
+| `no_wdelay` | 立即写入（配 async 时无需） |
+| `hide`/`no_hide` | 是否不共享/共享子目录 |
+| `subtree_check`/`no_subtree_check` | 是否检查父目录权限 |
 
-## <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">面试必备知识点</font>
+---
 
-### <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">✅</font><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);"> 核心概念必问</font>
+## 五、面试必备知识点
 
-1. **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">文件句柄（FH）</font>**
-   * <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">答案：NFS 中文件的唯一标识，包含</font><code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">fsid(文件系统ID)+inode号+生成号</font></code>
-   * <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">意义：是 NFS 无状态设计的核心，每个请求自带 FH，服务端无需保存客户端状态</font>
-2. **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">无状态设计</font>**
-   * <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">答案：服务端不保存任何客户端的会话状态，每个请求独立完整</font>
-   * <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">优点：故障恢复快，服务端重启后客户端只需重试请求</font>
-   * <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">缺点：不支持原生文件锁，一致性弱</font>
-3. **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">Stub/Skeleton</font>**
-   * <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">答案：RPC 的代理层</font>
-   * <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">Stub（客户端存根）：伪装成本地函数，封装网络请求</font>
-   * <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">Skeleton（服务端骨架）：接收网络请求，分发到真实业务函数</font>
-4. **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">rpcbind（Portmap）的唯一作用</font>**
-   * <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">答案：RPC 服务的 "电话本"，记录 "程序号→端口号" 的映射关系</font>
-   * <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">客户端先查 111 端口获取目标服务端口，再直接通信</font>
+### 核心概念
+1. **文件句柄（FH）**：NFS 中文件唯一标识，含 `fsid(文件系统ID)+inode号+生成号`。是 NFS 无状态设计核心，每个请求自带 FH，服务端无需保存客户端状态。
+2. **无状态设计**：服务端不保存客户端会话状态，每个请求独立完整。优点：故障恢复快；缺点：不支持原生文件锁、一致性弱。
+3. **Stub/Skeleton（RPC 代理层）**：Stub（客户端存根）伪装成本地函数封装网络请求；Skeleton（服务端骨架）接收请求分发到真实业务函数。
+4. **rpcbind（Portmap）唯一作用**：RPC 服务"电话本"，记录"程序号→端口号"映射；客户端先查 111 端口拿目标端口再直接通信。
 
-### <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">✅</font><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);"> 版本对比必问（生产选型核心）</font>
-
-| <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">对比项</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">NFSv3</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">NFSv4（生产推荐）</font> |
+### 版本对比（生产选型核心）
+| 对比项 | NFSv3 | NFSv4（生产推荐） |
 | --- | --- | --- |
-| <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">端口</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">111+2049 + 随机端口</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">仅固定 2049/tcp</font> |
-| <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">依赖服务</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">rpcbind+mountd+nlm</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">无任何依赖</font> |
-| <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">协议状态</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">无状态</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">有状态</font> |
-| <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">锁机制</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">独立 NLM 协议</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">原生集成</font> |
-| <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">挂载方式</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">挂载实际目录 </font><code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">/data</font></code> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">挂载伪根 </font><code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">/</font></code> |
-| <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">性能</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">一般（多次 RPC 往返）</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">更高（复合 RPC 批量操作）</font> |
-| <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">安全</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">仅 IP 认证</font> | <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">支持 Kerberos 强认证</font> |
+| 端口 | 111+2049+随机端口 | 仅固定 2049/tcp |
+| 依赖 | rpcbind+mountd+nlm | 无依赖 |
+| 协议状态 | 无状态 | 有状态（混合设计） |
+| 锁机制 | 独立 NLM 协议 | 原生集成 |
+| 挂载方式 | 挂载实际目录 `/data` | 挂载伪根 `/`（fsid=0） |
+| 性能 | 一般（多次 RPC 往返） | 更高（复合 RPC 批量） |
+| 安全 | 仅 IP 认证 | 支持 Kerberos 强认证 |
 
-### <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">✅</font><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);"> 权限机制必问</font>
+### 权限机制
+1. **root_squash（默认开启）**：客户端 root（UID=0）映射为服务端 nfsnobody；安全必备，防客户端 root 拿到服务端 root 权限。
+2. **all_squash**：所有客户端用户都映射为 nfsnobody；适合公共共享目录统一权限。
+3. **sync vs async**：`sync`（生产必须）写盘后才返回，无丢失风险；`async` 先写内存再刷盘，性能好但断电丢数据。
 
-1. **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">root_squash（默认开启）</font>**
-   * <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">答案：将客户端 root 用户（UID=0）映射为服务端的 nfsnobody 用户</font>
-   * <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">意义：安全必备，防止客户端 root 拥有服务端 root 权限</font>
-2. **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">all_squash</font>**
-   * <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">答案：将所有客户端用户都映射为 nfsnobody</font>
-   * <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">适用场景：公共共享目录，统一权限</font>
-3. **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">sync vs async</font>**
-   * <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">sync</font></code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">（生产必须）：数据写入磁盘后才返回成功，无数据丢失风险</font>
-   * <code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">async</font></code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">：先写入内存再刷盘，性能高但断电丢数据</font>
+---
 
-# 新装系统 <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">禁用 NFSv3，只保留 NFSv4(推荐)</font>
+## 六、NFSv3 与 NFSv4 工作过程对比
 
-```bash
-# 现卸载了在安装
-yum remove nfs-utils
-# 安装nfs-utils
-yum install -y nfs-utils
+![架构对比图](img/NFS%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8-05.png)
 
+### 一、NFSv3 工作过程
+1. **端口查询**：客户端连服务端 111，向 rpcbind 查 **mountd/statd/lockd 随机端口**（⚠️ nfsd 固定 2049，不是随机的）。
+2. **挂载验证**：客户端连 mountd，查 `/etc/exports` 的 IP 白名单，通过返回根 FH。
+3. **文件 IO**：客户端连 nfsd(2049) 发独立 RPC 处理读写；**文件锁需单独调 nlm，状态恢复需单独调 statd**。
 
-vim /etc/exports
-/data/  10.0.0.0/24(rw,sync,no_subtree_check,no_root_squash,fsid=0)
+> 特点：无状态，每请求独立；多服务多端口，防火墙难配；性能较低（多次往返）。
 
-#检查
-exportfs -r
+### 二、NFSv4 工作过程
+1. **直接连接**：客户端直连服务端固定 2049，**无需 rpcbind 端口映射**。
+2. **伪根挂载**：通过**复合 RPC**（一个请求含多个操作）获取服务端伪根（fsid=0）FH。⚠️ 这就是 v4 挂载路径必须写 `/` 而不是 `/data` 的原因。
+3. **全功能处理**：挂载、读写、锁、权限验证、状态管理都经 2049 复合 RPC 完成，**无需单独调用任何外部服务**。
 
-vi /etc/nfs.conf
- # 找到 [nfsd] 区域，修改成下面这样
-[nfsd]
-vers2=n
-vers3=n
-vers4=y
-vers4.0=y
-vers4.1=y
-vers4.2=y
-tcp=y
-udp=n
+> 特点：有状态（会话跟踪）；单端口单服务，防火墙只需开 2049/tcp；性能更高（复合 RPC 减少 70%+ 网络往返）。
 
-# echo 'RPCNFSDARGS="-N 2 -N 3 -U" ' /etc/sysconfig/nfs
-# echo "MOUNTD_NFS_V3=no" >> /etc/sysconfig/nfs
-# 3.创建对应的目录
+> NFSv4 不是"完全有状态"，而是**精心设计混合架构**：在锁/打开文件/委托/会话这些必须有状态处引入状态；在基础 IO 这些不需要状态处保持无状态的简单可靠。这正是它成为企业级标准的原因。
 
-mkdir /data
-# 4.启动服务，并将服务加入开机自启动
-systemctl enable  nfs-server
-systemctl start  nfs-server
-# 5.检查端口
-netstat -lntp
+---
 
+## 七、其他实用配置
 
-# 检查确认是不是只有v4版本
-cat /proc/fs/nfsd/versions
-rpcinfo -p | grep nfs
-
-#客户端挂载， 
-#yum install nfs-utils -y  只需要安装就可以，不用启动任何服务
-mount -t nfs -o vers=4.2 服务器IP:/共享目录 /本地挂载点
-mount -t nfs -o vers=4.2,tcp 10.0.0.5:/ /data/
-
-```
-
-# nfs-v3 v4  架构图对比
-
-![1777622196136-4fc5a721-0e2a-4e39-b630-3fd07c426fa8.png](img/NFS%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8-05.png)
-
-### <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">一、NFSv3 工作过程</font>
-
-1. **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">端口查询</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">：客户端先连服务端 111 端口，向 rpcbind 查询</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">mountd、statd、lockd 的随机端口</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">（</font><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">⚠️</font><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);"> nfsd 端口固定为 2049，不是随机的）</font>
-2. **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">挂载验证</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">：客户端连接 mountd，</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">检查 /etc/exports 中的 IP 白名单权限</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">，验证通过后返回根文件句柄</font>
-3. **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">文件 IO</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">：客户端连接 nfsd (2049)，发送独立 RPC 请求处理读写；</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">文件锁需单独调用 nlm 服务，状态恢复需单独调用 statd 服务</font>**
-
-**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">特点</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">：无状态协议，每个请求独立；多服务多端口，防火墙难配置；</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">性能较低（多次 RPC 往返）</font>**
-
-### <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">二、NFSv4 工作过程</font>
-
-1. **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">直接连接</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">：客户端直接连服务端固定 2049 端口，</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">无需 rpcbind 端口映射</font>**
-2. **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">伪根挂载</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">：通过</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">复合 RPC</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">（一个请求包含多个操作）获取服务端伪根 (fsid=0) 文件句柄</font><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">⚠️</font><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);"> 这就是 v4 挂载路径必须写</font><code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">/</font></code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">而不是</font><code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">/data</font></code><font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">的根本原因</font>
-3. **<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">全功能处理</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">：所有操作（挂载、读写、锁、权限验证、状态管理）都通过 2049 端口的复合 RPC 完成，</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">无需单独调用任何外部服务</font>**
-
-**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">特点</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">：有状态协议，服务端跟踪会话；单端口单服务，防火墙仅需开放 2049/tcp；</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">性能更高（复合 RPC 减少 70% 以上网络往返）</font>**
-
-<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">NFSv4 不是 "完全有状态"，而是一种</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">精心设计的混合架构</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">：</font>
-
-* <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">它在</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">锁、打开文件、委托、会话</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">这些必须有状态的地方引入了状态</font>
-* <font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">它在</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">基础 IO 操作</font>**<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">这些不需要状态的地方保持了无状态的简单性和可靠性</font>
-
-<font style="color:rgb(0, 0, 0);background-color:rgba(0, 0, 0, 0);">这种设计既保留了 NFSv3 无状态协议的优点，又解决了它的核心缺点，是 NFSv4 成为现代企业级文件共享标准的根本原因</font>
-
-# 其他:
-
-## 如果希望NFS文件共享服务能一直有效，则需要将其写入到fstab文件中
-
+### 开机自动挂载（fstab）
 ```bash
 # vim /etc/fstab
 172.16.1.31:/data /nfsdir nfs defaults 0 0
 ```
 
-## 在企业工作场景，通常情况NFS服务器共享的只是普通静态数据（图片、附件、视频），不需要执行suid、exec等权限，挂载的这个文件系统只能作为数据存取之用，无法执行程序，对于客户端来讲增加了安全性。例如: 很多木马篡改站点文件都是由上传入口上传的程序到存储目录。然后执行的。
-
+### 安全挂载（禁止 suid/exec）
+企业场景 NFS 通常只共享静态数据（图片/附件/视频），不应执行程序，增加安全性（防木马上传后执行）：
 ```bash
-通过mount -o指定挂载参数，禁止使用suid，exec，增加安全性能
-[root@nfs-client ~]# mount -t nfs -o nosuid,noexec,nodev 172.16.1.31:/data /mnt
+mount -t nfs -o nosuid,noexec,nodev 172.16.1.31:/data /mnt
 ```
 
-## 有时也需要考虑性能相关参数\[可选]
-
+### 性能挂载（禁止更新时间戳）
 ```bash
-通过mount -o指定挂载参数，禁止更新目录及文件时间戳挂载
-[root@nfs-client ~]# mount -t nfs -o noatime,nodiratime 172.16.1.31:/data /mnt
+mount -t nfs -o noatime,nodiratime 172.16.1.31:/data /mnt
 ```
 
-##
-
-## docker volume 挂载nfs时候不成功 修改nfs服务配置文件
-
+### Docker volume 挂载 NFS 失败
+修改 NFS 配置（Docker 常经 1024 以上端口）：
 ```plain
 /data/nfs 192.168.0.0/16(rw,insecure,sync,no_subtree_check,no_root_squash)
-rw        读写权限
-insecure  通过1024以上端口发送
-sync*     同时将数据写入到内存与硬盘中，保证不丢失数据
-no_subtree_check   不检查父目录权限
-no_root_squash     当NFS客户端以root管理员访问时，映射为NFS服务器的root管理员(不常用)
-
-
-1.验证ro权限
-1.服务端修改rw为ro参数
-# cat /etc/exports
-/data 172.16.1.0/24(ro,sync,all_squash)
-# systemctl restart nfs-server
-
-2.客户端验证
-# mount -t nfs 172.16.1.31:/data /mnt
-# df -h
-Filesystem         Size  Used Avail Use% Mounted on
-172.16.1.31:/data   98G  1.7G   97G   2% /mnt
-# 无法写入文件
-# touch /mnt/file
-touch: cannot touch ‘file’: Read-only file system
-
-2.验证all_squash、anonuid、anongid权限
-//1.服务端配置
-# cat /etc/exports
-/data 172.16.1.0/24(rw,sync,all_squash,anonuid=666,anongid=666)
-//2.服务端需要创建对应的用户
-# groupadd -g 666 www
-# useradd -u 666 -g 666 www
-# id www
-uid=666(www) gid=666(www) groups=666(www)
-//3.重载nfs-server
-# systemctl restart nfs-server
-# cat /var/lib/nfs/etab 
-/data   172.16.1.0/24(rw,sync,wdelay,hide,nocrossmnt,secure,root_squash,all_squash,no_subtree_check,secure_locks,acl,no_pnfs,anonuid=666,anongid=666,sec=sys,secure,root_squash,all_squash)
-
-//4.授权共享目录为www;目录的所有者和所属组 www
-# chown -R www.www /data/
-
-
-//5.客户端验证
-# umount /mnt/
-# mount -t nfs 172.16.1.31:/data /mnt
-//6.客户端查看到的文件，身份是666
-# ll /mnt/
-drwxr-xr-x 2 666 666 6 Sep  3 02:08 rsync_dir
--rw-r--r-- 1 666 666 0 Sep  3 02:08 rsync_file
-//7.客户端依旧能往/mnt目录下写文件
-[root@backup mnt]# touch fff
-[root@backup mnt]# mkdir 111
-[root@backup mnt]# ll
-drwxr-xr-x 2 666 666 6 Sep  3 03:05 111
--rw-r--r-- 1 666 666 0 Sep  3 03:05 fff
-//8.建议：将客户端也创建一个uid为666，gid为666，统一身份，避免后续出现权限不足的情况
-# groupadd -g 666 www
-# useradd -g 666 -u 666 www
-# id www
-
-//9.最后检查文件的身份
-# ll /mnt/
-total 4
-drwxr-xr-x 2 www www 6 Sep  3 03:05 111
--rw-r--r-- 1 www www 0 Sep  3 03:05 fff
-
 ```
 
-## NFS存储小结
-
-NFS存储优点
-
-1.NFS文件系统简单易用、方便部署、数据可靠、服务稳定、满足中小企业需求。
-
-2.NFS文件系统内存放的数据都在文件系统之上，所有数据都是能看得见。
-
-NFS存储局限
-
-1.存在单点故障, 如果构建高可用维护麻烦。
-
-2.NFS数据明文, 并不对数据做任何校验。
-
-3.客户端挂载无需账户密码, 安全性一般(内网使用)
-
-生产应用建议
-
-1.生产场景应将静态数据尽可能往前端推, 减少后端存储压力
-
-2.必须将存储里的静态资源通过CDN缓存(jpg\png\mp4\avi\css\js)
-
-3.如果没有缓存或架构本身历史遗留问题太大, 在多存储也无用
-
-报错
-
+### 验证权限
 ```bash
-# mount  -t nfs 172.16.1.31:/data /data/
-mount.nfs: Stale file handle
-Stale file handle   #过期文件句柄
+# 1. 验证 ro（只读）
+# 服务端 /etc/exports
+/data 172.16.1.0/24(ro,sync,all_squash)
+systemctl restart nfs-server
+# 客户端
+mount -t nfs 172.16.1.31:/data /mnt
+touch /mnt/file
+# touch: cannot touch 'file': Read-only file system
 
-错误原因是客户端之前挂载的mnt目录在没有卸载的情况下，服务器侧把这个目录移除了，才会出现这样的错误提示。解决的办法就是在客户端umount一下，在重新挂载就好了。
-# umount /data
-# mount  -t nfs 172.16.1.31:/data /data/
+# 2. 验证 all_squash + anonuid/anongid
+# 服务端
+/data 172.16.1.0/24(rw,sync,all_squash,anonuid=666,anongid=666)
+groupadd -g 666 www && useradd -u 666 -g 666 www
+systemctl restart nfs-server
+chown -R www.www /data/
+# 客户端重新挂载后，写入文件属主显示 666；
+# 建议客户端也建 uid/gid=666 的 www，避免权限不一致
+groupadd -g 666 www && useradd -g 666 -u 666 www
 ```
 
-![1547285324565-cd2ac1d2-f00c-4932-bccd-0dd9dde301ab.png](img/NFS%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8-06.png)
+---
 
-![1547285335453-1e3ad619-e6d9-447f-87c8-bdca57f9e6d4.png](img/NFS%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8-07.png)
+## 八、NFS 存储小结
 
+**优点**
+1. 简单易用、部署方便、数据可靠、服务稳定，满足中小企业需求；
+2. 数据都在文件系统之上，看得见、好管理。
 
-> 更新: 2026-05-01 16:07:27  
-> 原文: <https://www.yuque.com/chengkanghua/oldboy50/tk8gl5>
+**局限**
+1. 存在单点故障，构建高可用维护麻烦；
+2. 数据明文，不做任何校验；
+3. 客户端挂载无需账号密码，安全性一般（内网使用）。
+
+**生产建议**
+1. 静态数据尽可能往前端推，减少后端存储压力；
+2. 存储里的静态资源通过 CDN 缓存（jpg/png/mp4/avi/css/js）；
+3. 没有缓存或架构历史问题太大，加再多存储也无用。
+
+### 报错：Stale file handle（过期文件句柄）
+```bash
+mount -t nfs 172.16.1.31:/data /data/
+# mount.nfs: Stale file handle
+```
+> 原因：客户端未卸载的情况下，服务端把该目录移除了。解决：客户端 `umount` 后再重新挂载。
+
+![小结图1](img/NFS%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8-06.png)
+![小结图2](img/NFS%E5%85%B1%E4%BA%AB%E5%AD%98%E5%82%A8-07.png)
+
+---
+
+## 九、常见面试题
+
+1. **NFS 基于什么协议？为什么需要 rpcbind？**
+   基于 RPC。NFS 各服务端口不固定（v3 下 mountd 随机端口），rpcbind 在 111 端口做"程序号→端口"的映射；客户端先查 rpcbind 拿到端口再直连。NFSv4 只用固定 2049，不再依赖 rpcbind。
+
+2. **NFS 的权限为什么常配 all_squash / root_squash？**
+   防止客户端 root 在共享目录里拿到服务端 root 权限；把所有访问统一映射为匿名用户（nfsnobody），统一权限、更安全。
+
+3. **rpc.mountd 和 nfsd 分别负责什么？**
+   rpc.mountd 在挂载时验证客户端 IP 是否允许挂（第一层挂载权限）；nfsd 负责实际文件读写操作和每次的文件操作权限验证（第二层）。
+
+4. **NFSv3 和 NFSv4 主要区别？生产选哪个？**
+   v3 多端口需 rpcbind、无状态、性能一般；v4 仅 2049、有状态（混合）、复合 RPC 性能更高、支持 Kerberos。生产推荐 **NFSv4**。
+
+5. **NFSv4 挂载路径为什么写 `/` 而不是 `/data`？**
+   因为 v4 使用"伪根"挂载（fsid=0），客户端先拿到伪根 FH，再通过复合 RPC 访问实际目录。
+
+6. **Stale file handle 怎么处理？**
+   客户端 `umount` 后重新 `mount` 即可，通常是服务端在客户端未卸载时移除了共享目录。
+
+7. **生产挂载 NFS 为什么要加 nosuid,noexec？**
+   共享目录只存静态数据，禁止在挂载点执行程序，防止木马上传后被运行。
+
+---
+
+> 更新：2026-05-01 16:07:27
+> 原文：<https://www.yuque.com/chengkanghua/oldboy50/tk8gl5>

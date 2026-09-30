@@ -1,37 +1,33 @@
-# Rsync服务实战
+# Rsync 服务实战
 
-# Rsync服务实战
-<font style="color:#222222;">客户端需求</font>
+> 一套完整的「客户端本地打包 → 推送到服务端 → 服务端校验并邮件通知」备份方案。
 
-<font style="color:#363636;">1.客户端每天凌晨01点在服务器本地打包备份(系统配置文件、日志文件、其他目录、应用配置等文件)</font>
+## 一、需求
 
-<font style="color:#363636;">2.客户端备份的数据必须存放至以主机名_IP地址_当前时间命名的目录中, 例/backup/nfs-server_172.16.1.31_2018-09-02 </font>
+**客户端（所有业务服务器）**
+1. 每天凌晨 01 点本地打包备份（系统配置、日志、应用配置等）。
+2. 备份存放到以 `主机名_IP_当前时间` 命名的目录，如 `/backup/nfs-server_172.16.1.31_2018-09-02`。
+3. 通过 rsync 把本地打包好的备份推送到 backup 服务器。
+4. 本地仅保留最近 **7 天** 数据，避免浪费磁盘。
 
-<font style="color:#363636;">3.客户端最后通过rsync推送本地已打包好的备份文件至backup服务器</font>
+**服务端（backup 服务器）**
+1. 部署 rsync，接收客户端推送的备份。
+2. 每天校验客户端推送的数据是否完整（md5）。
+3. 把校验结果邮件通知管理员。
+4. 仅保留 **6 个月（180 天）** 的备份数据。
 
-<font style="color:#363636;">4.客户端服务器本地保留最近7天的数据, 避免浪费磁盘空间</font><font style="color:#222222;">/backup/ 服务端需求</font>
+> 注意：所有服务器的备份目录必须都是 `/backup`。
 
-<font style="color:#363636;"></font>
+---
 
-<font style="color:#363636;">服务端</font>
+## 二、环境准备（服务端）
 
-<font style="color:#363636;">1.服务端部署rsync，用于接收客户端推送过来的备份数据</font>
-
-<font style="color:#363636;">2.服务端需要每天校验客户端推送过来的数据是否完整</font>
-
-<font style="color:#363636;">3.服务端需要每天校验的结果通知给管理员</font>
-
-<font style="color:#363636;">4.服务端仅保留6个月的备份数据,其余的全部删除</font>
-
-<font style="color:#666666;">注意：所有服务器的备份目录必须都为/backup</font>
-
-# 准备环境
 ```bash
-#1 安装rsync软件
+# 1. 安装
 yum -y install rsync
 
-#2 配置 /etc/rsyncd.conf
-cat >> /etc/rsyncd.conf<<EOF
+# 2. 配置 /etc/rsyncd.conf
+cat > /etc/rsyncd.conf<<EOF
 uid = rsync
 gid = rsync
 port = 873
@@ -51,58 +47,57 @@ comment = welcome to oldboyedu backup!
 path = /backup
 EOF
 
-# 3 创建用户（运行rsync服务的用户身份）
+# 3. 创建运行用户与备份目录
 useradd -M -s /sbin/nologin rsync
 mkdir /backup
 chown -R rsync.rsync /backup/
 
-# 4 创建虚拟用户密码文件(客户端连接时候使用)
+# 4. 虚拟用户密码文件（客户端连接时使用）
 echo "rsync_backup:1" >/etc/rsync.password
 chmod 600 /etc/rsync.password
 
-# 5启动 rsync 服务，并加入开机自启
+# 5. 启动并开机自启
 systemctl start rsyncd
 systemctl enable rsyncd
 
-# 6检查对应的端口 873
+# 6. 检查端口 873
 netstat -lntp |grep 873
 
-# 7测试 (客户端也安装rsync 但是不启动服务)
-#客户端推送  /etc/passwd 推到 服务端 backup模块
-rsync -avz /etc/passwd rsync_backup@10.0.0.7::backup
-#客户端下载
-rsync -avz rsync_backup@10.0.0.7::backup /opt
+# 7. 测试
+# 客户端也装 rsync（不启动服务）
+rsync -avz /etc/passwd rsync_backup@10.0.0.7::backup                      # 推送
+rsync -avz rsync_backup@10.0.0.7::backup /opt                            # 拉取
 
-#无密码方式备份 之指定文件
+# 无密码方式（指定密码文件）
 echo "1" > /etc/rsync.password
-chmod 600 /etc/rsync.password 
+chmod 600 /etc/rsync.password
 rsync -avz rsync_backup@10.0.0.7::backup /opt --password-file=/etc/rsync.password
 
-#无密码方式备份 之环境变量方式
+# 无密码方式（环境变量）
 export RSYNC_PASSWORD=1
 rsync -avz rsync_backup@10.0.0.7::backup /opt
-
-8其他
-强制一致性 pc  ->  U盘保持一致（--delete）
-rsync -avz --delete rsync_backup@10.0.0.7::backup/ /data/ --password-file=/etc/rsync.password
-
-rsync -avz --delete /data/ rsync_backup@10.0.0.7::backup/ --password-file=/etc/rsync.password
-
-限速
-dd if=/dev/zero of=/opt/test.dosk bs=1M count=1024
-rsync -avzP --bwlimit=1 /opt/test.dosk rsync_backup@10.0.0.7::backup
-
-1.脚本，每天01定时执行一次（打包->标记->推送->备份服务器->保留最近7天的文件）
-批量执行
-for i in {1..30};do date -s 2018/08/$i && sh /server/scripts/client_rsync_backup.sh;done
-
-
 ```
 
-[  
-](#k2ylcx)
+**其他常用操作**
+```bash
+# 强制一致性：让 PC 和 U 盘完全一致（--delete 删除目标多余文件）
+rsync -avz --delete rsync_backup@10.0.0.7::backup/ /data/ --password-file=/etc/rsync.password
+rsync -avz --delete /data/ rsync_backup@10.0.0.7::backup/ --password-file=/etc/rsync.password
 
-# [](#izf5tk)客户端推送脚本
+# 限速（避免打满带宽）
+dd if=/dev/zero of=/opt/test.dosk bs=1M count=1024
+rsync -avzP --bwlimit=1 /opt/test.dosk rsync_backup@10.0.0.7::backup
+```
+
+**定时批量测试（模拟 30 天）**
+```bash
+for i in {1..30}; do date -s 2018/08/$i && sh /server/scripts/client_rsync_backup.sh; done
+```
+
+---
+
+## 三、客户端推送脚本
+
 ```bash
 cat > /server/scripts/client_rsync_backup.sh<<'EOF'
 #!/usr/bin/bash
@@ -117,30 +112,30 @@ Path=/backup
 #2.创建备份目录
 [ -d $Path/$Dest ] || mkdir -p $Path/$Dest
 
-#3.备份对应的文件
+#3.备份对应文件
 [ -f $Path/$Dest/system.tar.gz ] || tar czf $Path/$Dest/system.tar.gz /etc/fstab /etc/rsyncd.conf && \
-[ -f $Path/$Dest/log.tar.gz ] || tar czf $Path/$Dest/log.tar.gz  /var/log/messages /var/log/secure && \
+[ -f $Path/$Dest/log.tar.gz ]    || tar czf $Path/$Dest/log.tar.gz    /var/log/messages /var/log/secure
 
-#4.携带md5验证信息
+#4.携带md5校验信息
 [ -f $Path/$Dest/flag ] || md5sum $Path/$Dest/*.tar.gz > $Path/$Dest/flag_${Date}
 
-#4.推送本地数据至备份服务器
+#5.推送本地数据至备份服务器
 export RSYNC_PASSWORD=1
 rsync -avz $Path/ rsync_backup@10.0.0.4::backup
 
-#5.本地保留最近7天的数据
+#6.本地保留最近7天
 find $Path/ -type d -mtime +7|xargs rm -rf
 EOF
-
-2.校验的压缩包（邮箱->md5->结果保存下来->将保存的结果发送给管理员->保留最近180天的数据）
 ```
 
-# [](#8ge2xq)服务端接收文件并校验发送邮箱
+---
+
+## 四、服务端接收、校验并邮件通知
+
+### 1. 配置发件（mailx）
 ```bash
-# 1.配置邮箱（配发件服务器）#克隆的主机可以卸载了重新安装一下
 yum install mailx -y
-# 配置邮件服务功能
-cat > /etc/mail.rc<<EOF   
+cat > /etc/mail.rc<<EOF
 set from=343264992@163.com
 set smtp=smtps://smtp.163.com:465
 set smtp-auth-user=343264992@163.com
@@ -149,64 +144,67 @@ set smtp-auth=login
 set ssl-verify=ignore
 set nss-config-dir=/etc/pki/nssdb/
 EOF
-
-```
-# 登录163 把这两个服务开启
-IMAP/SMTP服务已开启 
-POP3/SMTP服务已开启
-授权密码管理： 新增一个
-set smtp-auth-password=密码填写这里
-```
-
-#测试发邮件          标题			 收件人				发送内容
+# 登录 163 邮箱，开启 IMAP/SMTP 与 POP3/SMTP 服务，新增授权密码填入 smtp-auth-password
+# 测试
 mail -s "test$(date +%F)" 343264992@qq.com </etc/passwd
+```
 
+### 2. 服务端校验脚本
+```bash
 mkdir /server/scripts -p
-2 服务端脚本
 cat > /server/scripts/check_backup.sh<<'EOF'
 #!/usr/bin/bash
-#1.定义全局的变量
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
-
-#2.定义局部变量
 Path=/backup
 Date=$(date +%F)
 
-#3.查看flag文件,并对该文件进行校验, 然后将校验的结果保存至result_时间
+# 3.校验 flag 文件中的 md5，结果保存到 result_时间
 find $Path/*_${Date} -type f -name "flag_$Date"|xargs md5sum -c >$Path/result_${Date}
-#find $Path/*_${Date} -type f -name "flag_$Date" -exec md5sum -c {} \; >$Path/result_${Date}
-#4.将校验的结果发送邮件给管理员 123@qq.com
+# find $Path/*_${Date} -type f -name "flag_$Date" -exec md5sum -c {} \; >$Path/result_${Date}
+
+# 4.校验结果邮件发给管理员
 mail -s "Rsync Backup $Date" 343264992@qq.com <$Path/result_${Date}
 
-#5.删除超过7天的校验结果文件, 删除超过180天的备份数据文件
+# 5.清理：超过7天的校验结果、超过180天的备份数据
 find $Path/ -type f -name "result*" -mtime +7|xargs rm -f
 find $Path/ -type d -mtime +180|xargs rm -rf
 EOF
-
-定时任务
-	#多台客户端
-# crontab -l
-00 01 * * * /usr/bin/bash /server/scripts/clinet_rsync_backup.sh >/dev/null 2>&1
-
- #服务端
-# crontab -l
-00 05 * * * /usr/bin/bash /server/scripts/check_backup.sh >/dev/null 2>&1
-
-
-
 ```
 
+### 3. 定时任务
+```bash
+# 多台客户端：每天 01:00 执行推送
+# crontab -l
+00 01 * * * /usr/bin/bash /server/scripts/client_rsync_backup.sh >/dev/null 2>&1
 
+# 服务端：每天 05:00 执行校验+通知
+# crontab -l
+00 05 * * * /usr/bin/bash /server/scripts/check_backup.sh >/dev/null 2>&1
+```
 
+---
 
+## 五、常见面试题
 
+1. **rsync 服务端配置里 `fake super = yes` 有什么用？**
+   让 rsync 进程（如以 rsync 普通用户运行）能保留文件的属主/权限等元数据，无需以 root 运行，提升安全性。
 
+2. **`--delete` 参数是做什么的？**
+   使目标目录与源完全一致，删除目标中源没有的文件（强制同步）。生产慎用，避免误删。
 
+3. **客户端怎么免密推送？**
+   两种方式：① `--password-file` 指定密码文件（`chmod 600`）；② 环境变量 `RSYNC_PASSWORD=xxx`。
 
+4. **md5 校验在备份方案中的作用？**
+   客户端打包后生成 `flag` 文件记录各包 md5；服务端 `md5sum -c` 校验完整性，结果邮件通知，确保备份没损坏。
 
+5. **`--bwlimit` 一般什么时候用？**
+   备份大文件时限制传输速率，避免打满带宽影响业务。
 
+6. **本地保留 7 天、服务端保留 180 天是怎么实现的？**
+   用 `find ... -mtime +N` 配合 `rm`：客户端 `-mtime +7`、服务端 `-mtime +180` 定时清理。
 
+---
 
-
-> 更新: 2026-04-29 18:59:05  
-> 原文: <https://www.yuque.com/chengkanghua/oldboy50/zickig>
+> 更新：2026-04-29 18:59:05
+> 原文：<https://www.yuque.com/chengkanghua/oldboy50/zickig>
