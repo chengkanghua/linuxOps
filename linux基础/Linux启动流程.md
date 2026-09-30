@@ -14,8 +14,6 @@
   - linux 启动过程  centos7  ****
 - > 更新: 2026-04-23 14:03:08
 
-# Linux启动流程
-
 [Linux启动流程.pdf](https://www.yuque.com/attachments/yuque/0/2019/pdf/194754/1554022046140-03f26a2d-b248-4806-9c38-e24c7d6a9c0f.pdf)
 
 

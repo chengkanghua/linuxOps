@@ -1,374 +1,225 @@
-# day21文件目录的权限
+# day21 文件与目录的权限
 
-> 本文档已做排版优化（清除样式标签、统一导航），全部内容原样保留。
+![权限示意图](img/day21%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%9A%84%E6%9D%83%E9%99%90-01.png)
 
-## 目录
-- day21文件目录的权限
-- 文件和目录 的rwx 的含义
-- 说错下面错误的报错原因:
-- 文件访问过程与权限
-- 控制系统默认权限 umask
-- 如何通过控制权限，来保护网站的安全？
-- linux 特殊权限 （了解） suid setuid  sticky粘zhān滞位
-- 隐藏属性（文件系统权限）
+## 一、文件与目录 rwx 的含义
 
-# day21文件目录的权限
-
-
-
-
-
-![1546509565405-25606c6f-8b15-4ae1-a5f8-3857d5fd6125.png](img/day21%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%9A%84%E6%9D%83%E9%99%90-01.png)
-
-
-
-
-
-# 文件和目录 的rwx 的含义
+### 实验准备
 ```bash
-对于文件rwx含义
-
 useradd -m -s /bin/bash oldboy
 
-# root用户下面修改权限   测试r权限  
-# oldboy用户只有r权限
-
+# root 下只给 oldboy 对 test.sh 的 r 权限
 echo "hostname" > /tmp/test.sh
 chown oldboy:oldboy test.sh
 chmod u=r test.sh
 # ll /tmp/test.sh
 -r--r--r-- 1 oldboy oldboy 0 Aug 18 08:52 /tmp/test.sh
 
-
-#oldboy用户下面测试
+# oldboy 用户测试
 su - oldboy
 cd /tmp/
-$ ll test.sh
--r--r--r--. 1 oldboy oldboy 9 Aug  6 12:32 test.sh
-$ cat /tmp/test.sh
+$ cat /tmp/test.sh        # 可读
 hostname
-$ echo 'pwd'>>test.sh
+$ echo 'pwd' >> test.sh   # 不可写
 -bash: test.sh: Permission denied
-$ /oldboy/test.sh
--bash: /oldboy/test.sh: Permission denied
+$ /tmp/test.sh            # 不可执行
+-bash: /tmp/test.sh: Permission denied
 
-#root用户下面修改权限   测试w权限  
-#oldboy用户只有w 权限
-# chmod u=w test.sh
-# ll test.sh
---w-r--r--. 1 oldboy oldboy 9 Aug  6 12:32 test.sh
-
-#oldboy用户下面测试
-su - oldboy
-$ ll test.sh
---w-r--r--. 1 oldboy oldboy 9 Aug  6 12:32 test.sh
-$ cat test.sh
+# root 下只给 oldboy 对 test.sh 的 w 权限
+chmod u=w test.sh
+# --w-r--r--. 1 oldboy oldboy 9 Aug  6 12:32 test.sh
+# oldboy 测试
+$ cat test.sh             # 不可读
 cat: test.sh: Permission denied
-$ echo 'pwd' >>test.sh  #追加成功
-$ echo 'pwd' >>test.sh
-$ echo 'pwd' >>test.sh
-$ echo 'pwd' >>test.sh
-$ cat test.sh
-cat: test.sh: Permission denied
-$ /oldboy/test.sh
--bash: /oldboy/test.sh: Permission denied
+$ echo 'pwd' >> test.sh   # 可追加
+$ /tmp/test.sh            # 不可执行
+-bash: /tmp/test.sh: Permission denied
+```
 
-
-# 对于目录rwx含义
-创建环境
+### 目录 rwx 实验
+```bash
+# 创建环境
 mkdir -p /oldboy/test
 touch /oldboy/test/oldboy{01..5}.txt
-chown oldboy.oldboy  /oldboy/test/
-# 只给oldboy用户 目录r权限
+chown oldboy.oldboy /oldboy/test/
+
+# 只给目录 r 权限
 chmod u=r /oldboy/test/
-
-# ll -d /oldboy/test
-drwxr-xr-x. 2 oldboy oldboy 4096 Aug  6 13:02 /oldboy/test
-
-
-#oldboy用户下面测试
-su - oldboy
-$ cd /oldboy
+# oldboy 测试：能看到文件名，但查看属性报错
 $ ls test
 ls: cannot access test/oldboy01.txt: Permission denied
-ls: cannot access test/oldboy02.txt: Permission denied
-ls: cannot access test/oldboy03.txt: Permission denied
-ls: cannot access test/oldboy04.txt: Permission denied
-ls: cannot access test/oldboy05.txt: Permission denied
+...
 oldboy01.txt  oldboy02.txt  oldboy03.txt  oldboy04.txt  oldboy05.txt
 $ ls -l test
-ls: cannot access test/oldboy05.txt: Permission denied
-ls: cannot access test/oldboy04.txt: Permission denied
-ls: cannot access test/oldboy01.txt: Permission denied
-ls: cannot access test/del.sh: Permission denied
-ls: cannot access test/oldboy02.txt: Permission denied
-ls: cannot access test/oldboy03.txt: Permission denied
 total 0
--????????? ? ? ? ?            ? oldboy01.txt
--????????? ? ? ? ?            ? oldboy02.txt
--????????? ? ? ? ?            ? oldboy03.txt
--????????? ? ? ? ?            ? oldboy04.txt
--????????? ? ? ? ?            ? oldboy05.txt
+-????????? ? ? ? ?            ? oldboy01.txt   # 属性不可见
 
-
-# 只给目录用户 w权限
-# chmod u=w /oldboy/test
-# ll /oldboy/test -d
-d-w-r-xr-x 2 oldboy oldboy 106 Aug 18 09:03 /oldboy/test
-#切换到oldboy用户
-$ cd /oldboy/
-$ ll test
-ls: cannot open directory test: Permission denied
-$ ls test
+# 只给目录 w 权限
+chmod u=w /oldboy/test
+$ cd /oldboy/ && ll test
 ls: cannot open directory test: Permission denied
 $ touch test/aa.sh
-touch: cannot touch ‘test/aa.sh’: Permission denied
-
-
-对于文件rwx 含义
-r-- = 读文件
--w- = 只可以追加内容, echo 'xx' >> file, 但是vim,cat等没有权限
-rw- = 修改文件
-r-x = 执行脚本
-
-r 读取文件内容
-w 修改文件内容， 需要r权限配合
-只有w权限的时候 ，强制保存退出会导致源文件内容丢失
-x 权限表示是否能执行脚本， 需要r权限配合
-
-
-对于目录 rwx 含义
-r-x =  查看目录内容和文件属性
--wx =  目录下可以创建修改删除文件
-
-r 查看目录内容   ls   需要x权限配合（x是否能查看文件的属性）
-w 在目录下创建 删除 修改文件名（w删除权限需要x 配合）
-x  是否能进入到目录   cd  （你是否能查看目录中文件的属性 需要r配合）
-删除一个文件  看文件所在目录的权限 是否有wx权限
-
-
+touch: cannot touch 'test/aa.sh': Permission denied
 ```
 
+### rwx 总结
+**对文件**
+- `r` 读取文件内容（如 `cat`）
+- `w` 修改文件内容（需 `r` 配合）；**只有 w 时强制保存会清空源文件**
+- `x` 执行脚本（需 `r` 配合）
 
+**对目录**
+- `r` 查看目录内容（`ls`），需 `x` 配合
+- `w` 在目录下创建/删除/改名文件（需 `x` 配合）
+- `x` 进入目录（`cd`），查看文件属性也需 `x` 配合
+- **删除一个文件，看的是该文件所在目录是否有 `wx` 权限**
 
- 
-
-# 说错下面错误的报错原因:
+## 二、错误报错原因辨析
 ```bash
-1. $ ls /root/ 
+1. $ ls /root/
 ls: cannot open directory /root/: Permission denied
-目录没有rx权限 
-2. $ touch /etc/passwd.txt 
+→ 目录没有 rx 权限
+
+2. $ touch /etc/passwd.txt
 touch: cannot touch `/etc/passwd.txt': Permission denied
-目录没有wx权限 
-3. $ \rm -f /etc/sysconfig/network
+→ 目录没有 wx 权限
+
+3. $ rm -f /etc/sysconfig/network
 rm: cannot remove `/etc/sysconfig/network': Permission denied
-目录没有 wx权限 
-4. $ echo '#oldboy'  >>/etc/hosts  
+→ 目录没有 wx 权限
+
+4. $ echo '#oldboy' >> /etc/hosts
 -bash: /etc/hosts: Permission denied
-文件没有w权限 
-5. [oldboy@oldboyedu50-lnb /]$ cat /etc/shadow 
+→ 文件没有 w 权限
+
+5. $ cat /etc/shadow
 cat: /etc/shadow: Permission denied
-文件没有r 权限
-
-
-
+→ 文件没有 r 权限
 ```
 
-
-
-# 文件访问过程与权限
+## 三、文件访问过程与权限
 ```bash
 cat oldboy.txt
-    		inode     block
-文件    文件属性	  数据（文件内容）
-目录    目录属性   文件名
+        inode          block
+文件    文件属性        数据（文件内容）
+目录    目录属性        文件名
 
 cat /oldboy/test.sh
-权限可能与文件所在目录及上级目录 及 目录有关
+权限可能与文件所在目录及上级目录有关
 
+文件访问过程：
+  1. 用户发起访问请求（vim/cat 打开文件）
+  2. 操作系统内核介入（定位文件）
+  3. 文件权限检查（文件权限位）
+  4. 实际文件访问（读：从存储读入内存；写：从内存写入存储）
 
-文件访问过程
-  1用户发起访问请求  (应用程序 vim cat 打开文件)
-  2操作系统内核介入  (定位文件)
-  3文件权限检查    (文件权限位) 
-  4实际文件访问    (读操作会从存储设备读取文件内容到内存，写操作会将内存中的数据写入存储设备等)
-
-文件权限 ：读（r）、写（w）、执行（x），分别对应数字 4、2、1。	
-
-  
+文件权限：读（r）、写（w）、执行（x），对应数字 4、2、1。
 ```
 
-
-
-# 控制系统默认权限 umask
+## 四、控制默认权限 umask
 ```bash
 umask
-022    777-022
-文件一般可以给最大权限 666
-目录一般可以给最大权限 777
+022      # 777-022
 
-目录默认权限 777-022 =755
-文件默认权限 666-022 =644
+# 目录一般最大权限 777，文件一般最大权限 666
+目录默认权限 = 777 - 022 = 755
+文件默认权限 = 666 - 022 = 644
 
 umask 032
-文件 666 -032 =634 + 010 =644
+文件 = 666 - 032 = 634 + 010（奇数位加 1）= 644
 
-umask  是035 系统文件的默认权限是？ 目录权限是？
-文件 666-035=631 + 011 =642   奇数加1
-目录 777-035=742
+umask 是 035，系统文件/目录默认权限？
+文件 = 666 - 035 = 631 + 011（奇数加 1）= 642
+目录 = 777 - 035 = 742
 
-要求创建的文件默认权限是000，目录的权限是111  umask？
-666
+# 要求创建的文件默认权限 000、目录 111，umask 应为？
+666    # 777-666=111(目录)  666-666=000(文件)
 ```
 
-
-
-# 如何通过控制权限，来保护网站的安全？
+## 五、通过权限保护网站安全
 ```bash
-网站 blog.oldboyedu.com
-/app/blog
+# 网站 blog.oldboyedu.com 根目录 /app/blog
+# 1. 网站以虚拟用户 www 运行
+#    file 644   dir 755
 
-1 网站通过 www用户运行（虚拟用户）
-	file  644
-	dir  755
-  
-模拟环境  
-mkdir -p /app/blog  /app/blog/upload    
-touch    /app/blog/tao.avi /app/blog/dao.mp4  /app/blog/ndd.torrent 
+# 模拟
+mkdir -p /app/blog /app/blog/upload
+touch /app/blog/tao.avi /app/blog/dao.mp4 /app/blog/ndd.torrent
 
-# 网站用户通过www用户运行
-useradd  www
+useradd www
 su - www
 $ touch upload/499G.torrent
 touch: cannot touch `upload/499G.torrent': Permission denied
 
-#什么原因及怎么解决
-# chown www.www /app/blog/upload/
-# chmod u+w /app/blog/upload
-# chmod u+x /app/blog/upload
+# 原因及解决：上传目录需给 www 写+执行权限
+chown www.www /app/blog/upload/
+chmod u+w /app/blog/upload
+chmod u+x /app/blog/upload
 # ll -d /app/blog/upload
 drwxr-xr-x 2 www www 26 Aug 18 10:16 /app/blog/upload
 ```
 
-# linux 特殊权限 （了解） suid setuid  sticky粘zhān滞位
+## 六、Linux 特殊权限（了解）：SUID / SGID / Sticky
 
+> 注：粘滞位（sticky）与 SGID 容易混淆，下面分别说明。
 
+### 1. SUID（4，u+s / 4755）
+运行命令时**临时拥有该命令所有者的权限**（如 root）。
 ```bash
-zhān  [zhì]
-粘      滞
-
-1 suid 
-运行某一个命令的时候相当于这个命令的所有者（root）
-设置方法 
-chmod u+s /bin/rm  # 或者chmod 4755 /bin/rm
-
-
-2 sticky 粘滞位 
-任何人都可以在这个目录创建文件，每个人只能管理自己的文件，其他人处理不了
-作用： 运行某一个命令的时候相当于属于这个命令的所在家庭（用户组）（root）
-设置方法 chmod 1777 /tmp
-
-
-#chmod u+s /bin/ls /bin/touch
-#ll /bin/ls /bin/touch
--rwsr-xr-x. 1 root root 117048 Mar 23  2017 /bin/ls
--rwsr-xr-x. 1 root root  52560 Mar 23  2017 /bin/touch
-#chmod u+s /bin/ls
-#stat /bin/ls
-File: `/bin/ls'
-Size: 117048    	Blocks: 232        IO Block: 4096   regular file
-Device: 803h/2051d	Inode: 130878      Links: 1
-Access: (4755/-rwsr-xr-x)  Uid: (    0/    root)   Gid: (    0/    root)
-Access: 2018-08-07 22:21:49.855105248 +0800
-Modify: 2017-03-23 02:52:45.000000000 +0800
-Change: 2018-08-07 22:24:05.983104952 +0800
-
-#stat /tmp
-File: `/tmp'
-Size: 4096      	Blocks: 8          IO Block: 4096   directory
-Device: 803h/2051d	Inode: 261972      Links: 7
-Access: (1777/drwxrwxrwt)  Uid: (    0/    root)   Gid: (    0/    root)
-Access: 2018-08-07 21:40:11.343109682 +0800
-Modify: 2018-08-07 21:39:54.827108611 +0800
-Change: 2018-08-07 21:39:54.827108611 +0800
-
-
-
+chmod u+s /bin/rm      # 或 chmod 4755 /bin/rm
+chmod u+s /bin/ls
+# ll /bin/ls
+-rwsr-xr-x. 1 root root 117048 Mar 23 2017 /bin/ls
+# stat /bin/ls
+Access: (4755/-rwsr-xr-x)  Uid: ( 0/ root)
 ```
 
+### 2. SGID（2，g+s / 2755）
+运行命令时**临时加入该命令所属用户组的权限**。
 
-
-
-
-# 隐藏属性（文件系统权限）
+### 3. Sticky 粘滞位（1，o+t / 1777）
+目录下任何人都能创建文件，但**只能管理自己的文件**，无法删除/修改别人的。
 ```bash
-chattr  改变文件或目录的扩展属性
-chattr [options] [mode] files
-常用选项
--R：递归地对目录及其内容应用更改。
--V：显示命令的详细输出。
-属性模式
-+：添加属性。
--：移除属性。
-=：设置属性
-常用属性
-a：仅追加模式。文件只能被追加内容，不能被删除或重命名。
-i：不可变模式。文件或目录不能被删除、重命名、链接、写入或追加内容。
-d：不可压缩模式。在使用 dump 命令备份文件系统时，该文件或目录将被忽略。
-s：安全删除模式。当文件被删除时，其内容将被完全清除。
-u：不可删除模式。如果文件被删除，其内容将被保存，以便之后可以恢复。
+chmod 1777 /tmp
+# stat /tmp
+Access: (1777/drwxrwxrwt)  Uid: ( 0/ root)
+```
 
-sudo chattr +i /etc/passwd #设置不可变属性
-sudo chattr -i /etc/passwd  #移除不可变属性
-lsattr /etc/passwd   #查看文件属性
-lsattr -R /etc      #递归显示目录属性
-lsattr -a /home  #显示所有文件和目录的属性
+## 七、隐藏属性（文件系统权限 chattr / lsattr）
+```bash
+chattr  改变文件或目录的扩展属性：chattr [选项] [模式] 文件
+常用选项：-R 递归；-V 详细输出
+属性模式：+ 添加  - 移除  = 设置
+常用属性：
+  a  仅追加：只能追加内容，不能删除或重命名
+  i  不可变：不能删除、重命名、写入或追加
+  d  不可压缩（dump 备份时忽略）
+  s  安全删除（删除时清空内容）
+  u  不可删除（删除后内容可恢复）
 
+sudo chattr +i /etc/passwd      # 设置不可变
+sudo chattr -i /etc/passwd      # 移除不可变
+lsattr /etc/passwd              # 查看属性
+lsattr -R /etc                 # 递归查看目录
+lsattr -a /home                # 显示所有文件/目录
 
-a（append 只能追加） 如果设置了这个权限 只能追加  不能删除 不能修改
-i  （immutable 无敌）无法修改 无法删除
+# a：只能追加，不能删除/修改
 # chattr +a test.sh
-# lsattr  test.sh
+# lsattr test.sh
 -----a-------e- test.sh
-# \rm -f test.sh
+# rm -f test.sh
 rm: cannot remove `test.sh': Operation not permitted
 
-# 查看命令路径   网站安全以后可以改这两个文件名字
-#which chattr lsattr
+# i：不可修改、不可删除
+# which chattr lsattr
 /usr/bin/chattr
 /usr/bin/lsattr
 ```
 
+![特殊权限](img/day21%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%9A%84%E6%9D%83%E9%99%90-02.png)
+![隐藏属性](img/day21%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%9A%84%E6%9D%83%E9%99%90-03.png)
+![权限练习](img/day21%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%9A%84%E6%9D%83%E9%99%90-04.png)
+![umask](img/day21%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%9A%84%E6%9D%83%E9%99%90-05.png)
 
-
-
-
-
-
-
-
-
-
-![1546509639576-c2301272-af79-405f-a9c1-2d637a8bacf8.png](img/day21%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%9A%84%E6%9D%83%E9%99%90-02.png)
-
-
-
-![1546509651068-64b1afd8-e998-44c7-80e2-16887e5f3346.png](img/day21%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%9A%84%E6%9D%83%E9%99%90-03.png)
-
-![1546509668142-79425fa7-658d-4b28-9811-8c0be3addfeb.png](img/day21%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%9A%84%E6%9D%83%E9%99%90-04.png)
-
-
-
-
-
-![1546509690763-b91066f1-7860-48ff-98d2-e8e6dba8df58.png](img/day21%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%9A%84%E6%9D%83%E9%99%90-05.png)
-
-
-
-
-
-
-
-> 更新: 2026-04-23 21:46:35  
-> 原文: <https://www.yuque.com/chengkanghua/oldboy50/qbcduc>
+> 更新：2026-09-30
+> 原文：<https://www.yuque.com/chengkanghua/oldboy50/qbcduc>

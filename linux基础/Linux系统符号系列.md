@@ -59,8 +59,6 @@
 - 所有大写字母
 - -i 不区分大小写
 
-# Linux系统符号系列
-
 ![1546507679173-8dabaed9-7d6c-465c-ae16-5e2df24e6ce2.png](img/Linux%E7%B3%BB%E7%BB%9F%E7%AC%A6%E5%8F%B7%E7%B3%BB%E5%88%97-01.webp)
 
 # 如何证明自己有经验？

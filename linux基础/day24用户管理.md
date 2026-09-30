@@ -32,8 +32,6 @@
 - echo stu{01..3}|xargs -n1|sed 's#.*#useradd &;echo 123456|passwd --stdin &#g'
 - cat 创建文件时里面的特殊字符加反斜杠\$
 
-# day24用户管理
-
 ![1546510854253-45f41c40-bb88-4d25-8ff6-50da95928f53.png](img/day24%E7%94%A8%E6%88%B7%E7%AE%A1%E7%90%86-01.png)
 
 [全部知识回顾总结张首富.xmind](https://www.yuque.com/attachments/yuque/0/2019/xmind/194754/1554017188555-2fcc5dad-122c-4439-bf7b-458dd5c89d8e.xmind)

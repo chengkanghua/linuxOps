@@ -12,8 +12,6 @@
 - tcpdump中最常见的几个参数
 - 参考资料
 
-# tcpdump-抓包工具-Linux
-
 [https://www.cnblogs.com/asheng2016/p/9562707.html 原文\
 ](https://www.cnblogs.com/asheng2016/p/9562707.html)
 

@@ -5,8 +5,6 @@
 ## 目录
 - 记录sudo日志
 
-# 记录sudo日志
-
 ```bash
 # 1、配置/etc/sudoers记录日志路径
 echo "Defaults  logfile=/var/log/sudo.log" >>/etc/sudoers

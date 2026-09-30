@@ -27,8 +27,6 @@
 - [](https://www.yuque.com/chengkanghua/oldboy50/balhn5#uiunix)yum grouplist
 - [](https://www.yuque.com/chengkanghua/oldboy50/balhn5#na0lgv)zip 打包文件
 
-# day13 知识点串
-
 ![1546505225915-6fbbd77e-8f0e-4a1e-9e2e-7c2ca14c417b.png](img/day13%E7%9F%A5%E8%AF%86%E7%82%B9%E4%B8%B2-01.png)
 
 # 单引号 双引号  反引号
