@@ -1,102 +1,64 @@
-# 
+# phpMyAdmin 配合 Nginx 与 PHP 安装
 
+## 1. 概况
 
-# [](#207vkp)1. 概况
+phpMyAdmin 是网页端图形化操作 MySQL 的工具（本文用 4.8.3）。在 Web 集群中，数据库常独立部署在一台机器，而管理员希望在管理机上通过 Web 界面操作数据库——把 phpMyAdmin 装在管理机（10.0.0.61），实际操作的是数据库机（10.0.0.51）的数据。
 
+**环境**
+- phpMyAdmin-4.8.3-all-languages、PHP 7.1、Nginx 1.14、MySQL 5.7、CentOS 7.5
+- 管理机 10.0.0.61：装 nginx / php / phpMyAdmin
+- 数据库机 10.0.0.51：装 MySQL 5.7
 
-phpMyAdmin是用来在网页端图形化操作MySQL数据库的工具，使用起来非常直观，目前最新版本是4.8.3。在搭建web集群架构时可能有这样的需求，数据库安装在专门的一台机器上，但是希望管理机器可以通过web界面操作数据库机器，这时就需要把phpMyAdmin安装在管理机器上，但是操作的是数据库机器的数据。
-
-
-
-本文安装phpMyAdmin使用的是如下环境：
-
-
-
-+ phpMyAdmin-4.8.3-all-languages
-+ php7.1
-+ nginx1.14
-+ MySQL5.7
-+ CentOS7.5
-+ vmware12
-+ xshell5
-+ windows10
-
-
-
-准备两台虚拟机，一台IP10.0.0.61是管理机器，上面安装nginx，php，phpMyAdmin，另一台是数据库机器，IP10.0.0.51，上面安装MySQL5.7
-
-
-
-大致操作步骤如下：
-
-
-
-1. 安装php-7.1(webtatic源yum安装)
-2. 安装nginx-1.14(官方yum源)
-3. 安装MySQL-5.7(官方yum源-安装在10.0.0.51机器上)
-4. 授权远程连接用户账号和密码
-5. 下载phpMyAdmin-4.8.3(到官网下载)
-6. 简单优化下php和nginx
-7. 配置nginx配置文件
-8. 配置phpMyAdmin config.inc.php
+**步骤概览**
+1. 管理机装 PHP 7.1（webtatic 源）
+2. 管理机装 Nginx 1.14（官方源）
+3. 数据库机装 MySQL 5.7（官方源）
+4. 数据库机授权远程连接账号
+5. 管理机下载 phpMyAdmin 4.8.3
+6. 简单优化 PHP / Nginx
+7. 配置 Nginx
+8. 配置 `config.inc.php`
 9. 浏览器访问
 
+## 2. MySQL 与 PHP/Nginx 简单优化
 
-
-# [](#h3glkb)2. php-mysql-nginx-简单优化
-
-
-全新安装MySQL5.7，授权远程连接用户，可参考如下命令：
-
-
-
-```plain
-[root@db01 ~]# hostname -I
-10.0.0.51 172.16.1.51 
-[root@db01 ~]# mysql -uroot -p$(awk '/temporary password/ {print $NF}' /var/log/mysqld.log) \
---connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'As4k.top'";
-#创建账号并授权(这里把权限打满)
-# mysql -uroot -pAs4k.top -e 'GRANT ALL PRIVILEGES ON *.* TO "as4k"@"%" IDENTIFIED BY "As4k.top"';
-# mysql -uroot -pAs4k.top -e "CREATE DATABASE jpress";
+**数据库机（10.0.0.51）**
+```bash
+hostname -I        # 10.0.0.51 172.16.1.51
+# 用初始临时密码改 root 密码
+mysql -uroot -p$(awk '/temporary password/ {print $NF}' /var/log/mysqld.log) \
+  --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'As4k.top';"
+# 创建远程账号并授权（权限打满，仅测试）
+mysql -uroot -pAs4k.top -e 'GRANT ALL PRIVILEGES ON *.* TO "as4k"@"%" IDENTIFIED BY "As4k.top";'
+mysql -uroot -pAs4k.top -e "CREATE DATABASE jpress;"
 ```
+> 登录远程数据库必须用已授权的 `as4k` 账号，**无法用 root 直接登录**。
 
-
-
-对php和nginx简单优化，可参考如下命令：
-
-
-
-```plain
-[root@m01 ~]# hostname -I
-10.0.0.61 172.16.1.61 
-
-#添加虚拟用户www
+**管理机（10.0.0.61）**
+```bash
+hostname -I        # 10.0.0.61 172.16.1.61
+# 虚拟用户 www
 groupadd -g 666 www
 useradd -u666 -g666 -s /sbin/nologin -M www
 
-#设置nginx运行用户为www
+# nginx 运行用户与上传大小
 sed -i '/^user/c  user www;' /etc/nginx/nginx.conf
-
-#设置nginx上传文件大小为2G
 grep 'client_max_body_size' /etc/nginx/nginx.conf
 [ $? -eq 1 ] && sed -i '/^http/a client_max_body_size 2048M;' /etc/nginx/nginx.conf
 
-#设置php-fpm运行用户为www
+# php-fpm 运行用户
 sed -i '/^user/c user = www' /etc/php-fpm.d/www.conf
 sed -i '/^group/c group = www' /etc/php-fpm.d/www.conf
 
-#设置php上传文件大小为2G
+# php 上传/内存限制
 sed -i '/^post_max_size/c post_max_size = 2048M' /etc/php.ini
 sed -i '/^memory_limit/c memory_limit = 128M' /etc/php.ini
 sed -i '/^upload_max_filesize/c upload_max_filesize = 2048M' /etc/php.ini
 
-#重启nginx和php-fpm
-systemctl restart nginx
-systemctl enable nginx
-systemctl restart php-fpm
-systemctl enable php-fpm
+systemctl restart nginx && systemctl enable nginx
+systemctl restart php-fpm && systemctl enable php-fpm
 
-#快速验证nginx和php是否配置正确
+# 快速验证
 id www
 netstat -lntup | egrep 'nginx|php'
 ps aux | egrep 'nginx|php'
@@ -104,51 +66,20 @@ nginx -t
 systemctl status nginx | grep running
 systemctl status php-fpm | grep running
 ```
+> 注：`sed` 批量修改时一次性粘贴太多到 Xshell 可能错乱，建议一块一块复制执行。
 
+## 3. 配置 Nginx 与 phpMyAdmin
 
-
-> sed批量修改，一次性粘贴太多到Xshell中批量执行，似乎会导致错乱，不知为何，大家可以一块一块复制。
->
-
-
-
-# [](#86sglu)3. 配置nginx和phpMyAdmin
-
-
-```plain
-[root@m01 ~]# hostname -I
-10.0.0.61 172.16.1.61
+### 1. 准备代码
+```bash
+mkdir -p /code && cd /code
+# 官网 phpmyadmin.net 下载 phpMyAdmin-4.8.3-all-languages.zip
+unzip -q phpMyAdmin-4.8.3-all-languages.zip
+mv phpMyAdmin-4.8.3-all-languages phpmyadmin
 ```
 
-
-
-1 准备好phpMyAdmin代码
-
-
-
-```plain
-[root@m01 ~]# mkdir -p /code; cd /code; pwd
-/code
-[root@m01 code]# ll -lh
-total 11M
-drwxr-xr-x 12 root root 4.0K Aug 22 09:37 phpMyAdmin-4.8.3-all-languages
--rw-r--r--  1 root root  11M Oct  2 18:36 phpMyAdmin-4.8.3-all-languages.zip
-[root@m01 code]# unzip -q phpMyAdmin-4.8.3-all-languages.zip
-[root@m01 code]# mv phpMyAdmin-4.8.3-all-languages phpmyadmin
-```
-
-
-
-> `phpMyAdmin-4.8.3-all-languages.zip`在官网`phpmyadmin.net`下载
-
-
-
-2 配置nginx phpmyadmin.conf
-
-
-
-```plain
-[root@m01 conf.d]# cat /etc/nginx/conf.d/phpmyadmin.conf 
+### 2. 配置 Nginx（phpmyadmin.conf）
+```nginx
 server {
     listen 3307;
     server_name 10.0.0.61;
@@ -163,44 +94,21 @@ server {
         include        fastcgi_params;
     }
 }
-[root@m01 conf.d]# nginx -t
-[root@m01 conf.d]# systemctl restart nginx
-[root@m01 conf.d]# netstat -lntp | grep 3307
 ```
+```bash
+nginx -t
+systemctl restart nginx
+netstat -lntp | grep 3307
+```
+> 端口用 3307 仅为避开冲突，默认 80 等均可，只要不与其它服务冲突。
 
-
-
-端口我用的是3307，用默认的80或其它都可，只要注意不要和系统内其它软件使用的端口冲突即可。
-
-
-
-3 配置phpmyadmin config.inc.php
-
-
-
-`config.inc.php`这个配置文件放在`/code/phpmyadmin/`也就是phpMyAdmin的安装目录，此配置文件是phpMyAdmin是安装官方要求手动安装phpMyAdmin配置的，具体细节可参考文末的链接，这里面主要就是用来配置远程数据库机器的信息，在没有安装phpMyAdmin之前，该文件也可以访问`10.0.0.61:3307/setup`来自动生成，我已经生成好了，大家改把改把即可据为己用。
-
-
-
-> 此刻打开`10.0.0.61:3307/setup`会报错，原因见下文。
->
-
-
-
-```plain
-[root@m01 ~]# vim /code/phpmyadmin/config.inc.php
+### 3. 配置 config.inc.php
+该文件位于 `/code/phpmyadmin/`，用于配置**远程数据库**信息。可由 `10.0.0.61:3307/setup` 自动生成，也可手动编写：
+```php
 <?php
-/*
- * Generated configuration file
- * Generated by: phpMyAdmin 4.8.3 setup script
- * Date: Tue, 02 Oct 2018 12:46:28 +0000
- * config.inc.php
- */
-
-/* Servers configuration */
 $i = 0;
 
-/* Server: 172.16.1.51 [1] */
+/* Server: 172.16.1.51 */
 $i++;
 $cfg['Servers'][$i]['verbose'] = '';
 $cfg['Servers'][$i]['host'] = '172.16.1.51';
@@ -210,8 +118,6 @@ $cfg['Servers'][$i]['auth_type'] = 'cookie';
 $cfg['Servers'][$i]['user'] = 'as4k';
 $cfg['Servers'][$i]['password'] = 'As4k.top';
 
-/* End of servers configuration */
-
 $cfg['DefaultLang'] = 'zh_CN';
 $cfg['ServerDefault'] = 1;
 $cfg['blowfish_secret'] = 'b:*hP-87360)+znI#P[/fKC@fH~gvkbW';
@@ -219,92 +125,52 @@ $cfg['UploadDir'] = '';
 $cfg['SaveDir'] = '';
 ?>
 ```
+> 把 `host`/`port`/授权账号密码改成自己的即可。
 
+### 4. 浏览器访问与常见报错
 
+访问 `10.0.0.61:3307` 可能遇到 session 报错：phpMyAdmin 无法读取 session。检查 `/var/lib/php/session` 目录：
+```bash
+ls -ld /var/lib/php/session
+# drwxrwx--- 2 root apache 6 ...   所属用户为 apache，与 www 不符
+```
+**修复**：新建并改属主为运行 PHP 的用户 www
+```bash
+mkdir -p /var/lib/php/session
+chown -R www:www /var/lib/php/session
+```
+> 注意：直接把权限打满 777 或改 apache 属主并非完善方案，可能与既有服务（如 wecenter）的 session 冲突。本质多为 PHP 非官方源导致。
 
-可以看到，把数据库主机IP，端口，授权账号密码改成自己的，即可使用。
-
-
-
-4 在浏览器中访问`10.0.0.61:3307`
-
-
-
-此时你在浏览器中访问，会看到下面这张错误截图：
-
-![image-20260930102549037](phpmyadmin-%E9%85%8D%E5%90%88nginx%E4%B8%8Ephp%E5%AE%89%E8%A3%85.assets/image-20260930102549037.png)
-
-
-
-这个错误也让我忙活了很久，百度和谷歌都没能给出让我信服的解释，上面这段英文大致的含义是说phpMyAdmin没有读取session的权限，phpMyAdmin-4.8官方教程也确实说到，需要启动php的session功能，但事实上php的session功能已经启动了，如下phpinfo()函数的截图所示：
-
-![image-20260930102602363](phpmyadmin-%E9%85%8D%E5%90%88nginx%E4%B8%8Ephp%E5%AE%89%E8%A3%85.assets/image-20260930102602363.png)
-
-
-
-如果大家观察`/var/lib/php/session`这个目录，会发现其所属用户"貌似"有点问题，如下：
-
-
-
-```plain
-[root@m01 ~]# ls -ld /var/lib/php/session
-drwxrwx--- 2 root apache 6 Aug 25 22:50 /var/lib/php/session
+**扩展：登录后提示 tmp 权限问题**
+```bash
+cd /code/phpmyadmin
+mkdir tmp && chmod 777 tmp
 ```
 
+---
 
+## 参考资料
+- 官方安装帮助：<https://docs.phpmyadmin.net/en/latest/require.html>
+- 作者：阿胜4K 出处：<https://www.cnblogs.com/asheng2016/p/phpmyadmin.html>
 
-而且有时`/var/lib/php/session`会提示并不存在，不管如何，新建该目录并更改所属用户身份，可解决phpMyAdmin上述报错问题，操作如下：
+## 面试题
 
+1. **phpMyAdmin 部署在哪、操作哪里的数据？**
+   装在管理机（Nginx+PHP），通过 `config.inc.php` 指向远程数据库 IP/端口，操作的是数据库机的库。
 
+2. **为什么连不上 root 而要用授权账号？**
+   MySQL 默认 `root@localhost` 仅本机；远程连接需用 `%` 授权的独立账号（如 as4k）。
 
-```plain
-[root@m01 ~]# mkdir -p /var/lib/php/session
-[root@m01 ~]# chown -R www:www /var/lib/php/session
-```
+3. **phpMyAdmin 报 session 错误怎么处理？**
+   确保 `/var/lib/php/session` 存在且属主为 PHP 运行用户（php-fpm 的 www），权限正确。
 
+4. **Nginx 转发 PHP 的关键配置？**
+   `location ~ \.php$` 中 `fastcgi_pass 127.0.0.1:9000` + `fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name` + `include fastcgi_params`。
 
+5. **`blowfish_secret` 作用？**
+   phpMyAdmin 用其对 cookie 认证信息进行加密，必须设置足够随机的字符串，否则报错。
 
-不过再此我要说明，上述方法并不完善，事实上在我自己的机器是上做上述操作后，已经正常部署的wecenter服务，突然就打不开，提示错误也是和session有关，另外网上还有一些小道消息说把`/var/lib/php/session`权限直接打满(777)，原理都是一样的，但都不能令人满意。权限修改完之后，phpMyAdmin立刻就能打开，如下：
+---
 
-
-
-![image-20260930102623529](phpmyadmin-%E9%85%8D%E5%90%88nginx%E4%B8%8Ephp%E5%AE%89%E8%A3%85.assets/image-20260930102623529.png)
-
-> 登录远程数据库，必须使用已经准备好的授权账号，无法使用root用户直接登录。
->
-
-![image-20260930102646842](phpmyadmin-%E9%85%8D%E5%90%88nginx%E4%B8%8Ephp%E5%AE%89%E8%A3%85.assets/image-20260930102646842.png)
-
-
-
-> 关于session错误等问题，应当就是就是php不是官方源的问题
->
-
-
-
-
-
-扩展： 登录之后提示 tmp文件有权限
-
-```plain
-[root@web01 phpmyadmin]# pwd
-/code/phpmyadmin
-[root@web01 phpmyadmin]# mkdir tmp
-[root@web01 phpmyadmin]# chmod 777 tmp
-```
-
-
-
-
-
-# [](#505myo)参考资料
-
-
-官方安装帮助  
-[https://docs.phpmyadmin.net/en/latest/require.html](https://docs.phpmyadmin.net/en/latest/require.html)
-
-
-
-作者：阿胜4K  
-出处：[https://www.cnblogs.com/asheng2016/p/phpmyadmin.html](https://www.cnblogs.com/asheng2016/p/phpmyadmin.html)
-
+> 更新：2026-09-30
+> 原文：<https://www.yuque.com/chengkanghua/oldboy50/yuqymc>
