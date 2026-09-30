@@ -1,60 +1,58 @@
 # linux基础命令
 
-> 本文档已做排版优化（清除样式标签、统一导航），全部内容原样保留。
-
 ## 目录
-- linux 基础命令
-- 如果记住？ 什么是真的会了？
-- 提问的艺术
-- 命令结构
-- Linux与Windows目录结构对比图
-- ls -l /dev/cdrom
-- mount  /dev/cdrom  /mnt/
-- ls -l /mnt/
-- ls  /mnt/Packages/
-- linux目录挂载
-    - Linux系统的文件目录用途
-- 绝对路径、相对路径
-- [操作系统目录分隔符](https://docs.chengkanghua.top/linux/linux%E5%9F%BA%E7%A1%80%E5%91%BD%E4%BB%A4?id=%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f%e7%9b%ae%e5%bd%95%e5%88%86%e9%9a%94%e7%ac%a6)
-- linux bash快捷键
-- 重定向符号
-- Linux文件及目录管理命令
-- cat
-- stat
-- [tr命令](https://docs.chengkanghua.top/linux/linux%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%AE%A1%E7%90%86%E5%91%BD%E4%BB%A4?id=tr%e5%91%bd%e4%bb%a4)
-- 如何优雅的查看日志内容
-- [cd命令，变换目录](https://www.yuque.com/chengkanghua/awf7cm/sdeetr#H8jB9)
-- [tree命令](https://www.yuque.com/chengkanghua/awf7cm/sdeetr#HPSNA)
-- [ls命令](https://www.yuque.com/chengkanghua/awf7cm/sdeetr#Ib1mg)
-- ln 软链接 硬链接
-- 文件删除原理
-- inode 与 block
-- linux下通过mkdir命令创建一个新目录/oldboy/ett，ett的硬链接数是多少，为什么？
-- file
-- [mkdir命令](https://www.yuque.com/chengkanghua/awf7cm/sdeetr#QeMon)
-- [touch命令](https://www.yuque.com/chengkanghua/awf7cm/sdeetr#hwYqs)
-- [cp复制](https://www.yuque.com/chengkanghua/awf7cm/sdeetr#Tcfz6)
-- [mv命令](https://www.yuque.com/chengkanghua/awf7cm/sdeetr#RXUcJ)
-- [rm命令](https://www.yuque.com/chengkanghua/awf7cm/sdeetr#o4TYx)
-- 别名 alias
-- 用户管理
-- uname
-- pwd
-- clear
-- type
-- History
-- hostnamectl
-- lrzsz
-- linux帮助命令
-- linux开关机命令
-    - reboot
-    - shutdown
-- 显示与设置系统时间  date
-- linux 环境变量
-- 字符集
-- 练习
+- linux基础命令
+  - 如果记住？ 什么是真的会了？
+  - 提问的艺术
+  - 命令结构
+  - Linux与Windows目录结构对比图
+  - ls -l /dev/cdrom
+  - mount  /dev/cdrom  /mnt/
+  - ls -l /mnt/
+  - ls  /mnt/Packages/
+  - linux目录挂载
+      - Linux系统的文件目录用途
+  - 绝对路径、相对路径
+  - 操作系统目录分隔符
+  - linux bash快捷键
+  - 重定向符号
+  - Linux文件及目录管理命令
+  - cat
+  - stat
+  - tr命令
+  - 如何优雅的查看日志内容
+  - cd命令，变换目录
+  - tree命令
+  - ls命令
+  - ln 软链接 硬链接
+  - 文件删除原理
+  - inode 与 block
+  - linux下通过mkdir命令创建一个新目录/oldboy/ett，ett的硬链接数是多少，为什么？
+  - file
+  - mkdir命令
+  - touch命令
+  - cp复制
+  - mv命令
+  - rm命令
+  - 别名 alias
+  - 用户管理
+  - uname
+  - pwd
+  - clear
+  - type
+  - History
+  - hostnamectl
+  - lrzsz
+  - linux帮助命令
+  - linux开关机命令
+      - reboot
+      - shutdown
+  - 显示与设置系统时间  date
+  - linux 环境变量
+  - 字符集
+  - 练习
 
-# 如果记住？ 什么是真的会了？
+## 如果记住？ 什么是真的会了？
 1 经常使用
 
 2 回忆
@@ -97,7 +95,7 @@
 
 
 
-# 提问的艺术
+## 提问的艺术
 1.背景 
 
 我在做什么的时候 遇到了什么故障 
@@ -126,7 +124,7 @@ command not found
 
 把每次面试的题目 整理好 发给面试官 
 
-# 命令结构
+## 命令结构
 举例[ Root   @     oldboy        ~  ]
 
 Root表示当前用户名（你是谁）、
@@ -178,7 +176,7 @@ source  /etc/profile
 修改过文件一定要进行 source 进行生效
 ```
 
-# Linux与Windows目录结构对比图
+## Linux与Windows目录结构对比图
 ![1546418059244-54527e10-a217-4a9c-a143-369e72e25eea-image4.png](img/linux%E5%9F%BA%E7%A1%80%E5%91%BD%E4%BB%A4-02.png)
 
 
@@ -203,19 +201,19 @@ linux下面所有的设备默认是无法直接使用的，给设备创造入口
 
 2.进入linux 光盘文件
 
-# ls -l /dev/cdrom  
+## ls -l /dev/cdrom
 
 lrwxrwxrwx. 1 root root 3 Jul 16 14:32 /dev/cdrom -> sr0
 
 3.给光盘创造一个入口（已经存在）
 
-# mount  /dev/cdrom  /mnt/
+## mount  /dev/cdrom  /mnt/
 
 mount: block device /dev/sr0 is write-protected, mounting read-only
 
-# ls -l /mnt/
+## ls -l /mnt/
 
-# ls  /mnt/Packages/
+## ls  /mnt/Packages/
 
 
 
@@ -380,8 +378,8 @@ etc/passwd  文件解析
 用户名：密码：uid：gid：用户说明信息：用户家目录：用户的命令解释器shell
 ```
 
-# linux目录挂载
-### Linux系统的文件目录用途
+## linux目录挂载
+#### Linux系统的文件目录用途
 /bin：系统命令目录
 
 /sbin：超级命令目录，只能超级管理员可以执行的命令
@@ -450,14 +448,14 @@ echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_all
 
 **/var： 这是一个非常重要的目录，系统上跑了很多程序，那么每个程序都会有相应的日志产生，而这些日志就被记录到这个目录下，具体在/var/log 目录下，另外mail的预设放置也是在这里。**
 
-# 绝对路径、相对路径
+## 绝对路径、相对路径
 绝对路径：从根开始的路径    /data/xxxx/xxx
 
 相对路径：从当前所在目录出发    data/ddd/ss
 
 
 
-# 操作系统目录分隔符
+## 操作系统目录分隔符
 
 > 参考：https://docs.chengkanghua.top/linux/linux%E5%9F%BA%E7%A1%80%E5%91%BD%E4%BB%A4?id=%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f%e7%9b%ae%e5%bd%95%e5%88%86%e9%9a%94%e7%ac%a6
 ```plain
@@ -467,7 +465,7 @@ linux平台命令分隔符    正斜杠
 /
 ```
 
-# linux bash快捷键
+## linux bash快捷键
 ```bash
 Tab          自动补全
 Ctrl + a  把光标移动到行首
@@ -485,7 +483,7 @@ Ctrl + r   搜索最近使用的命令 不对继续按ctrl+r
 Esc + .(点) 显示上一个命令的最后一个参数
 ```
 
-# 重定向符号
+## 重定向符号
 ```bash
 一、先记住 Linux 里的 3 个默认 “通道”
 所有命令运行时，系统会自动打开 3 个文件描述符：
@@ -534,7 +532,7 @@ Esc + .(点) 显示上一个命令的最后一个参数
 2>&1 = 错误跟着输出走（合并输出）   
 ```
 
-# Linux文件及目录管理命令
+## Linux文件及目录管理命令
 | 命令 | 对应英文 | 作用 |
 | --- | --- | --- |
 | ls | list | 查看文件夹内容 |
@@ -545,7 +543,7 @@ Esc + .(点) 显示上一个命令的最后一个参数
 | rm 文件名 | Remove | 删除指定文件 |
 
 
-# cat
+## cat
 ```bash
 
 cat 经常用来显示文件的内容 concatenate files and print on the standard output
@@ -556,7 +554,7 @@ uname -m #x86 架构
 
 ```
 
-# stat
+## stat
 ```bash
 [root@ckh oldboy]# stat alex.txt
   File: ‘alex.txt’
@@ -585,7 +583,7 @@ ls -l --full-time  /tmp/file1.txt
 win+r   osk 弹出屏幕键盘
 ```
 
-# tr命令
+## tr命令
 
 > 参考：https://docs.chengkanghua.top/linux/linux%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%AE%A1%E7%90%86%E5%91%BD%E4%BB%A4?id=tr%e5%91%bd%e4%bb%a4
 tr命令从标准输入中替换、缩减或删除字符，将结果写入到标准输出
@@ -639,7 +637,7 @@ xargs -n2 < a.txt  #两列显示
 
 
 
-# 如何优雅的查看日志内容
+## 如何优雅的查看日志内容
 ```bash
 1.head
 2.tail
@@ -652,7 +650,7 @@ xargs -n2 < a.txt  #两列显示
 5.more
 ```
 
-# cd命令，变换目录
+## cd命令，变换目录
 
 > 参考：https://www.yuque.com/chengkanghua/awf7cm/sdeetr#H8jB9
 cd切换目录
@@ -667,7 +665,7 @@ cd ..  返回上级目录（若当前目录为“/“，则执行完后还在“
 
 cd ../..  返回上两级目录；
 
-# tree命令
+## tree命令
 
 > 参考：https://www.yuque.com/chengkanghua/awf7cm/sdeetr#HPSNA
 以树形结构显示目录下内容
@@ -682,7 +680,7 @@ tree常用参数
 -F 在条目后加上文件类型的指示符号(* ， /， = ， @ ， | ，其中的一个) 目录/
 ```
 
-# ls命令
+## ls命令
 
 > 参考：https://www.yuque.com/chengkanghua/awf7cm/sdeetr#Ib1mg
 ```bash
@@ -717,7 +715,7 @@ x  ----execute	可执行1
 6			   4         4
 ```
 
-# ln 软链接 硬链接
+## ln 软链接 硬链接
 链接： 软链接（softlink  或 符号链接 symlink）   硬链接 (hard  link)
 
 硬链接 ： 文件的inode 号码相同， 互为硬链接（在同一个磁盘分区） 
@@ -755,7 +753,7 @@ lrwxrwxrwx 1 root root      15 Jul 29 23:00 oldboy.txt2-soft -> /tmp/oldboy.txt
 文件删除原理
 ```
 
-# 文件删除原理
+## 文件删除原理
 ```bash
 1 硬链接数为0    rm
 2 进程调用数为0   是否有人使用
@@ -842,7 +840,7 @@ rsyslogd 46711  root  1w REG   8,3   212  785173 /var/log/messages
 https://blog.51cto.com/oldboy/612351
 ```
 
-# inode 与 block 
+## inode 与 block
 ```bash
 [root@m01 tmp]# ls -lhi
 total 0
@@ -923,7 +921,7 @@ tmpfs           238282     1  238281    1% /dev/shm
 /dev/sda1        51200    39   51161    1% /boot
 /dev/sdc            16    16       0  100% /app/logs
 
-# cd /app/logs/ && echo {1..500} |xargs \rm -rf	
+# cd /app/logs/ && echo {1..500} |xargs \rm -rf
 
 # 删除大量小文件
 # mkdir  -p /tmp/test
@@ -956,7 +954,7 @@ ls 2*  |xargs rm
 
 
 
-# linux下通过mkdir命令创建一个新目录/oldboy/ett，ett的硬链接数是多少，为什么？
+## linux下通过mkdir命令创建一个新目录/oldboy/ett，ett的硬链接数是多少，为什么？
 ```bash
 mkdir -p /oldboy/ett
 ll -d /oldboy/ett
@@ -971,16 +969,16 @@ ll -d /oldboy/ett
 
 [root@ckh oldboy]# ll -d /oldboy/ett
 drwxr-xr-x 3 root root 20 Apr 23 21:23 /oldboy/ett
-# 子目录oldboy目录里 .. 目录是上级目录ett 
+# 子目录oldboy目录里 .. 目录是上级目录ett
 ```
 
 
 
 
 
-# file
+## file
 ```bash
-# 查看文件详细类型 
+# 查看文件详细类型
 #file /bin/ls
 /bin/ls: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.18, stripped
 #file /etc/hosts
@@ -1000,7 +998,7 @@ p    pipe        管道
 s    socket      套接字
 ```
 
-# mkdir命令
+## mkdir命令
 
 > 参考：https://www.yuque.com/chengkanghua/awf7cm/sdeetr#QeMon
 ```bash
@@ -1015,7 +1013,7 @@ mkdir -p a/b/c/d
 tree a
 ```
 
-# touch命令
+## touch命令
 
 > 参考：https://www.yuque.com/chengkanghua/awf7cm/sdeetr#hwYqs
 ```bash
@@ -1035,7 +1033,7 @@ touch {a..z}
   -r, --reference=文件  使用指定文件的时间属性替代当前文件时间
 ```
 
-# cp复制
+## cp复制
 
 > 参考：https://www.yuque.com/chengkanghua/awf7cm/sdeetr#Tcfz6
 ```bash
@@ -1062,7 +1060,7 @@ cp oldboy.txt  oldboy.txt.bak
 
 ```
 
-# mv命令
+## mv命令
 
 > 参考：https://www.yuque.com/chengkanghua/awf7cm/sdeetr#RXUcJ
 ```bash
@@ -1072,7 +1070,7 @@ mv  /data/ /root/
 
 ```
 
-# rm命令
+## rm命令
 
 > 参考：https://www.yuque.com/chengkanghua/awf7cm/sdeetr#o4TYx
 ```bash
@@ -1124,7 +1122,7 @@ rm -rf 文件夹
 
 
 
-# 别名 alias
+## 别名 alias
 ```bash
 \cp = 强制使用 原始、原生的 cp 命令 跳过所有别名（alias），不询问，不绕弯
 \rm    不询问删除
@@ -1160,7 +1158,7 @@ alias rm='echo rm bny'
 
 ```
 
-# 用户管理
+## 用户管理
 ```bash
 第一类：root（超级管理员），UID为0，这个用户有极大的权限，
 第二类：系统用户，UID为1～499。一般是不会被登入的。
@@ -1204,7 +1202,7 @@ Password:123456
 
 
 
-# uname
+## uname
 ```plain
 #主要功能：获取计算机操作系统相关信息
 root@VM-4-16-ubuntu:~# uname -a
@@ -1222,17 +1220,17 @@ Linux VM-4-16-ubuntu 4.15.0-193-generic #204-Ubuntu SMP Fri Aug 26 19:20:21 UTC 
 # 1KB（千字节） = 1024B（字节）
 ```
 
-# pwd
+## pwd
 ```plain
 #主要功能：pwd=print working directory，打印当前工作目录（告诉我们，我们当前位置）
 ```
 
-# clear
+## clear
 ```plain
 主要功能：清屏
 ```
 
-# type
+## type
 ```plain
 # 主要功能：主要用来结合help命令，用于判断命令的类型（属于内部命令还是外部命令）
 # type 命令
@@ -1240,12 +1238,12 @@ Linux VM-4-16-ubuntu 4.15.0-193-generic #204-Ubuntu SMP Fri Aug 26 19:20:21 UTC 
 外部命令：没有显示以上信息的就是外部命令
 ```
 
-# History
+## History
 ```plain
 # 主要功能：显示系统以前输入的前1000条命令
 ```
 
-# hostnamectl
+## hostnamectl
 ```plain
 # 主要功能：用于设置计算机的主机名称（给计算机起个名字），此命令式CentOS7新增的命令。
 hostnamectl ： hostname + control
@@ -1296,14 +1294,14 @@ web02.itcast.cn
 # hostnamectl --pretty
 ```
 
-# lrzsz
+## lrzsz
 ```bash
 yum install lrzsz –y
 rz  文件从windows上传到linux
 sz   从linux中下载到windows
 ```
 
-# linux帮助命令
+## linux帮助命令
 ```plain
 语法
 man 命令  
@@ -1327,15 +1325,15 @@ info 命令
 互联网有很多在线linux中文文档网站
 ```
 
-# linux开关机命令
-### reboot
+## linux开关机命令
+#### reboot
 主要功能：立即重启计算机
 
 poweroff
 
 halt
 
-### shutdown
+#### shutdown
 ```plain
 # 主要功能：立即关机或延迟关机
 # shutdown -h 0或now
@@ -1382,7 +1380,7 @@ _关机、重启、注销命令列表_
 
 
 
-# 显示与设置系统时间  date
+## 显示与设置系统时间  date
 ```bash
 # date +%F && date +%Y-%m-%d
 2024-08-17
@@ -1392,7 +1390,7 @@ _关机、重启、注销命令列表_
 20:24:05
 
 # %w day of week (0..6); 0 is Sunday #周几  0是周日
-# date +%w   
+# date +%w
 6
 
 # 显示当前日期格式: 年月日_小时  ?
@@ -1428,7 +1426,7 @@ hwclock -r
  
 ```
 
-# linux 环境变量
+## linux 环境变量
 ```plain
 执行命令：
 echo $PATH
@@ -1454,24 +1452,24 @@ linux  执行命令的过程
 2 执行
 ```
 
-# 字符集
+## 字符集
 ```bash
 GBK 国家标准
 UTF-8 万国码   
 #1.查看字符集           
 # echo $LANG
 en_US.UTF-8
-# #en_US 英文语言 
+# #en_US 英文语言
 # #UTF-8 字符集
 
 # #语言.字符集
 #2.修改字符集-临时
-# export  LANG=zh_CN.UTF-8       
+# export  LANG=zh_CN.UTF-8
 # echo $LANG
 zh_CN.UTF-8
           
 #3.永久修改字符集
-# cat /etc/sysconfig/i18n 
+# cat /etc/sysconfig/i18n
 LANG="en_US.UTF-8"
 SYSFONT="latarcyrheb-sun16"
 
@@ -1498,7 +1496,7 @@ sudo localectl set-locale LANG=en_US.UTF-8  #立即生效不用重启系统
 
 
 
-# 练习
+## 练习
 ```bash
 [root@oldboyedu-49 ~]# lidao  2>> /data/oldboy.txt  # 2>> 标准错误追加重定向
 [root@oldboyedu-49 ~]# cat /data/oldboy.txt
@@ -1514,13 +1512,13 @@ touch /data/oldboy.txt
 
 # 为oldboy.txt增加内容"I am studying linux."
 
-# 方法1 vim 
+# 方法1 vim
 	vim /data/oldboy.txt
 	i 插入 I am studying linux
 	esc  :wq 保存退出
 	cat /tmp/oldboy.tx
 
-# 追加重定向    >>     # >   重定向 : 会清空文件内容 
+# 追加重定向    >>     # >   重定向 : 会清空文件内容
 echo ""I am studying linux."" >> /data/oldboy.txt
 
 # cat 追加内容
