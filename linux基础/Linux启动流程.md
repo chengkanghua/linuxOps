@@ -4,7 +4,7 @@
 
 配套资料：
 [Linux启动流程.pdf](https://www.yuque.com/attachments/yuque/0/2019/pdf/194754/1554022046140-03f26a2d-b248-4806-9c38-e24c7d6a9c0f.pdf)
-[Linux系统计划任务.pdf](https://www.yuque.com/attachments/yuque/0/2019/pdf/194754/1554022051031-042edb15-5062-4d27-8229-446fd258b937.pdf)
+[Linux系统计划任务.md](./linux系统计划任务.md)
 
 ## 一、Linux 系统的组成
 
@@ -23,7 +23,22 @@
 
 ## 二、CentOS 6 的启动流程
 
-![CentOS6启动流程](img/Linux%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B-01.png)
+**启动流程总览**（原流程图转文字）：
+
+| 序号 | 阶段 | 说明 | 关联文件/组件 |
+| --- | --- | --- | --- |
+| 1 | 开机自检（BIOS） | 检测硬件（内存、CPU、硬盘是否有问题） | BIOS |
+| 2 | MBR 引导 | 读取硬盘第一个扇区的前 446 字节 | MBR |
+| 3 | GRUB 菜单 | 显示启动菜单，选择内核与启动参数 | grub |
+| 4 | 加载内核（kernel） | 加载内核镜像 `vmlinuz` 与 `initramfs` | /boot |
+| 5 | 运行 INIT 进程 | Linux 系统里面的**第一个进程** | init |
+| 6 | 读取配置文件 | 确定默认运行级别 | /etc/inittab |
+| 7 | 系统初始化 | 设置主机名、IP、挂载文件系统等 | /etc/rc.d/rc.sysinit |
+| 8 | 启动服务 | 按运行级别启动对应服务（rc0.d ~ rc6.d） | /etc/rc.d/rc |
+| 9 | 登录界面 | 启动 mingetty 进程，等待用户登录 | mingetty |
+
+> **初始化过程**：从"运行 INIT 进程"到"启动 mingetty 进程"这一段，称为系统的初始化过程。
+> 登录界面样例：`CentOS release 6.9 (Final)` / `Kernel 2.6.32-696.el6.x86_64 on an x86_64` / `oldboy login:`
 
 ### 1. 开机自检
 开机后 BIOS 或 UEFI 进行硬件检查的阶段。
@@ -116,7 +131,18 @@ systemctl reboot    # 重启命令，常用
 
 RHEL/CentOS 7 **没有了"运行级别"这个概念**。Linux 启动时要进行大量初始化工作（挂载文件系统和交换分区、启动各类进程服务等），这些都可以看作一个一个的**单元 Unit**。systemd 用**目标 target** 代替了 System V init 中的运行级别：
 
-![target与运行级别对照](img/Linux%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B-02.png)
+| System V init 运行级别 | systemd 目标名称 | 作用 |
+| --- | --- | --- |
+| 0 | runlevel0.target, poweroff.target | 关机 |
+| 1 | runlevel1.target, rescue.target | 单用户模式 |
+| 2 | runlevel2.target, multi-user.target | （多用户文本界面） |
+| 3 | runlevel3.target, multi-user.target | 多用户的文本界面 |
+| 4 | runlevel4.target, multi-user.target | （多用户文本界面） |
+| 5 | runlevel5.target, graphical.target | 多用户的图形界面 |
+| 6 | runlevel6.target, reboot.target | 重启 |
+| emergency | emergency.target | 紧急 / 救援模式 |
+| shutdown | systemctl | —— |
+| reboot | emergency.target | —— |
 
 ```bash
 # RHEL/CentOS 6 运行级别管理
@@ -135,14 +161,41 @@ systemctl set-default TARGET.target   # 修改默认启动目标（永久生效�
 
 习惯了 CentOS 6 的 `service` / `chkconfig`，在 CentOS 7 中要使用 **`systemctl`** 来管理服务。
 
-**systemctl 管理服务的启动、重启、停止、重载、查看状态等常用命令**：
-![systemctl服务管理](img/Linux%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B-03.png)
+**1. 服务的启动、停止、重启、重载、查看状态等命令对比**：
 
-**systemctl 设置服务开机启动、不启动、查看各级别下服务启动状态等常用命令**：
-![systemctl开机启动](img/Linux%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B-04.png)
+| System V init（6 系统） | systemctl 命令（7 系统） | 作用 |
+| --- | --- | --- |
+| service crond start | systemctl start crond.service | 启动服务 |
+| service crond stop | systemctl stop crond.service | 停止服务 |
+| service crond restart | systemctl restart crond.service | 重启服务 |
+| service crond reload | systemctl reload crond.service | 重新加载配置（不终止服务） |
+| service crond status | systemctl status crond.service | 查看服务运行状态 |
+| —— | systemctl is-active sshd.service | 查看服务是否在运行中 |
+| —— | systemctl mask crond.service | 禁止服务运行 |
+| —— | systemctl unmask crond.service | 取消禁止服务运行 |
 
-**systemctl 服务状态说明**：
-![服务状态](img/Linux%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B-05.png)
+**2. 设置服务开机启动、查看各级别服务启动状态等命令对比**：
+
+| System V init（6 系统） | systemctl 命令（7 系统） | 作用 |
+| --- | --- | --- |
+| chkconfig crond on | systemctl enable crond.service | 开机自动启动 |
+| chkconfig crond off | systemctl disable crond.service | 开机不自动启动 |
+| chkconfig --list | systemctl list-unit-files | 查看各个级别下服务的启动与禁用 |
+| chkconfig --list crond | systemctl is-enabled crond.service | 查看特定服务是否为开机自启动 |
+| chkconfig --add crond | systemctl daemon-reload | 创建新服务文件或者变更设置 |
+
+**3. systemctl 服务状态说明**：
+
+| 服务状态 | 状态说明 |
+| --- | --- |
+| loaded | 服务单元的配置文件已经被处理 |
+| active(running) | 服务的一个或多个进程在运行中 |
+| active(exited) | 一次性运行的服务成功被执行并退出（服务运行后完成任务，相关进程会自动退出） |
+| active(waiting) | 服务已经运行但在等待某个事件 |
+| inactive | 服务没有在运行 |
+| enabled | 服务设定为开机运行 |
+| disabled | 服务设定为开机不运行 |
+| static | 服务不能被设定开机启动，但可以由其他服务启动该服务 |
 
 ## 六、面试题
 
@@ -154,7 +207,38 @@ systemctl set-default TARGET.target   # 修改默认启动目标（永久生效�
 → 执行 /etc/rc.d/rc 脚本 → 启动 mingetty 进程
 ```
 
-![CentOS6启动过程](img/Linux%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B-06.png)
+**开机启动过程（图解，转文字）**：
+
+| 序号 | 阶段 | 备注 |
+| --- | --- | --- |
+| 1 | 开机自检（BIOS） | 内存、CPU、硬盘是否有问题（硬件检查） |
+| 2 | MBR 引导 | —— |
+| 3 | GRUB 菜单 | 2.6.32xxxxx，选择不同的内核 |
+| 4 | 加载内核（kernel） | —— |
+| 5 | 运行 INIT 进程 | Linux 系统里面的第一个进程 |
+| 6 | 读取 /etc/inittab 配置文件 | —— |
+| 7 | 执行 /etc/rc.d/rc.sysinit 脚本 | 系统的初始化脚本：设置主机名、设置 IP 地址 |
+| 8 | 执行 /etc/rc.d/rc 脚本 | 根据系统的运行级别，在开机时启动不同的软件 |
+| 9 | 启动 mingetty 进程 | 出现登录界面 |
+
+> - 侧边：`/etc/rc0.d/*` ~ `/etc/rc6.d/*` 为各运行级别的服务/软件目录（由 chkconfig 管理开关）。
+> - 登录界面样例：`CentOS release 5.4 (Final)` / `Kernel 2.6.18-164.el5 on an i686` / `server login:`
+> - 开机日志片段（右侧面板）：
+> ```plain
+> Welcome to CentOS
+> Starting udev: ...
+> Setting hostname ...: [ OK ]
+> Setting up Logical Volume Management: [ OK ]
+> Checking filesystems [ OK ]
+> Remounting root filesystem in read-write mode [ OK ]
+> Enabling local filesystem quotas [ OK ]
+> Enabling swap space [ OK ]
+> Starting system logger: [ OK ]
+> Starting kernel logger: [ OK ]
+> Starting irqbalance: [ OK ]
+> Starting system message bus: [ OK ]
+> Starting NetworkManager: [ OK ]
+> ```
 
 ### 2. Linux 启动过程（CentOS 7）★★★★
 

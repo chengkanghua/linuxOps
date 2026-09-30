@@ -201,19 +201,21 @@ linux下面所有的设备默认是无法直接使用的，给设备创造入口
 
 2.进入linux 光盘文件
 
-## ls -l /dev/cdrom
+#### 实验：挂载光盘
 
-lrwxrwxrwx. 1 root root 3 Jul 16 14:32 /dev/cdrom -> sr0
+```bash
+# 2. 进入 linux 光盘文件（查看光驱设备）
+ls -l /dev/cdrom
+# lrwxrwxrwx. 1 root root 3 Jul 16 14:32 /dev/cdrom -> sr0
 
-3.给光盘创造一个入口（已经存在）
+# 3. 给光盘创造一个入口（挂载点必须是已存在的目录）
+mount /dev/cdrom /mnt/
+# mount: block device /dev/sr0 is write-protected, mounting read-only
 
-## mount  /dev/cdrom  /mnt/
-
-mount: block device /dev/sr0 is write-protected, mounting read-only
-
-## ls -l /mnt/
-
-## ls  /mnt/Packages/
+# 4. 查看挂载后的内容
+ls -l /mnt/
+ls /mnt/Packages/
+```
 
 
 
@@ -1495,6 +1497,293 @@ sudo localectl set-locale LANG=en_US.UTF-8  #立即生效不用重启系统
 
 
 
+
+## 工作实战：系统监控与性能排查
+
+> 运维日常最高频的场景：机器卡慢、磁盘满、内存/CPU 飙高。按下面顺序排查。
+
+### 1. 整体负载与运行时间
+```bash
+uptime
+# 17:33:11 up  2:50,  2 users,  load average: 0.06, 0.08, 0.12
+# load average 三个值分别是 1/5/15 分钟平均负载；
+# 经验值：负载 ≈ CPU 核心数 为健康，持续高于核心数说明压力大
+
+w            # 谁在线、在做什么（同时看负载）
+cat /proc/loadavg
+```
+
+### 2. CPU 与内存
+```bash
+# CPU
+lscpu                    # CPU 架构、核心数、路数
+top                      # 实时查看（按 1 看每个核心，按 P 按 CPU 排序，按 M 按内存排序）
+vmstat 1 5               # 每 1 秒采样，共 5 次（看 r 运行队列、us/sy/wa）
+mpstat 1 5               # 每个 CPU 核心的统计
+cat /proc/cpuinfo | grep processor | wc -l    # 逻辑 CPU 核心数
+
+# 内存
+free -h                  # 常用；available 才是真正可用
+cat /proc/meminfo
+# 重点：free 看到的 used 包含 buffer/cache，
+# 真实已用 = used - buffers - cached（free -h 的 -/+ buffers/cache 行）
+```
+
+### 3. 磁盘空间排查（最高频故障）
+```bash
+df -h                    # 看各分区使用率（看 block）
+df -i                    # 看 inode 使用率（大量小文件会耗尽 inode）
+
+# 定位占空间的目录/文件（逐级 du）
+du -sh /*  | sort -h
+du -sh /var/* | sort -h
+du -h --max-depth=1 /var/log
+
+# 找出大于 100M 的文件
+find / -type f -size +100M 2>/dev/null
+
+# 找出 7 天前的大日志并确认后再删
+find /var/log -type f -name "*.log" -mtime +7 -print
+find /var/log -type f -name "*.log" -mtime +7 -delete
+```
+
+**磁盘满的三种原因（排错口诀）**：
+```bash
+# ① block 满了：df -h 满，du -sh 也对得上 → 找大文件删除
+# ② inode 满了：df -h 未满，df -i 100% → 大量小文件（常因定时任务未重定向）
+# ③ 文件没删干净：df -h 满，du -sh 却对不上 → 文件被进程占用
+lsof | grep deleted      # 找被删除但仍被占用的文件
+# 解决：重启对应服务（不要直接 kill -9）
+systemctl restart rsyslog
+```
+
+> **预防**：定时任务结尾必须加 `>/dev/null 2>&1` 或 `>>/tmp/xxx.log 2>&1`，否则邮件小文件会耗尽 inode。
+
+### 4. 磁盘 IO 与网络
+```bash
+iostat -x 1 3            # 磁盘 IO（看 %util、await；%util 接近 100% 说明 IO 瓶颈）
+iotop                    # 实时看哪个进程占 IO（需 root）
+sar -n DEV 1 3           # 网络流量
+iftop                    # 实时流量（按网卡）
+```
+
+### 5. 打开的文件 / 端口占用
+```bash
+lsof -i:80               # 谁占用了 80 端口
+lsof /var/log/messages   # 谁在打开这个文件
+lsof | grep deleted      # 已删除但仍被占用（磁盘满排查必备）
+```
+
+---
+
+## 工作实战：进程管理
+
+### 1. 查看进程
+```bash
+ps -ef                   # 标准格式（看 PPID、启动命令）
+ps aux                   # BSD 格式（看 CPU%、MEM%）
+ps -ef | grep nginx      # 查指定进程
+ps aux --sort=-%cpu | head       # 按 CPU 占用倒序取前几
+ps aux --sort=-%mem | head       # 按内存占用倒序取前几
+
+pstree                   # 树形显示进程关系
+pgrep nginx              # 只取 PID（常用于脚本）
+pidof nginx              # 取进程 PID
+```
+
+### 2. 结束进程
+```bash
+kill PID                 # 优雅终止（默认 SIGTERM=15），让进程自己善后
+kill -9 PID              # 强制杀死（SIGKILL），仅在 kill 无效时用
+killall nginx            # 按进程名杀
+pkill -f "java -jar"     # 按完整命令行匹配杀（谨慎）
+
+# 批量杀（取第 2 列 PID 交给 kill）
+ps -ef | grep nginx | grep -v grep | awk '{print $2}' | xargs kill
+```
+
+> **注意**：优先用 `kill PID`；`kill -9` 可能导致数据未落盘/服务异常，生产慎用。
+
+### 3. 前后台与脱离终端
+```bash
+command &                # 放到后台运行
+jobs                     # 查看当前会话的后台任务
+fg %1                    # 把 1 号任务调回前台
+bg %1                    # 让暂停的任务在后台继续
+Ctrl + z                 # 暂停当前前台任务
+
+# 关键：退出终端后仍继续运行（运维必会）
+nohup command >/tmp/out.log 2>&1 &
+# nohup 忽略挂起信号，配合 & 与重定向
+
+# 查看后台任务输出
+tail -f /tmp/out.log
+```
+
+### 4. 守护进程的本质
+服务（如 nginx、mysql、crond）常驻内存、脱离终端、开机自启，这类进程叫**守护进程**。
+
+---
+
+## 工作实战：网络排查与文件传输
+
+### 1. 连通性与端口
+```bash
+ping -c3 10.0.0.200          # 测连通（-c 指定次数，否则 Linux 会一直 ping）
+ping -c3 www.baidu.com       # 顺便验证 DNS 是否正常
+
+# 测端口是否开放（比 ping 更精准，服务起没起看端口）
+telnet 10.0.0.200 22
+nc -zv 10.0.0.200 22
+# 无 telnet/nc 时可用 bash 自带：
+# timeout 3 bash -c "</dev/tcp/10.0.0.200/22" && echo 开放 || echo 不通
+```
+
+### 2. 查看本机监听与连接
+```bash
+ss -lntup                    # 推荐（比 netstat 快）：l 监听 n 数字 t tcp u udp p 进程
+netstat -lntup               # 传统写法
+ss -ant                      # 所有 TCP 连接（看 ESTAB 判断并发）
+ss -ant | awk '{print $1}' | sort | uniq -c    # 统计各状态连接数
+lsof -i:80                   # 查某端口被谁占用
+```
+
+### 3. HTTP 请求与下载
+```bash
+curl -I http://www.baidu.com             # 只看响应头（看状态码 200/301/404）
+curl -o /dev/null -s -w "%{http_code}\n" http://baidu.com   # 只取状态码（脚本监控常用）
+curl -s http://ip.cn                     # 取公网 IP
+wget http://xxx/file.tar.gz              # 下载文件
+wget -O /tmp/newname.tar.gz http://xxx/f.tar.gz   # 下载并改名
+```
+
+### 4. DNS 与路由
+```bash
+nslookup www.baidu.com       # 查域名解析
+dig www.baidu.com            # 详细解析过程
+host www.baidu.com
+cat /etc/resolv.conf         # 本机 DNS 配置（nameserver 223.5.5.5）
+traceroute www.baidu.com     # 追踪路由（看哪一跳断）
+```
+
+### 5. 文件传输（服务器之间）
+```bash
+# scp（基于 ssh，简单）
+scp /tmp/a.txt root@10.0.0.201:/tmp/          # 推
+scp root@10.0.0.201:/tmp/a.txt /tmp/          # 拉
+scp -r /data root@10.0.0.201:/tmp/            # 传目录
+
+# rsync（推荐：增量同步，支持断点续传，适合备份/大量文件）
+rsync -avz /data/ root@10.0.0.201:/backup/
+# -a 归档保持属性 -v 显示过程 -z 压缩
+# 注意源目录末尾带 / 表示同步目录内的内容，不带 / 会连目录一起同步
+
+# lrzsz（Windows ↔ Linux 小文件互传）
+yum install lrzsz -y
+rz        # 上传（Windows → Linux）
+sz file   # 下载（Linux → Windows）
+```
+
+---
+
+## 工作实战：压缩打包与备份
+
+```bash
+# tar（最常用）
+tar zcf /tmp/etc-$(date +%F).tar.gz /etc/     # 打包并 gzip 压缩
+tar tf /tmp/etc-backup.tar.gz                 # 只看内容不解压
+tar xf /tmp/etc-backup.tar.gz                 # 解压到当前目录
+tar xf /tmp/etc-backup.tar.gz -C /tmp/        # 解压到指定目录
+tar zcf /tmp/etc.tar.gz /etc/ --exclude=/etc/services   # 排除某文件
+tar zchf /tmp/rc.tar.gz /etc/rc.local         # -h 跟随软链接打包源文件（重要！）
+
+# zip / unzip（与 Windows 交互用）
+zip -r /tmp/data.zip /data/                   # -r 压缩目录
+unzip /tmp/data.zip                           # 解压
+unzip -l /tmp/data.zip                        # 看内容
+zip -r -P 密码 /tmp/data.zip /data/           # 加密压缩（可选）
+
+# gzip（只能压文件，压完源文件消失）
+gzip file.txt          # → file.txt.gz
+gzip -d file.txt.gz    # 解压
+```
+
+**备份实战（生产常用套路）**：
+```bash
+# 每日按日期备份配置，并保留 7 天
+cat > /server/scripts/bak-conf.sh <<'EOF'
+#!/bin/bash
+DEST=/backup/$(hostname -I | awk '{print $1}')
+mkdir -p $DEST
+tar zchf $DEST/conf-$(date +%F).tar.gz /etc/rc.local /etc/hosts /etc/fstab /etc/sysconfig
+find $DEST -name "conf-*.tar.gz" -mtime +7 -delete
+EOF
+# 加入定时任务：每天凌晨 1 点
+# 00 01 * * * /bin/sh /server/scripts/bak-conf.sh >/dev/null 2>&1
+```
+
+---
+
+## 工作实战：软件管理与服务控制
+
+### 1. 软件包管理
+```bash
+# yum（自动解决依赖，最常用）
+yum install -y nginx            # 安装
+yum remove -y nginx             # 卸载
+yum update -y                   # 升级（生产谨慎）
+yum list installed | grep nginx # 是否已装
+yum provides */ifconfig         # 命令属于哪个包（command not found 时用它）
+yum search nginx                # 搜索包
+yum repolist                    # 查看 yum 源
+
+# rpm（手动管理 .rpm 包，不解决依赖）
+rpm -ivh package.rpm            # 安装
+rpm -qa | grep nginx            # 查询
+rpm -ql nginx                   # 列出包装了哪些文件
+rpm -qf /usr/sbin/nginx         # 文件属于哪个包
+rpm -e nginx                    # 卸载
+```
+
+### 2. 服务管理（CentOS 7+ systemd）
+```bash
+systemctl start nginx           # 启动
+systemctl stop nginx            # 停止
+systemctl restart nginx         # 重启
+systemctl reload nginx          # 重载配置（不中断服务，生产首选）
+systemctl enable nginx          # 设为开机自启
+systemctl disable nginx         # 取消开机自启
+systemctl status nginx          # 查看状态
+systemctl is-enabled nginx      # 是否开机自启
+systemctl list-unit-files --type=service | grep enabled   # 列出所有开机自启服务
+```
+
+### 3. 定时任务（crontab）
+```bash
+crontab -e                      # 编辑当前用户的定时任务
+crontab -l                      # 查看
+crontab -r                      # 删除（谨慎）
+
+# 格式：分 时 日 月 周  命令
+# * * * * *  command
+# ┬ ┬ ┬ ┬ ┬
+# │ │ │ │ └─ 星期 (0-7, 0和7都是周日)
+# │ │ │ └─── 月 (1-12)
+# │ │ └───── 日 (1-31)
+# │ └─────── 时 (0-23)
+# └───────── 分 (0-59)
+
+# 常用示例
+*/5 * * * *  /usr/sbin/ntpdate ntp1.aliyun.com >/dev/null 2>&1   # 每 5 分钟同步时间
+00 01 * * *  /bin/sh /server/scripts/bak.sh >/dev/null 2>&1      # 每天凌晨 1 点备份
+00 02 * * 1  /bin/sh /server/scripts/clean.sh >/dev/null 2>&1    # 每周一凌晨 2 点清理
+```
+
+> **两条铁律**：
+> 1. 脚本里的命令尽量写**绝对路径**（crontab 的 PATH 只有 `/usr/bin:/bin`）。
+> 2. 结尾必须加 `>/dev/null 2>&1` 或 `>>日志 2>&1`，否则会邮件堆积耗尽 inode。
+
+---
 
 ## 练习
 ```bash
