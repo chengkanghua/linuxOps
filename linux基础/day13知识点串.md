@@ -18,14 +18,14 @@
 - 查看当前运行的进程ps-ef
   - 3. 守护进程 (Daemon) —— 后台 “不死” 进程
 - vim故障
-- [](https://www.yuque.com/chengkanghua/oldboy50/balhn5#qpv6zz)vim 快捷键
-- [](https://www.yuque.com/chengkanghua/oldboy50/balhn5#4he3ba)挂载光盘 rpm 安装软件
+- vim 快捷键
+- 挂载光盘 rpm 安装软件
 - [如何解压RPM包](https://www.cnblogs.com/joeblackzqq/archive/2011/03/19/1989137.html)
 - 网卡配置文件
 - 如何修改主机名
 - host 主机 域名
-- [](https://www.yuque.com/chengkanghua/oldboy50/balhn5#uiunix)yum grouplist
-- [](https://www.yuque.com/chengkanghua/oldboy50/balhn5#na0lgv)zip 打包文件
+- yum grouplist
+- zip 打包文件
 
 ![1546505225915-6fbbd77e-8f0e-4a1e-9e2e-7c2ca14c417b.png](img/day13%E7%9F%A5%E8%AF%86%E7%82%B9%E4%B8%B2-01.png)
 
@@ -298,7 +298,7 @@ cat /etc/services  /etc/sysconfig/network-scripts/ifcfg-eth0 >>/tmp/vim.log
 
 ![1546506087837-ca4de2d9-4377-41a9-b25b-91535b989713.png](img/day13%E7%9F%A5%E8%AF%86%E7%82%B9%E4%B8%B2-04.png)
 
-# [](https://www.yuque.com/chengkanghua/oldboy50/balhn5#qpv6zz)vim 快捷键
+# vim 快捷键
 
 ```bash
 zz 保存并退出
@@ -372,7 +372,7 @@ iptables  centos 5.x 6.x
 fireawalld   centos 7.x
 ```
 
-# [](https://www.yuque.com/chengkanghua/oldboy50/balhn5#4he3ba)挂载光盘 rpm 安装软件
+# 挂载光盘 rpm 安装软件
 
 ```bash
 第1步 挂载光盘  
@@ -395,7 +395,9 @@ tree-1.5.3-3.el6.x86_64
 
 ```
 
-# [如何解压RPM包](https://www.cnblogs.com/joeblackzqq/archive/2011/03/19/1989137.html)
+# 如何解压RPM包
+
+> 参考：https://www.cnblogs.com/joeblackzqq/archive/2011/03/19/1989137.html
 
 ```plain
 有时我们需要RPM包中的某个文件，如何解压RPM包呢？
@@ -448,7 +450,7 @@ HOSTNAME=oldboy
 # ping    `hostname`
 ```
 
-# [](https://www.yuque.com/chengkanghua/oldboy50/balhn5#uiunix)yum grouplist
+# yum grouplist
 
 ```bash
 # yum grouplist
@@ -479,7 +481,7 @@ Available Groups:  #你还可以安装的软件包组
 yum groupinstall  'Debugging Tools'
 ```
 
-# [](https://www.yuque.com/chengkanghua/oldboy50/balhn5#na0lgv)zip 打包文件
+# zip 打包文件
 
 ```bash
 #zip /a/hosts.zip /etc/hosts

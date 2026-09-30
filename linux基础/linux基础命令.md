@@ -410,7 +410,7 @@ etc/passwd  文件解析
 
 /var ：经常变化的文件目录，网页文件、数据文件、日志文件
 
-![](img/linux%E5%9F%BA%E7%A1%80%E5%91%BD%E4%BB%A4-03.png)
+!
 
 + **/bin**：bin是Binary的缩写, 这个目录存放着最经常使用的命令。
 + **/boot：**这里存放的是启动Linux时使用的一些核心文件，包括一些连接文件以及镜像文件。
@@ -457,7 +457,9 @@ echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_all
 
 
 
-# [操作系统目录分隔符](https://docs.chengkanghua.top/linux/linux%E5%9F%BA%E7%A1%80%E5%91%BD%E4%BB%A4?id=%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f%e7%9b%ae%e5%bd%95%e5%88%86%e9%9a%94%e7%ac%a6)
+# 操作系统目录分隔符
+
+> 参考：https://docs.chengkanghua.top/linux/linux%E5%9F%BA%E7%A1%80%E5%91%BD%E4%BB%A4?id=%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f%e7%9b%ae%e5%bd%95%e5%88%86%e9%9a%94%e7%ac%a6
 ```plain
 window平台命令行分隔符  反斜杠
 \ 
@@ -583,7 +585,9 @@ ls -l --full-time  /tmp/file1.txt
 win+r   osk 弹出屏幕键盘
 ```
 
-# [tr命令](https://docs.chengkanghua.top/linux/linux%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%AE%A1%E7%90%86%E5%91%BD%E4%BB%A4?id=tr%e5%91%bd%e4%bb%a4)
+# tr命令
+
+> 参考：https://docs.chengkanghua.top/linux/linux%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E7%AE%A1%E7%90%86%E5%91%BD%E4%BB%A4?id=tr%e5%91%bd%e4%bb%a4
 tr命令从标准输入中替换、缩减或删除字符，将结果写入到标准输出
 
 ```plain
@@ -648,7 +652,9 @@ xargs -n2 < a.txt  #两列显示
 5.more
 ```
 
-# [cd命令，变换目录](https://www.yuque.com/chengkanghua/awf7cm/sdeetr#H8jB9)
+# cd命令，变换目录
+
+> 参考：https://www.yuque.com/chengkanghua/awf7cm/sdeetr#H8jB9
 cd切换目录
 
 cd    进入用户家目录；
@@ -661,7 +667,9 @@ cd ..  返回上级目录（若当前目录为“/“，则执行完后还在“
 
 cd ../..  返回上两级目录；
 
-# [tree命令](https://www.yuque.com/chengkanghua/awf7cm/sdeetr#HPSNA)
+# tree命令
+
+> 参考：https://www.yuque.com/chengkanghua/awf7cm/sdeetr#HPSNA
 以树形结构显示目录下内容
 
 ```bash
@@ -674,7 +682,9 @@ tree常用参数
 -F 在条目后加上文件类型的指示符号(* ， /， = ， @ ， | ，其中的一个) 目录/
 ```
 
-# [ls命令](https://www.yuque.com/chengkanghua/awf7cm/sdeetr#Ib1mg)
+# ls命令
+
+> 参考：https://www.yuque.com/chengkanghua/awf7cm/sdeetr#Ib1mg
 ```bash
 ls命令用来显示目标列表
   -a 显示隐藏文件
@@ -990,7 +1000,9 @@ p    pipe        管道
 s    socket      套接字
 ```
 
-# [mkdir命令](https://www.yuque.com/chengkanghua/awf7cm/sdeetr#QeMon)
+# mkdir命令
+
+> 参考：https://www.yuque.com/chengkanghua/awf7cm/sdeetr#QeMon
 ```bash
 # mkdir
   -v  显示创建过程
@@ -1003,7 +1015,9 @@ mkdir -p a/b/c/d
 tree a
 ```
 
-# [touch命令](https://www.yuque.com/chengkanghua/awf7cm/sdeetr#hwYqs)
+# touch命令
+
+> 参考：https://www.yuque.com/chengkanghua/awf7cm/sdeetr#hwYqs
 ```bash
 
 pwd  显示当前目录位置  print name of current/working directory
@@ -1021,7 +1035,9 @@ touch {a..z}
   -r, --reference=文件  使用指定文件的时间属性替代当前文件时间
 ```
 
-# [cp复制](https://www.yuque.com/chengkanghua/awf7cm/sdeetr#Tcfz6)
+# cp复制
+
+> 参考：https://www.yuque.com/chengkanghua/awf7cm/sdeetr#Tcfz6
 ```bash
 用法：cp [选项]... [-T] 源文件 目标文件
 　或：cp [选项]... 源文件... 目录
@@ -1046,7 +1062,9 @@ cp oldboy.txt  oldboy.txt.bak
 
 ```
 
-# [mv命令](https://www.yuque.com/chengkanghua/awf7cm/sdeetr#RXUcJ)
+# mv命令
+
+> 参考：https://www.yuque.com/chengkanghua/awf7cm/sdeetr#RXUcJ
 ```bash
 # mv- move (rename) files
 #把 /data 移动到 /root目录下面
@@ -1054,7 +1072,9 @@ mv  /data/ /root/
 
 ```
 
-# [rm命令](https://www.yuque.com/chengkanghua/awf7cm/sdeetr#o4TYx)
+# rm命令
+
+> 参考：https://www.yuque.com/chengkanghua/awf7cm/sdeetr#o4TYx
 ```bash
 rm -  rm - remove files or directories
 #强制删除目录

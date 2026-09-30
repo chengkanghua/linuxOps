@@ -30,8 +30,8 @@ awk -F= '/IPADDR/{print $2}' /etc/sysconfig/network-scripts/ifcfg-eth0
 # 10.0.0.200
 
 # 语法：'条件{动作}'
-#   NR==2      第 2 行
-#   NR>=10     第 10 行及以后
+# NR==2      第 2 行
+# NR>=10     第 10 行及以后
 
 # 取出网卡 DNS
 awk -F= '/DNS(1|2)/{print $2}' /etc/sysconfig/network-scripts/ifcfg-eth0
@@ -117,9 +117,9 @@ echo $PATH
 /etc/hosts             解析主机名（域名）
 
 # 修改主机名
-#   1. 临时：hostname
-#   2. 永久：CentOS6 改 /etc/sysconfig/network；CentOS7 改 /etc/hostname
-#   3. 解析：/etc/hosts
+# 1. 临时：hostname
+# 2. 永久：CentOS6 改 /etc/sysconfig/network；CentOS7 改 /etc/hostname
+# 3. 解析：/etc/hosts
 
 /etc/rc.local          开机自启动脚本
 /etc/profile           环境变量、别名
@@ -200,9 +200,9 @@ history | grep awk
 ```bash
 # 统计 /etc/passwd 中各类 shell 的数量，取前 3
 cut -d ':' -f7 /etc/passwd | sort | uniq -c | sort -nr | head -3
-#     15 /sbin/nologin
-#      1 /sbin/shutdown
-#      1 /sbin/halt
+# 15 /sbin/nologin
+# 1 /sbin/shutdown
+# 1 /sbin/halt
 
 cut -d ':' -f7 /etc/passwd | sort | uniq -c | sort -nr | column -t
 # 15  /sbin/nologin

@@ -140,7 +140,7 @@ umask 是 035，系统文件/目录默认权限？
 ```bash
 # 网站 blog.oldboyedu.com 根目录 /app/blog
 # 1. 网站以虚拟用户 www 运行
-#    file 644   dir 755
+# file 644   dir 755
 
 # 模拟
 mkdir -p /app/blog /app/blog/upload

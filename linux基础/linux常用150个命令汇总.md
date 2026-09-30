@@ -156,7 +156,9 @@ grep（egrep） sed awk
 
 
 
-# [运维老鸟分享linux运维发展路线规划](https://blog.51cto.com/oldboy/1361536)
+# 运维老鸟分享linux运维发展路线规划
+
+> 参考：https://blog.51cto.com/oldboy/1361536
 
 
 
