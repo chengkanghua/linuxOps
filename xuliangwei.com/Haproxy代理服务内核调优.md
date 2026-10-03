@@ -1,0 +1,85 @@
+# Haproxy代理服务内核调优
+
+# Haproxy代理服务内核调优
+
+`时间:2016.10.17`
+
+笔者Q:552408925、572891887 
+
+架构师群:471443208
+
+```plain
+# Kernel sysctl configuration file for Red Hat Linux
+#
+# For binary values, 0 is disabled, 1 is enabled.  See sysctl(8) and
+# sysctl.conf(5) for more details.
+# Controls IP packet forwarding
+net.ipv4.ip_forward = 0
+# Controls source route verification
+net.ipv4.conf.default.rp_filter = 1
+# Do not accept source routing
+net.ipv4.conf.default.accept_source_route = 0
+# Controls the System Request debugging functionality of the kernel
+kernel.sysrq = 0
+# Controls whether core dumps will append the PID to the core filename.
+# Useful for debugging multi-threaded applications.
+kernel.core_uses_pid = 1
+# Controls the use of TCP syncookies
+net.ipv4.tcp_syncookies = 1
+# Disable netfilter on bridges.
+net.bridge.bridge-nf-call-ip6tables = 0
+net.bridge.bridge-nf-call-iptables = 0
+net.bridge.bridge-nf-call-arptables = 0
+# Controls the default maxmimum size of a mesage queue
+kernel.msgmnb = 65536
+# Controls the maximum size of a message, in bytes
+kernel.msgmax = 65536
+# Controls the maximum shared segment size, in bytes
+kernel.shmmax = 68719476736
+# Controls the maximum number of shared memory segments, in pages
+kernel.shmall = 4294967296
+########################################
+# set sysctl.conf
+net.ipv4.tcp_max_syn_backlog = 65536
+net.core.netdev_max_backlog =  32768
+net.core.somaxconn = 32768
+net.core.wmem_default = 8388608
+net.core.rmem_default = 8388608
+net.core.rmem_max = 16777216
+net.core.wmem_max = 16777216
+net.ipv4.tcp_timestamps = 0
+net.ipv4.tcp_synack_retries = 2
+net.ipv4.tcp_syn_retries = 2
+net.ipv4.tcp_tw_recycle = 0
+net.ipv4.tcp_tw_reuse = 1
+net.ipv4.tcp_mem = 94500000 915000000 927000000
+net.ipv4.tcp_max_orphans = 3276800
+net.ipv4.tcp_fin_timeout = 5
+net.ipv4.tcp_keepalive_time = 120
+net.ipv4.tcp_orphan_retries = 1
+net.ipv4.tcp_keepalive_intvl = 15
+net.ipv4.tcp_keepalive_probes = 4
+net.ipv4.tcp_max_tw_buckets = 1800000
+net.netfilter.nf_conntrack_max = 655350
+net.netfilter.nf_conntrack_tcp_timeout_established = 1200
+net.ipv4.tcp_rmem = 4096 87380 16777216 
+net.ipv4.tcp_wmem = 4096 65536 16777216
+net.ipv4.ip_local_port_range = 1024 65000
+net.ipv4.tcp_window_scaling = 1
+net.ipv4.tcp_sack =1
+kernel.pid_max = 65536
+net.ipv4.inet_peer_gc_mintime = 10
+net.ipv4.ipfrag_time = 30
+vm.vfs_cache_pressure = 150
+kernel.shmmni = 4096
+vm.min_free_kbytes =  204800
+vm.dirty_expire_centisecs = 1500
+vm.dirty_writeback_centisecs = 200
+vm.dirty_ratio = 20
+vm.dirty_background_ratio = 10
+vm.swappiness = 5
+########################################
+```
+
+> 更新: 2019-03-21 09:26:43  
+> 原文: <https://www.yuque.com/chengkanghua/xuliangwei/bu1yxm>
