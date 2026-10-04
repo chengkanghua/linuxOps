@@ -1,6 +1,32 @@
-# Linux进程管理
+# Linux 进程管理
 
-Linux 中有**进程（process）**和**线程（thread）**两个基本概念。用一个"工厂"来类比：
+> 本篇聊两部分内容：先用"工厂、车间、工人"的比方，把进程、线程和锁讲明白；再逐个掌握 Linux 中查看、终止和实时监控进程的常用命令。
+
+## 本章目录
+
+**第一篇 · 进程与线程基础**
+- 一、进程与线程：用工厂打个比方
+
+**第二篇 · Linux 管理进程的命令**
+- ps：查看进程状态
+- pstree：查看进程树
+- pgrep：按名字查找进程号
+- kill / killall / pkill：终止进程
+- top：实时监控进程与资源
+- nohup：让命令脱离终端持续运行
+- bg / jobs / fg：后台作业控制
+- runlevel / init：运行级别
+- service：管理系统服务
+- htop：更好用的 top
+- glances：一屏式综合监控工具
+
+---
+
+# 第一篇 · 进程与线程基础
+
+## 一、进程与线程：用工厂打个比方
+
+Linux 中有**进程（process）**和**线程（thread）**两个基本概念。用一座"工厂"来类比，非常好懂：
 
 1. **CPU 就是工厂**，承担所有计算任务，时刻在运行。
 
@@ -8,34 +34,27 @@ Linux 中有**进程（process）**和**线程（thread）**两个基本概念�
 
 3. **进程就是车间**，每个车间代表 CPU 正在处理的一个任务。任一时刻 CPU 只运行一个进程，其余进程处于非运行状态。
 
-<!-- OCR_START -->
-- 进程1
-- 进程2
-- 进程
-<!-- OCR_END -->
+   原图是一整排工厂图标，下面依次标注"进程 1""进程 2""进程…"，表示系统中同时存在许多个进程：
+
+   ```plain
+   [工厂]进程1   [工厂]进程2   [工厂]进程3   …   [工厂]进程N
+   ```
 
 4. **线程就是车间里的工人**：一个车间里有很多工人协同完成任务，所以一个进程里也有多个线程在工作。
 
 5. **工人共享车间空间**，同理**进程内的内存空间由各线程共享**。
 
-<!-- OCR_START -->
-- 工厂内=进程内
-- 工厂内部的房间，
-- 空间被工人共享
-- 理解
-- 进程内的内存空间，
-- 被线程共享
-- @EnchantedLearning.com
-<!-- OCR_END -->
+   原图是一栋房子的剖面图，里面隔出卫生间、卧室、书房、厨房、餐厅、客厅等房间，旁边标注"工厂内 = 进程内；工厂内部的房间空间被工人共享，即进程内的内存空间被线程共享"。对应关系如下：
+
+   | 图中说法 | 对应到系统 |
+   | --- | --- |
+   | 工厂内 | 进程内 |
+   | 一个个房间 | 一块块内存空间 |
+   | 工人共享所有房间 | 同一进程的线程共享进程内存 |
 
 6. **有的小房间一次只能进一个人**（比如卫生间）：里面有人的话，后来者就得等。同理，某块内存正被一个线程使用时，其他线程必须等它用完。
 
-7. **为了避免抢占冲突，就加一把锁**——这就是**互斥锁（Mutex，Mutual exclusion）**：门被锁上后其他线程只能等待，锁打开才能进去，以此防止多个线程同时读写同一块内存。
-
-<!-- OCR_START -->
-- 线程一在里面呢
-- 其他线程乖乖等着锁打开才能进去
-<!-- OCR_END -->
+7. **为了避免抢占冲突，就加一把锁**——这就是**互斥锁（Mutex，Mutual exclusion）**：门被锁上后其他线程只能等待，锁打开才能进去，以此防止多个线程同时读写同一块内存。原图是一扇挂了锁的门，配文"线程一在里面呢，其他线程乖乖等着锁打开才能进去"。
 
 8. **总结 Linux 的并发特性：**
 
@@ -43,7 +62,11 @@ Linux 中有**进程（process）**和**线程（thread）**两个基本概念�
 * **多线程**：单个任务可拆成多个部分并行执行（一个工厂的活分给多个工人）
 * **锁机制**：防止多个线程抢夺同一份资源
 
-## Linux管理进程的命令
+> 💡 一句话抓住进程与线程的区别：**进程之间内存相互独立、互不干扰；同一进程内的线程共享进程的内存，所以才需要锁来协调。**
+
+---
+
+# 第二篇 · Linux 管理进程的命令
 
 ## ps命令
 
@@ -307,7 +330,7 @@ systemd─┬─YDLive───{YDLive}
 pstree -u
 ```
 
-# 显示Linux线程数量
+### 查看 Linux 线程数量
 
 ```plain
 1.查看进程树关系
@@ -554,67 +577,11 @@ root     11542  7670  0 15:18 pts/0    00:00:00 grep --color=auto vim
 
 ## top命令
 
-<!-- OCR_START -->
-- Windows任务管理器
-- 文件(F)
-- 选项(0)
-- 查看(V)
-- 帮助(H)
-- 应用
-- 前端显示(A)
-- 关网
-- 用户
-- 勾选
-- 使用时最小化（IM）
-- 映像
-- 最小化时隐藏(H)
-- 存(. :
-- 描述
-- 360se.exe *32
-- Admin.
-- 52,108 K
-- 360安全
-- 102, 140 K
-- 05
-- 225,996 K
-- baidupinyi.
-- 29, 444 K
-- 百度中..
-- csrss. exe
-- SYSTEM
-- 1,736 K
-- Client
-- 3,124 K
-- dwm.exe
-- 01
-- 12, 728 K
-- 桌面窗...
-- explorer. exe
-- 55,992 K
-- Windows..
-- igfxCUISer...
-- 2,324 K
-- igfxCUI..
-- igfxEM.exe
-- 8,864 K
-- igfxEM
-- igfxHK.exe
-- 7,720 K
-- igfxHK
-- igfxTray.exe
-- 8,076 K
-- igfxTra..
-- lsass. exe
-- 3,796 K
-- Local S..
-- lsm.exe
-- 1,592 K
-- 本地会..
-- TnAT
-- nn
-- 显示所有用户的进程（S）
-- 结束进程（E）
-<!-- OCR_END -->
+如果说 Windows 上看进程用"任务管理器"，那么 Linux 上对应的工具就是 **top**——它是最经典的实时监控工具。
+
+Windows 任务管理器能看 CPU、内存、进程列表，top 也一样，而且信息更丰富、更适合服务器排障。
+
+> 💡 一句话记住：**top = Linux 的任务管理器**，实时刷新、能排序、能杀进程。
 
 top命令用于实时的监控系统处理器状态，以及各种进程的资源占用情况。
 
@@ -826,181 +793,18 @@ z打开关闭颜色
 
 组合使用指令
 
+进入 top 后，依次按下面几个键，可以调出颜色、高亮排序列、加粗等效果，让界面更直观：
+
 ```plain
-top  
-z
-x
-b
-<
->
+top    # 进入 top
+z      # 打开/关闭颜色（整个界面变彩色）
+x      # 高亮当前排序列（那一行底色会变亮）
+b      # 加粗显示（与 x 配合，让高亮列更醒目）
+<      # 向左移动排序列
+>      # 向右移动排序列
 ```
 
-<!-- OCR_START -->
-- top - 17:09:35 up 53 days,
-- 1:41，
-- 1 user,
-- load average:(
-- 0.00，
-- 0.01,0.05
-- Tasks:
-- 74 total,
-- 1 running，
-- 73 sleeping,
-- 0 stopped,
-- 0 zombie
-- %Cpu(s):
-- 0.7 us,
-- 0.7 sy,
-- 0.0 ni, 98.7 id,
-- 0.0 wa,
-- 0.0 hi，@
-- 0.0 si,
-- 0.0 st
-- KiB Mem :
-- 1882892 total,
-- 101528 free,
-- 183088 used,
-- 1598276 buff/cache
-- KiB Swap:
-- 0 total,
-- 0 free,
-- 0 used.
-- 1511880 avail Mem
-- PID USER
-- PR
-- NI
-- VIRT
-- RES
-- SHR S %CPU %MEM
-- TIME+ COMMAND
-- 329 root
-- 20
-- 169812
-- 91940
-- 91588 S
-- 0.0
-- 4.9
-- 15:54.97 systemd-journal
-- 10699 root
-- 219716
-- 67748
-- 4136 S
-- 0.7
-- 3.6
-- 13:54.34 YDService
-- 8596 root
-- 799712
-- 21712
-- 4424 S
-- 0.3
-- 1.2
-- 23:49.73 dockerd-current
-- 21311 root
-- 585948
-- 15748
-- 2724 S
-- 0.8
-- 4:09.19 tuned
-- top 进入
-- 3238 root
-- 747112
-- 13292
-- 11588 S
-- 5:51.97 rsyslogd
-- 21300 polkitd
-- 614456
-- 9732
-- 1952 S
-- 0.5
-- 1:17.54 polkitd
-- 8601 root
-- 15:03.08 docker-containe
-- z打开颜色
-- 303628
-- 7892
-- 1696 S
-- 0.4
-- 15181 root
-- 156796
-- 5604
-- 4296 S
-- 0:00.42 sshd
-- 25720 root
-- 0:00.00 sshd
-- x高亮
-- 154596
-- 5124
-- 3844 S
-- 24472 postfix
-- 92064
-- 4064
-- 3000 S
-- 0.2
-- 0:01.14 qmgr
-- 2855 root
-- 112920
-- 2:30.00 sshd
-- b加粗
-- 4040
-- 3016
-- 5S
-- 17100 postfix
-- 91888
-- 3992
-- 2984 S
-- 0:00.00 pickup
-- 15184 root
-- 116928
-- 3804
-- 1844
-- 0:00.13 bash
-- <向左移动排序
-- 1 root
-- 125452
-- 3460
-- 2064 S
-- 15:01.76 systemd
-- 21537 root
-- 124836
-- 3040
-- 692 S
-- 0:00.00 lvmetad
-- 向右移动排序
-- 25721 sshd
-- 2228
-- 1168 S
-- 0.1
-- 24470 root
-- 91784
-- 2168
-- 1120
-- 0:03.17 master
-- 25668 root
-- 159804
-- 2136
-- 1508 R
-- 0:00.06 top
-- 524 root
-- 26888
-- 1828
-- 960 S
-- 3:32.96 systemd-logind
-- 516 dbus
-- 60364
-- 1768
-- 1024 S
-- 7:58.33 dbus-daemon
-- 3493 root
-- 128404
-- 1672
-- 964 S
-- 0:25.25 crond
-- 1503 root
-- 102396
-- 1664
-- 1228S
-- 8:59.82 YDLive
-<!-- OCR_END -->
+效果大致是：整个界面以彩色显示，当前按 CPU 排序时 `%CPU` 那一列会被高亮加粗，一眼就能看出排序依据。按 `<` 或 `>` 可以切换到按 `%MEM`、`TIME+` 等其他列排序。
 
 ## nohup命令
 
@@ -1182,300 +986,75 @@ service命令用于对系统服务进行管理，比如启动（start）、停�
 [root@chaogelinux ~]# yum install htop -y
 ```
 
-### 1.直接输入htop命令，进入画面，各项指标和top相似
+### 1. 直接输入 htop 命令，进入画面
 
-<!-- OCR_START -->
-- CPU[II
-- 2 .0%]
-- Tasks: 34, 52 thr; 1 running
-- Load average: 0.03 0.06 0.06
-- Swp [
-- OK/OK]
-- Uptime:53 days,02:21:02
-- PID USER
-- PRI
-- NI
-- VIRT
-- RES
-- SHR S CPU% MEM%
-- TIME+  Command
-- 31125 root
-- 119M
-- 2372
-- 1472 R
-- 0.7  0.1 0:00.01 htop
-- 1 root
-- 122M
-- 3460
-- 2064S
-- 0.0 0.2 15:02.57 /usr/lib/systemd/systemd --system --deserialize 21
-- 329root
-- 173M9940099048 S
-- 0.05.3 15:57.14 /usr/lib/systemd/systemd-journald
-- 509 libstorag
-- 8576
-- 464
-- 316 S
-- 0.0
-- 0.0 0:09.53 /usr/bin/lsmd -d
-- 516 dbus
-- 60364
-- 1768
-- 1024
-- 0.1
-- 7:58.65 /usr/bin/dbus-daemon --system --address=systemd: --nofor
-- 518 root
-- 4384
-- 432
-- 292
-- 0:00.00 /usr/sbin/acpid
-- 524 root
-- 26888
-- 1828
-- 960S
-- 3:33.10 /usr/lib/systemd/systemd-logind
-- 1067 root
-- 107M
-- 456
-- 328 S
-- 0:00.00 /sbin/agetty --noclear tty1 linux
-- 1068 root
-- 452
-- 320
-- 0:00.00 /sbin/agetty --keep-baud 115200,38400,9600 ttyS0 vt220
-- 1504 root
-- 99M
-- 1664
-- 1228
-- 2:47.54 /usr/local/qcloud/YunJing/YDLive/YDLive
-- 1503 root
-- 1228 S
-- 9:00.08 /usr/local/qcloud/YunJing/YDLive/YDLive
-- 2855 root
-- 110M
-- 4040
-- 3016
-- 0.2
-- 2:30.65 /usr/sbin/sshd -D
-- 3180 root
-- 16
-- -4
-- 55528
-- 1068
-- 620
-- 0:06.50 /sbin/auditd
-<!-- OCR_END -->
+htop 的界面比 top 更漂亮、信息更直观，支持鼠标操作，默认就是彩色的。
 
-### 调整htop的风格
+顶部状态栏从左到右依次是：CPU 各核心使用率（一条条进度条）、内存使用率、交换分区使用率；右侧是任务数、负载均值、运行时间。
 
-在htop监控页面中，添加主机名，以及时间
+下面的进程列表各列含义：
+
+| 列名 | 含义 |
+| --- | --- |
+| PID | 进程 ID |
+| USER | 进程所属用户 |
+| PRI | 优先级 |
+| NI | nice 值（负值高优先级，正值低优先级） |
+| VIRT | 虚拟内存大小 |
+| RES | 常驻物理内存大小 |
+| SHR | 共享内存大小 |
+| S | 进程状态（R 运行 / S 睡眠 / T 停止 / Z 僵尸）|
+| CPU% | CPU 使用率 |
+| MEM% | 内存使用率 |
+| TIME+ | 累计 CPU 时间 |
+| Command | 命令行 |
+
+底部是 F1～F10 快捷键提示。
+
+### 调整 htop 的风格
+
+可以在 htop 里自定义顶部状态栏，比如加上主机名、当前时间等，步骤如下：
 
 ```plain
-1. 进入htop
-2. 按下setup，进入设置
-3. 上下左右，移动，状态栏会发生变化（空格键，更改风格）
-4. 按下回车键，可以选择添加表(meters)
-5. F10保存
-6. htop能够记忆用户的设置
+1. 进入 htop
+2. 按 F2（或 S）进入 Setup 设置
+3. 用方向键左右切换选项卡（Meters / Display options / Colors / Columns）
+4. 在 Meters 选项卡中，左栏是可用的仪表，右栏是已添加的
+   - 选中左栏的 "Hostname"（主机名）、"Clock"（时钟）等，按空格添加到右栏
+   - 上下键调整顺序
+5. F10 保存退出
+6. htop 会记忆用户的设置（保存在 ~/.config/htop/htoprc）
 ```
 
-<!-- OCR_START -->
-- CPU[III
-- 3.3%]
-- 1/132]
-- Mem:1.80G used:184M buffers:201M cache:1.27G
-- Loa[l]
-- 0.00/0.02/0.05]
-- Swp:OK used:0K
-- 53 days,02:45:40]
-- Tasks: 33, 52 thr; 1 running
-- Time:
-- Hostname:
-- chaogelinux
-- PID USER
-- PRI
-- NI
-- VIRT
-- RES
-- SHR S CPU% MEM%
-- Command
-- 8600root
-- 20
-- 780M 21552
-- 4424S
-- 0.0
-- 1.1
-- 0:00.68
-- /usr/bin/dockerd-current --add-runtimedocker-runc=/usr/libexec/docker
-- 8599 root
-- 0:00.00
-- /usr/bin/dockerd-current
-- --add-runtime docker-runc=/usr/libexec/docker
-- 8598 root
-- 6:22.97
-- 8597 root
-- 2:34.58
-- 3633 root
-- 025908
-- 1028
-- 816 S0.0
-- 0.1
-- 0:00.02
-- /usr/sbin/atd-f
-- 3493root
-- 125M
-- 1672
-- 964 S 0.0
-- 0:25.31
-- /usr/sbin/crond -n
-- 3238root
-- 729M 16100 14396 S
-- 0.9
-- 5:53.37
-- /usr/sbin/rsyslogd -n
-- 3606 root
-- 0:36.79
-- 3240root
-- 5:16.47
-- 3179 root
-- 16
-- -4 55528
-- 1068
-- 620 S
-- 1:42.73
-- /sbin/auditd
-- 3180 root
-- 4
-- ：55528
-- 620S0.00.1
-- 0:06.53
-- 2855 root
-- 110M40403016S0.00.22:31.05
-- /usr/sbin/sshd -D
-- 27404root
-- 153M56084296 S0.00.30:00.37
-- sshd: root@pts/1
-<!-- OCR_END -->
+调整后，顶部状态栏会多出主机名和当前时间，一眼就知道这是哪台机器、现在几点。
 
 ### 搜索进程
 
+想快速定位某个进程？用搜索功能即可：
+
 ```plain
-按下F3
-输入nginx  查找nginx的进程
+按下 F3（或直接按 / ）
+输入 nginx     # 查找 nginx 的进程
+按 F3 可以跳到下一个匹配项
+按 Esc 取消搜索
 ```
 
-<!-- OCR_START -->
-- 24470 root
-- 20
-- 091784
-- 2168
-- 1120 S
-- 0.0
-- 0.1
-- 0:03.18
-- /usr/libexec/postfix/master -w
-- 30043 postfix
-- 091888
-- 3992
-- 2984
-- 0.2
-- 0:00.00
-- pickup -l -t unix -u
-- 24472 postfix
-- 0 92064
-- 4064
-- 3000
-- 0:01.14
-- qmgr -l -t unix -u
-- 24372 root
-- 0 20544
-- 616
-- 224 S
-- nginx: master process nginx
-- 24373 root
-- 0 23076
-- 1644
-- 828 S
-- nginx: worker process
-- 22684 root
-- 0 44684
-- 1588
-- 1092
-- 0:00.15
-- /usr/lib/systemd/systemd-udevd
-- 21537 root
-- 121M
-- 3040
-- 692
-- /usr/sbin/lvmetad -f
-- 21311 root
-- 572M 15748
-- 2724
-- 0.8
-- 4:09.59
-- /usr/bin/python2 -Es /usr/sbin/tunec
-- 21462 root
-- 21461 root
-- 2724 S
-- 21459 root
-- 4:09.34
-- F3Next
-- EscCancel
-- Search: nginx
-<!-- OCR_END -->
+搜索时底部会出现 `Search: nginx` 提示行，匹配到的进程会被高亮显示，按 F3 在多个匹配结果之间跳转。
 
 ### 杀死进程
 
+在 htop 里可以直接选中进程后发送信号杀掉它：
+
 ```plain
-定位到想要杀死进程的哪一行，按下F9
-选择发送给进程的信号，一般是15，正常中断进程
-回车，进程就挂了
+1. 用方向键（或鼠标点击）定位到想要杀死进程的那一行
+2. 按下 F9（Kill）
+3. 左侧会弹出信号列表，选择要发送的信号（默认 15 SIGTERM，正常终止；
+   需要强杀选 9 SIGKILL）
+4. 回车，信号就发送出去了
+5. 按 Esc 可以取消
 ```
 
-<!-- OCR_START -->
-- 20
-- 12 SIGUSR2
-- 2042 root
-- 150M
-- 5120
-- 3844 S
-- 0.0
-- 0.3
-- 0:00.00
-- sshd: root [priv]
-- 13 SIGPIPE
-- 2043 sshd
-- 110M
-- 2224
-- 1168 S
-- 0.1
-- sshd: root [net]
-- 14 SIGALRM
-- 2016 root
-- 020544
-- 620
-- 224 S
-- nginx: master process nginx
-- 15 SIGTERM
-- 2017 root
-- 0 23076
-- 1392
-- 636 S
-- nginx:worker process
-- 16 SIGSTKFLT
-- 1503 root
-- 99M
-- 1664
-- 1228
-- 9:00.24
-- /usr/local/qcloud/YunJing/YDLive/YD
-- 17 SIGCHLD
-- 1504 root
-- 1228 S
-- 2:47.58
-- EnterSend
-- EscCancel
-<!-- OCR_END -->
+> ⚠️ 注意：F9 杀进程是立即生效的，选信号时看清楚再回车。普通退出用 15（SIGTERM），实在杀不掉再用 9（SIGKILL）。
 
 ### 显示进程树
 
@@ -1539,7 +1118,7 @@ pip3 install -U pip -i https://pypi.douban.com/simple
 pip3 install glances -i https://pypi.douban.com/simple
 ```
 
-### glances界面
+### glances 界面
 
 ```plain
 glances 是一个命令行工具包括如下命令选项：
@@ -1560,154 +1139,22 @@ glances 是一个命令行工具包括如下命令选项：
 -v : 显示版本信息
 ```
 
-<!-- OCR_START -->
-- 2.root@chaogelinux:~ (ssh)
-- root@chaogelinux....
-- 81
-- chaogelinux (CentOS
-- S Linux release qweqwewqe
-- 77777.7.1908 64bit / Linux 3.10.0-862.el7.x86_64)
-- Uptime: 53 days,18:10:08
-- CPU使用量
-- 内存使用量
-- 交换分区使用量
-- CPU
-- 2.6%
-- nice:
-- 0.0%
-- MEM
-- 21.6%
-- active:
-- 823M
-- SWAP
-- LOAD
-- 1-core
-- [11
-- user:
-- 1.3%
-- irq:
-- total:
-- 1.80G
-- inactive:
-- 629M
-- 1 min:
-- 0.20
-- system:
-- 0.7%
-- iowait:
-- 0.3%
-- used:
-- 396M
-- buffers:
-- 229M
-- 5 min:
-- idle:
-- 97.7%
-- steal:
-- free:
-- 1.41G
-- cached:
-- 1.03G
-- 15 min:
-- 0.12
-- 网络情况
-- 进程
-- 任务情况
-- NETWORK
-- Rx/s
-- Tx/s
-- TASKS
-- 72
-- （124
-- thr),2 run,
-- 70 slp，0 oth sorted automatically
-- by
-- cpu_percent，flat view
-- dockero
-- Ob
-- etho
-- 4Kb
-- 31Kb
-- VIRT
-- RES
-- PID USER
-- NI S
-- TIME+
-- IOR/sIOW/s Command
-- l0
-- 1.6
-- 0.8
-- 225M 15.5M
-- 4168 root
-- OR
-- 0:01.30
-- 0 /usr/bin/python /usr/bin/glan
-- 磁盘情况
-- 3789root
-- OS
-- 0:00.60
-- 0 kworker/0:2
-- DISK I/0
-- R/s
-- W/s
-- 781M
-- 21.0M
-- 8596
-- root
-- 24:37.44
-- 0 /usr/bin/dockerd-current
-- -ad
-- sr0
-- 0:00.00
-- 0 kdevtmpfs
-- vda1
-- 12K
-- 0.1
-- 22.5M 1.61M
-- 2464
-- 0:00.40
-- 0 nginx: worker process
-- 文件系统使用量
-- 18
-- -20
-- 0 bioset
-- FILE SYS
-- 3388
-- 0:00.70
-- 0 kworker/0:0
-- 16.1G
-- 49.1G
-- 016327
-- 0:00.86
-- 0 kworker/u2:0
-- _ntainers
-- 40
-- 0 kmpath_rdacd
-- _overlay2
-- 9
-- 4:04.20
-- 0 rcu_sched
-- 28
-- 5
-- 0 ksmd
-- 30
-- 0 crypto
-- 2
-- 0:00.41
-- 0 kthreadd
-- 125M 1.63M
-- 3493
-- 0:25.93
-- 0 /usr/sbin/crond -n
-- 19
-- 0 kblockd
-- 0.1 25.3M 1.00M
-- 3633root
-- 0:00.20
-- 0 /usr/sbin/atd -f
-- 2019-12-13 09:38:30
-- No warning or critical alert detected
-<!-- OCR_END -->
+glances 一屏就能看到系统的全貌，从上到下大致分为以下几个区域：
+
+1. **顶部状态栏**：主机名、系统版本、内核版本、运行时间（Uptime）
+2. **CPU 使用率**：user（用户态）、system（内核态）、idle（空闲）、iowait（等待 IO）、nice、irq 等
+3. **内存使用量（MEM）**：total（总量）、used（已用）、free（空闲）、buffers（缓冲区）、cached（缓存）、active、inactive
+4. **交换分区（SWAP）**：已用 / 总量
+5. **负载（LOAD）**：1 分钟 / 5 分钟 / 15 分钟负载
+6. **网络情况（NETWORK）**：每个网卡的 Rx/s（接收速率）、Tx/s（发送速率）
+7. **磁盘 I/O（DISK I/O）**：每个磁盘的 R/s（读速率）、W/s（写速率）
+8. **文件系统（FILE SYS）**：每个挂载点的已用 / 总量
+9. **进程列表（TASKS）**：任务总数、线程数、运行/睡眠/其他数量，按 CPU 使用率排序的进程明细
+10. **底部提示**：当前时间、是否有告警（warning / critical）
+
+进程列表的字段有 PID、USER、NI（优先级）、S（状态）、VIRT（虚拟内存）、RES（物理内存）、CPU%、MEM%、TIME+、IOR/s（磁盘读）、IOW/s（磁盘写）、Command 等。
+
+> 💡 glances 的特点就是"一眼看全"——CPU、内存、磁盘、网络、进程全在一屏里，不需要像 top 一样切来切去。
 
 **进程信息字段**
 
@@ -1744,222 +1191,39 @@ f ： 显示系统信息
 1 ：轮流显示每个 CPU 内核的使用情况（次选项仅仅使用在多核 CPU 系统）
 ```
 
-### glances运行web服务
+### glances 运行 web 服务
+
+glances 支持以 Web 方式运行——启动一个内置的 Web 服务器，在浏览器里打开就能看到监控界面，不用再 SSH 登录到服务器上。
 
 ```plain
-1.安装python的包管理工具pip
+1. 安装 python 的包管理工具 pip
 yum install python python-pip python-devel gcc -y
-2.安装web模块，bottle
+2. 安装 web 模块 bottle
 pip install bottle
-3.启动服务
+3. 启动服务
 [root@chaogelinux ~]# glances -w
 Glances web server started on http://0.0.0.0:61208/
 ```
 
-<!-- OCR_START -->
-C口
-①不安全丨pythonav.cn:61208
-Glances
-an Eye on your System
-<!-- OCR_END -->
+启动后，在浏览器访问 `http://服务器IP:61208/`，就能看到和命令行版布局一致的 Web 版监控界面，同样包含 CPU、内存、网络、磁盘、进程列表等所有模块，配色和布局更加美观。
 
-<!-- OCR_START -->
-- →C口
-- 不安全|pythonav.cn:61208
-- chaogelinux (CentoS Linux release qweqwewqe
-- ：77777.7.1908 64bit /Linux 3.10.0-862.el7.x86_64)
-- Uptime:
-- 53 days，
-- 19:07:16
-- CPU
-- 2.5%
-- nice:
-- 0%
-- MEM
-- 20.5%
-- active:
-- 834M
-- SWAP
-- LOAD
-- 1-core
-- user:
-- 1%
-- irq:
-- total:
-- 1.80G
-- inactive:
-- 561M
-- 1 min:
-- 0.03
-- system:
-- iowait:
-- 0.2%
-- used:
-- 377M
-- buffers:
-- 239M
-- 5min:
-- 0.04
-- idle:
-- 97.8%
-- steal:
-- free:
-- 1.43G
-- cached:
-- 990M
-- 15 min:
-- 0.05
-- NETWORK
-- Rx/s
-- Tx/s
-- Nowarning or criticalalertdetected
-- dockero
-- Ob
-- etho
-- 10Kb
-- 86Kb
-- TASKS 72 (124 thr)，2 run，70 slp，oth sorted automatically by cpu_percent，flat view
-- lo
-- DISK I/0
-- R/s
-- W/s
-- VIRT
-- RES
-- PID USER
-- NI
-- TIME+
-- IOR/s
-- IOW/s Command
-- sr0
-- 1.7
-- 0.9
-- 241M
-- 16.8M
-- 9337 root
-- 00:00.85
-- 0glances
-- vda1
-- 28K
-- 0.7
-- 5.1
-- 243M
-- 94.1M
-- 10699root
-- 17:52.00
-- 1K YDService
-- 0.0
-- 13 root
-- 00:00.00
-- 0kdevtmpfs
-- FILE SYS
-- Used Total
-- 0.1
-- 22.5M
-- 1.61M
-- 2464 root
-- 00:00.04
-- 0nginx
-- /(/dev/vda1)
-- 15.9G 49.1G
-- 18 root
-- -20
-- 0bioset
-- /var/lib/docker/containers
-- 16327 root
-- 00:00.86
-- 0kworker/u2:0
-- 40root
-- 0kmpath_rdacd
-- /var/lib/docker/overlay2
-- 9root
-- 04:04.27
-- 0rcu_sched
-- 28 root
-- 5
-- 0ksmd
-- 30root
-- 0 crypto
-- 2 root
-- 00:00.41
-- 0kthreadd
-- 89.7M
-- 3.90M
-- 8399 postfix
-- 0pickup
-- 125M
-- 1.63M
-- 3493root
-- 00:25.98
-- 0crond
-- 19root
-- 0 kblockd
-- 25.3M
-- 1.00M
-- 3633
-- root
-- 00:00.02
-- 0atd
-<!-- OCR_END -->
+> ⚠️ 注意：glances 的 Web 模式默认没有身份验证，公网开放时建议配合防火墙限制访问 IP，或者加上 `--password` 选项设置密码。
 
-### glances服务器/客户端模式
+### glances 服务器/客户端模式
 
-glances支持C/S模块，可以实现远程监控，而不用登陆另一台服务器
+glances 支持 C/S（客户端/服务器）模式，可以实现远程监控——在被监控的机器上起服务端，在自己机器上用客户端连接过去就能看，不用再 SSH 登录到另一台服务器。
 
 ```plain
-1.运行服务端
+1. 运行服务端（被监控的机器）
 [root@chaogelinux ~]# glances -s -B 0.0.0.0
 Glances server is running on 0.0.0.0:61209
-2.客户端连接
+2. 客户端连接（你的机器）
 glances -c 服务端ip
 ```
 
-<!-- OCR_START -->
-- Xssh
-- Connectedto
-- chaogelinux
-- CPU
-- 4.2%]
-- nice:
-- 0.0%
-- MEM
-- [1
-- 16.9%]
-- user:
-- 1.9%
-- irq:
-- total:
-- SWAP
-- system:
-- 1.6%
-- iowait:
-- 0.6%
-- used:
-- idle:
-- 95.8%
-- steal:
-- free:
-- NETWORK
-- Rx/s
-- Tx/s
-- TASKS
-- 74 (126 thr)，2 run,72 slp,
-- docker0
-- Ob
-- etho
-- 10Kb
-- 28Kb
-- VIRT
-- RES
-- PID USER
-- lo
-- 0.8
-- 220M 15.1M
-- 8279 root
-- 0.3
-- 0.4
-- 157M8.00M
-- 1901 root
-<!-- OCR_END -->
+连接成功后，顶部会显示 `Connected to <主机名>`，界面内容和本地运行 glances 完全一样——CPU、内存、SWAP、网络、磁盘、进程列表，所有数据实时从服务端传过来。
+
+> 💡 小技巧：要同时监控多台服务器？分别在每台上启动 `glances -s`，然后在你的电脑上轮流 `glances -c <IP>` 切换查看，非常方便。
 
 > 更新: 2023-01-12 12:17:06  
 > 原文: <https://www.yuque.com/chengkanghua/awf7cm/lm1pnk>

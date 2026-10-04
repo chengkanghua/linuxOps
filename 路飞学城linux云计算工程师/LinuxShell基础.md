@@ -1,191 +1,180 @@
-# Linux Shell基础
+# Linux Shell 基础
 
-\[TOC]
+> 本章讲清楚四件事：Shell 是什么、Shell 脚本怎么写、bash 有哪些好用的基础特性，以及父子 Shell、内建命令和环境变量的来龙去脉。命令行运维的半壁江山都在这里，建议边读边在机器上敲。
 
-# 走进shell
+## 本章目录
 
-Linux早期没有图形界面，管理员只能在控制台输入 shell 命令、查看文本输出。
+- 一、走进 Shell
+  - 什么是 Shell
+  - Shell 和运维
+  - 什么是 Shell 脚本（Shebang / 注释规范 / 执行方式）
+  - 脚本语言
+  - bash 基础特性（命令历史 / 变量）
+  - 环境变量设置
+- 二、Shell 实践
+  - 父子 Shell / 子 Shell
+  - 进程列表
+  - 后台执行与子 Shell
+  - 协程与子 Shell
+- 三、内建命令
+  - 外部命令 / 内置命令
+- 四、Linux 环境变量
+  - 全局变量与局部变量
+  - PATH 变量
+  - 登录 Shell / 交互式 Shell / 非交互式 Shell
+  - 永久性环境变量
 
-多数发行版（如 CentOS）可用 `ctrl+F1~F7` 组合键访问控制台；如今更常用 Xshell 这类终端工具远程连接管理。
+---
 
-以 CentOS 为例，默认 shell 是 `GNU bash shell`，支持以下特性：
+## 一、走进 Shell
 
-* man手册
-* tab补全
-* shell指令
+Linux 早期没有图形界面，管理员只能坐在控制台前输入 Shell 命令、查看文本输出。
 
-`GNU bash shell`是在系统普通用户登陆时，作为普通程序运行，这个规则是`/etc/passwd`中指定的条目
+多数发行版（如 CentOS）可以用 `ctrl+F1~F7` 组合键在多个虚拟控制台之间切换；如今更常见的做法，是用 Xshell 这类终端工具远程连接到机器进行管理。
+
+以 CentOS 为例，默认的 Shell 是 `GNU bash shell`，支持 man 手册、Tab 补全、Shell 指令等特性。
+
+`GNU bash shell` 在用户登录时作为一个普通程序启动，用哪个 Shell 是由 `/etc/passwd` 中的条目指定的：
 
 ```plain
 [root@chaogelinux ~]# tail -1 /etc/passwd
 susu:x:2009:2010::/home/susu:/bin/bash
 ```
 
-bash 会在用户登录时自动启动。若通过虚拟控制台终端登录，会出现命令行界面（CLI）提示符，此时即可输入 shell 命令；若通过图形化桌面登录，则需启动 GNOME 这类终端仿真器来访问 shell CLI。
+bash 在用户登录时自动启动。如果是从虚拟控制台登录，会直接出现命令行界面（CLI，Command-Line Interface）提示符，此时就可以输入 Shell 命令；如果是从图形化桌面登录，则需要启动 GNOME 终端这样的终端仿真器来访问 Shell CLI。
 
-## 什么是shell
+### 什么是 Shell
 
-<!-- OCR_START -->
-- Google翻译
-- xA 文字
-- 文档
-- 检测到英语
-- 英语
-- 中文
-- 德语
-- 中文(简体)
-- shell
-- 贝壳
-<!-- OCR_END -->
+shell 这个单词本意为"贝壳"，在 IT 语境里特指命令解释器。
 
-shell的作用是
+Shell 的作用是：
 
-* 解释执行用户输入的命令或程序等
-* 用户输入一条命令，shell就解释一条
-* 键盘输入命令，Linux给与响应的方式，称之为交互式
+* 解释执行用户输入的命令或程序；
+* 用户输入一条，Shell 就解释一条；
+* 这种键盘输入命令、Linux 给出响应的方式，称为**交互式**。
 
-<!-- OCR_START -->
-- 外围应用程序
-- shell解释器（翻译官、命令解释器）
-- 操作系统核心
-- 机器硬件
-<!-- OCR_END -->
+从外到内，Shell 处于"外围应用程序"和"操作系统核心"之间，像一名翻译官：
 
-shell 是包裹在系统内核外的一层"壳"，处于操作系统最外层，直接与用户对话：把用户输入解释给操作系统，再把处理结果输出到屏幕。
+```plain
+┌───────────────────────────────────────────┐
+│ 外围应用程序                               │
+│  ┌─────────────────────────────────────┐  │
+│  │ shell 解释器（翻译官、命令解释器）    │  │
+│  │  ┌───────────────────────────────┐  │  │
+│  │  │ 操作系统核心                   │  │  │
+│  │  │  ┌─────────────────────────┐  │  │  │
+│  │  │  │       机器硬件           │  │  │  │
+│  │  │  └─────────────────────────┘  │  │  │
+│  │  └───────────────────────────────┘  │  │
+│  └─────────────────────────────────────┘  │
+└───────────────────────────────────────────┘
+```
 
-<!-- OCR_START -->
-- [root@chaogelinux
-- data]#
-- echo
-- "超哥带你学shel1
-<!-- OCR_END -->
+Shell 是包裹在系统内核外的一层"壳"，处于操作系统最外层，直接与用户对话：把用户的输入解释给操作系统，再把处理结果输出到屏幕。例如：
 
-从我们登录Linux，输入账号密码到进入Linux交互式界面，所有的操作，都是交给shell解释并执行
+```plain
+[root@chaogelinux data]# echo "超哥带你学shell"
+超哥带你学shell
+```
 
-<!-- OCR_START -->
-- 超哥
-- 敲键盘
-- Is
-- terminal终端
-- 通过bash解释器
-- shell壳
-- 接受输入，绘制输出
-- 解析和翻译用户输入
-- 系统调用
-- stdout/stderr
-- 操作系统内核kernel
-- 计算机硬件
-<!-- OCR_END -->
+从登录 Linux、输入账号密码，到进入交互式界面，期间所有操作都要交给 Shell 解释并执行。一条命令从敲下到看到结果，完整的流转过程如下：
 
-获取计算机数据不可能每次都写程序、编译、再运行——比如找一个文件，你得写 C 代码、调系统函数、gcc 编译后才能执行。
+```plain
+                         超哥（用户）
+                   敲键盘 ls       查看输出
+                         ↘          ↗
+      ┌────────────────────────────────────────────┐
+      │ shell 壳                                   │
+      │  ┌──────────────────┐  ┌────────────────┐  │
+      │  │ bash 解释器       │  │ terminal 终端  │  │
+      │  │ 解析、翻译用户    │  │ 接受输入、     │  │
+      │  │ 输入              │  │ 绘制输出       │  │
+      │  └────────┬──────────┘  └───────▲────────┘  │
+      └───────────┼─────────────────────┼───────────┘
+             系统调用             stdout/stderr
+                  ▼                    │
+      ┌───────────────────────┐        │
+      │ 操作系统内核 kernel    │────────┘
+      └───────────┬───────────┘
+                  ▼
+      ┌───────────────────────┐
+      │      计算机硬件        │
+      └───────────────────────┘
+```
 
-于是有了 shell 解释器：只要输入 `ls -lh` 这样的字符串，shell 就会把它翻译解释为 `ls -l -h` 并执行，再通过终端输出结果。无论图形化还是命令行界面都是如此。
+获取计算机数据，不可能每次都编写程序、编译后再运行。比如找一个文件，难道要先写一段 C 代码、调用系统函数、用 gcc 编译后才能执行？
 
-即使我们用的图形化，点点点的动作，区别也只是
+于是就有了 Shell 解释器：只要敲下 `ls -lh` 这样一串字符，Shell 就会把它翻译解释成 `ls -l -h` 并执行，再通过终端输出结果，图形界面和命令行界面都是这个道理。
 
-* 命令行操作，shell解释执行后，输出结果到黑屏命令行界面
-* 图形化操作，shell接受点击动作，输出图案数据
+即使在图形界面下"点点点"，区别也仅仅在于结果呈现的形式：
 
-<!-- OCR_START -->
-- Google翻译
-- A 文字
-- 文档
-- 点击图标下载App
-- Android
-- ios
-- 检测语言
-- 英语
-- 中文
-- 德语
-- 中文(简体)
-- 日语
-- 请将我这句话翻译成英文，否则老外看不懂
-- Please translate this sentence into English,
-- otherwise the foreigner will not understand
-- Qing jiang wo zhe ju hua fanyi cheng yingwén, fouze läowai kan bu dong
-- 19/5000
-- 发送反
-<!-- OCR_END -->
+* 命令行操作：Shell 解释执行后，把结果输出到黑色命令行界面；
+* 图形化操作：Shell 接受点击动作，输出图案数据。
 
-## shell和运维
+> 💡 可以把 Shell 理解成 Google 翻译：你输入中文"请将我这句话翻译成英文"，它输出英文给老外看；Shell 做的也是"翻译"——把人能看懂的命令字符串，翻译成内核能执行的系统调用。
 
-shell 很适合处理纯文本数据。Linux 的哲学是"一切皆文件"——日志、配置、网页文件大多是纯文本，因此 shell 配合 Linux 三剑客（grep、sed、awk）能高效完成文本处理。
+### Shell 和运维
 
-<!-- OCR_START -->
-- 基础命令
-- Nginx/
-- 存储服务
-- web
-- python
-- 定时任务
-- 服务
-- shell
-- Zabbix
-- Django
-- 监控
-- 虚拟化服
-- Linux系
-- 统服务
-- 云计算服
-<!-- OCR_END -->
+Shell 非常适合处理纯文本数据。Linux 的哲学是"一切皆文件"——日志、配置、网页文件大多是纯文本，因此 Shell 配合 Linux 三剑客（grep、sed、awk）就能高效完成文本处理。
 
-## 什么是shell脚本
+Shell 也处在运维技术体系的中心，周边的各类服务和工具都离不开它：
 
-当命令或者程序语句写在文件中，我们执行文件，读取其中的代码，这个程序文件就称之为shell脚本。
+| 方向 | 代表技术 |
+| --- | --- |
+| 基础操作 | 基础命令、定时任务、存储服务 |
+| Web 方向 | Nginx/web、Django 服务 |
+| 开发语言 | python 服务 |
+| 监控运维 | Zabbix 监控 |
+| 系统与云 | Linux 系统服务、虚拟化服务、云计算服务 |
 
-在shell脚本里定义多条Linux命令以及循环控制语句，然后将这些Linux命令一次性执行完毕，执行脚本文件的方式称之为，非交互式方式。
+### 什么是 Shell 脚本
 
-* windows中存在`*.bat`批处理脚本
-* Linux中常用`*.sh`脚本文件
+把命令或程序语句写进文件，执行文件、读取其中的代码，这个程序文件就称为 **Shell 脚本**。
 
-<!-- OCR_START -->
-- [root@chaogelinuxdata]#cat testl.sh
-- echo
-- ）“脚本执行完毕～"
-- [root@chaogelinux data]# sh test1.sh
-- books.txt
-- luffycity.com
-- pyyu.txt
-- test_umask.txt
-- chaoge2.txt
-- luffy.txt
-- test
-- tttttt.txt
-- chaoge.txt
-- mytasks.at
-- test1.sh
-- yu.txt
-- lovers.txt
-- pwd.txt
-- test.txt
-- yuyuyuyu.txt
-<!-- OCR_END -->
+在脚本里定义多条 Linux 命令以及循环控制语句，让这些命令一次性执行完毕——这种执行脚本文件的方式，称为**非交互式**。
 
-*shell脚本规则*
+* Windows 中有 `*.bat` 批处理脚本；
+* Linux 中常用 `*.sh` 脚本文件。
 
-在Linux系统中，shell脚本或者称之为（bash shell程序）通常都是vim编辑，由Linux命令、bash shell指令、逻辑控制语句和注释信息组成。
+下面看一个真实的脚本及其执行效果：
 
-### Shebang
+```plain
+[root@chaogelinux data]# cat test1.sh
+ls .
+echo "脚本执行完毕～"
+[root@chaogelinux data]# sh test1.sh
+books.txt       luffycity.com   pyyu.txt        test_umask.txt
+chaoge2.txt     luffy.txt       test            tttttt.txt
+chaoge.txt      mytasks.at      test1.sh        yu.txt
+lovers.txt      pwd.txt         test.txt        yuyuyuyu.txt
+脚本执行完毕～
+```
 
-计算机程序中，`shebang`指的是出现在文本文件的第一行前两个字符`#!`
+**Shell 脚本的构成规则：**
 
-在Unix系统中，程序会分析`shebang`后面的内容，作为解释器的指令，例如
+在 Linux 系统中，Shell 脚本（bash shell 程序）通常用 vim 编辑，由 Linux 命令、bash shell 指令、逻辑控制语句和注释信息组成。
 
-* 以`#!/bin/sh`开头的文件，程序在执行的时候会调用`/bin/sh`，也就是bash解释器
-* 以`#!/usr/bin/python`开头的文件，代表指定python解释器去执行
-* 以`#!/usr/bin/env 解释器名称`，是一种在不同平台上都能正确找到解释器的办法
+#### Shebang
+
+计算机程序中，`shebang` 指的是出现在文本文件第一行的前两个字符 `#!`。
+
+在 Unix 系统中，程序会分析 `shebang` 后面的内容，把它作为解释器指令。例如：
+
+* 以 `#!/bin/sh` 开头的文件，执行时会调用 `/bin/sh`，也就是 bash 解释器；
+* 以 `#!/usr/bin/python` 开头的文件，表示指定 python 解释器去执行；
+* 以 `#!/usr/bin/env 解释器名称` 开头，是一种在不同平台上都能正确找到解释器的办法。
 
 注意事项：
 
-* 如果脚本未指定`shebang`，脚本执行的时候，默认用当前shell去解释脚本，即`$SHELL`
-* 如果`shebang`指定了可执行的解释器，如`/bin/bash /usr/bin/python`，脚本在执行时，文件名会作为参数传递给解释器
-* **如果#!指定的解释程序没有可执行权限，则会报错“bad interpreter: Permission denied”。**
-* **如果#!指定的解释程序不是一个可执行文件，那么指定的解释程序会被忽略，转而交给当前的SHELL去执行这个脚本。**
-* **如果#!指定的解释程序不存在，那么会报错“bad interpreter: No such file or directory”。**
-* **#!之后的解释程序，需要写其绝对路径（如：#!/bin/bash），它是不会自动到$PATH中寻找解释器的。**
-* **如果你使用"bash test.sh"这样的命令来执行脚本，那么#!这一行将会被忽略掉，解释器当然是用命令行中显式指定的bash。**
+* 如果脚本未指定 `shebang`，执行时默认用当前 Shell 去解释脚本，即 `$SHELL`；
+* 如果 `shebang` 指定了可执行的解释器，如 `/bin/bash`、`/usr/bin/python`，脚本执行时文件名会作为参数传递给解释器；
+* **如果 #! 指定的解释程序没有可执行权限，则会报错"bad interpreter: Permission denied"。**
+* **如果 #! 指定的解释程序不是一个可执行文件，那么指定的解释程序会被忽略，转而交给当前的 SHELL 去执行这个脚本。**
+* **如果 #! 指定的解释程序不存在，那么会报错"bad interpreter: No such file or directory"。**
+* **#! 之后的解释程序需要写绝对路径（如：`#!/bin/bash`），它不会自动到 $PATH 中寻找解释器。**
+* **如果你用 `bash test.sh` 这样的命令执行脚本，那么 #! 这一行会被忽略，解释器用的当然是命令行中显式指定的 bash。**
 
-脚本案例
+脚本案例：
 
 ```plain
 [root@chaogelinux data]# cat test.sh
@@ -194,18 +183,18 @@ echo "超哥强呀，奥力给"
 #!/bin/bash 这里就是注释的作用了
 ```
 
-系统自带的bash脚本，开机启动脚本
+系统自带的 bash 开机启动脚本，第一行同样是 shebang：
 
 ```plain
 [root@chaogelinux data]# head -1 /etc/rc.d/init.d/network
 #! /bin/bash
 ```
 
-### 脚本注释，脚本开发规范
+#### 脚本注释，脚本开发规范
 
-* 在shell脚本中，#后面的内容代表注释掉的内容，提供给开发者或使用者观看，系统会忽略此行
-* 注释可以单独写一行，也可以跟在命令后面
-* 尽量保持爱写注释的习惯，便于以后回顾代码的含义，尽量使用英文、而非中文
+* 在 Shell 脚本中，`#` 后面的内容是注释，写给开发者或使用者看，系统会忽略这一行；
+* 注释可以单独占一行，也可以跟在命令后面；
+* 养成写注释的习惯，方便以后回顾代码的含义；注释尽量使用英文而非中文。
 
 ```plain
 #! /bin/bash
@@ -214,40 +203,53 @@ echo "超哥强呀，奥力给"
 # Blog：www.cnblogs.com/pyyu
 ```
 
-<!-- OCR_START -->
-#！ /bin/bash shebang指定解释器network Bring up/down networking脚本作用注释、注解chkconfig:2345 10 90 description:Activates/Deactivates all network interfaces configured to start at boot time.
+再看系统网络脚本 `/etc/init.d/network` 的片段，它就是一个"用注释解释代码作用"的好例子：
 
+```plain
+#! /bin/bash
+#
+# network       Bring up/down networking
+#
+# chkconfig: 2345 10 90
+# description: Activates/Deactivates all network interfaces configured to \
+#              start at boot time.
+#
 ### BEGIN INIT INFO
-
 # Provides: $network
-
 # Should-Start: iptables ip6tables NetworkManager-wait-online NetworkManager $network-pre
-
 # Short-Description: Bring up/down networking
-
 # Description: Bring up/down networking
-
-###END INIT INFO
+### END INIT INFO
 
 # Source function library.
+. /etc/init.d/functions
 
-为代码的作用添加解释/etc/init.d/functions if [！ -f /etc/sysconfig/network ]; then exit 6 fi /etc/sysconfig/network if [ -f /etc/sysconfig/pcmcia ]; then /etc/sysconfig/pcmcia
+if [ ! -f /etc/sysconfig/network ]; then
+    exit 6
+fi
+
+. /etc/sysconfig/network
+if [ -f /etc/sysconfig/pcmcia ]; then
+    . /etc/sysconfig/pcmcia
+fi
 
 # Check that networking is up.
-
-[ "${NETWORKING}" = "no" ] && eXit 6
+[ "${NETWORKING}" = "no" ] && exit 6
 
 # if the ip configuration utility isn't around we can't function.
+[ -x /sbin/ip ] || exit 1
+```
 
-[ -x /sbin/ip ] Il exit 1
-<!-- OCR_END -->
+文件开头的注释分别说明了：shebang 指定解释器、脚本的用途（启停网络）、chkconfig 启动级别，以及每段代码的作用。
 
-### 执行shell脚本的方式
+#### 执行 Shell 脚本的方式
 
-* `bash script.sh`或`sh scripte.sh`，文件本身没权限执行，没x权限，则使用的方法，或脚本未指定`shebang`，重点推荐的方式
-* 使用`绝对/相对`路径执行脚本，需要文件含有x权限
-* `source script.sh`或者`. script.sh`，代表`执行的含义，source等于点.`
-* 少见的用法，`sh < script.sh`
+* `bash script.sh` 或 `sh scripte.sh`：文件本身没有 x 权限，或者脚本没有指定 `shebang` 时使用，是重点推荐的方式；
+* 使用`绝对路径/相对路径`执行脚本：需要文件含有 x 权限；
+* `source script.sh` 或者 `. script.sh`：在当前 Shell 中执行，source 等于点 `.`；
+* 少见的用法：`sh < script.sh`。
+
+下面依次演示这几种方式，注意直接 `./test.sh` 时因为没有 x 权限而报错，加上执行权限后就正常了：
 
 ```plain
 [root@chaogelinux data]# cat test.sh
@@ -274,13 +276,13 @@ echo "超哥强呀，奥力给"
 超哥强呀，奥力给
 ```
 
-## 脚本语言
+### 脚本语言
 
-shell脚本语言属于一种弱类型语言`无需声明变量类型，直接定义使用`
+Shell 脚本语言属于一种**弱类型语言**：无需声明变量类型，直接定义使用。
 
-`强类型语言，必须先定义变量类型，确定是数字、字符串等，之后再赋予同类型的值`
+与之相对，**强类型语言必须先定义变量类型（确定是数字、字符串等），之后再赋予同类型的值**。
 
-centos7系统中支持的shell情况，有如下种类
+CentOS 7 系统中支持的 Shell 种类如下：
 
 ```plain
 [root@chaogelinux ~]# cat /etc/shells  
@@ -294,96 +296,28 @@ centos7系统中支持的shell情况，有如下种类
 /bin/csh
 ```
 
-默认的sh解释器
+默认的 sh 解释器其实是 bash 的软链接：
 
 ```plain
 [root@chaogelinux ~]# ll /usr/bin/sh
 lrwxrwxrwx 1 root root 4 11月 16 10:48 /usr/bin/sh -> bash
 ```
 
-### 其他脚本语言
+#### 其他脚本语言
 
-<!-- OCR_START -->
-- LanguagePascal
-- C/AL
-- SYMP
-- HAL/S
-- ALGOL
-- DATATREVE
-- SIMSCRPT
-- SMPLE
-- PL
-- Ajax
-- CloAe
-- Object
-- Autoe
-- Not
-- Jerocede
-- code
-- SALSAATS
-- ELAN
-- Adenine
-- Assembly
-- SAMMTG
-- TADPOL
-- language
-- LispVB
-- Fl
-- shell
-- Windows/Dos
-- SuperTak
-- JavaScript
-- IMP
-- ABC
-- FLavaFx
-- Visual
-- Foth
-- GameMorhey
-- Prolog
-- Cayeve
-- Delphi DASL
-- Go
-- Camlz
-- ECMASorpt
-- PEARL
-- JASS
-- Eiatisp ObjectScript
-- Corstrait
-- Java
-- Oxygene
-- Programming
-- ILASS
-- ScriptPHP
-- Ruby
-- EXEC
-- CarViaion
-- Cyclone
-- Action
-- REXX
-- FPL
-- NETosnk
-- Common
-- Bomevg coeOL GraghTak
-- CRCAModli-2
-- Python
-- AicMoby
-- Utace
-- HaXa
-- Caral
-- WATFOR
-<!-- OCR_END -->
+编程语言的种类非常多，C、C++、Java、Python、PHP、JavaScript、shell……各有各的舞台。运维工作中常打交道的主要是下面几种：
 
-* PHP是网页程序语言，专注于Web页面开发，诸多开源产品，wordpress、discuz开源产品都是PHP开发
-* Perl语言，擅长支持强大的正则表达式，以及运维工具的开发
-* Python语言，明星语言，不仅适用于脚本程序开发，也擅长Web页面开发，如（系统后台，资产管理平台），爬虫程序开发，大量Linux运维工具也由python开发，甚至于游戏开发也使用
+* **PHP**：网页程序语言，专注于 Web 页面开发，WordPress、Discuz 等开源产品都是用 PHP 开发的；
+* **Perl**：擅长强大的正则表达式，以及运维工具的开发；
+* **Python**：明星语言，既适合脚本程序开发，也擅长 Web 页面开发（如系统后台、资产管理平台）、爬虫开发；大量 Linux 运维工具也是 Python 写的，甚至游戏开发也会用到它。
 
-### shell的优势
+#### Shell 的优势
 
-虽然有诸多脚本编程语言，但是对于Linux操作系统内部应用而言，shell是最好的工具，Linux底层命令都支持shell语句，以及结合三剑客(grep、sed、awk)进行高级用法。
+虽然有这么多脚本语言，但对于 Linux 操作系统内部的应用而言，Shell 才是最好用的工具：Linux 底层命令都支持 Shell 语句，还能结合三剑客（grep、sed、awk）玩出各种高级用法。
 
-* 擅长系统管理脚本开发，如软件启停脚本、监控报警脚本、日志分析脚本
+Shell 尤其擅长系统管理类脚本的开发，比如软件启停脚本、监控报警脚本、日志分析脚本。
 
-每个语言都有自己擅长的地方，扬长避短，达到高效运维的目的是最合适的。
+每种语言都有自己擅长的地方，扬长避短、达到高效运维的目的，才是最合适的选择。
 
 ```plain
 #Linux默认shell
@@ -391,127 +325,19 @@ lrwxrwxrwx 1 root root 4 11月 16 10:48 /usr/bin/sh -> bash
 /bin/bash
 ```
 
-## bash基础特性
+### bash 基础特性
 
-<!-- OCR_START -->
-- bash是什么
-- portage-portage
-- 5643
-- 6230日p
-- 514137bash-4.0_p10.ebu11d
-- portage
-- 48
-- Hpr
-- 1405
-- 口1
-- iars
-- portag
-- 25
-- HPF
-- portarg
-- Jul25
-- bash-,
-- 130
-- 1e
-- 3portage
-- portad
-- May
-- root
-- bash-3.5
-- POL
-- 2Jul25
-- 21
-- Mar23
-- -xr-x
-- roo
-- 382
-- 23
-- Jul
-- 33portage
-- oot
-- wtage
-- 7Mar23
-- not
-- 1645Mar
-- 2321
-- 1root
-- 5
-- Mau
-- 7bash-3,
-- ot
-- irtage
-- 1Apr
-- 5977Mar
-- 514
-- Feb
-- porta
-- 7bash-4
-- rtagepor
-- 38Mar23
-- 6151Ar
-- 37bash-
-- portagepo
-- 43Apr
-- 5988
-- 38Apr
-- 05:52bash-
-- por
-- 48Apr14
-- 1
-- portar
-- 6238
-- 810:21bash
-- ige
-- yY
-- oortage
-- 532Apr
-- 03:35bash-
-- 564
-- 810
-- age
-- yr
-- rtageportag
-- 5660ay30
-- 9:43bash
-- 55
-- 3003
-- ge portage
-- tage
-- 3:35file
-- 5660ray
-- eportage
-- 5668 Jui
-- rtage
-- 2848May
-- 14:35met
-- 5660 Jui2509
-- rW-r
-- 20481ay3003
-- 468Fet
-- cat met
-- 984
-- -oFeb
-- 2
-- -shells/
-- portageportar
-- entoo.org
-- 2portag
-- "UTF-8"?>
-- ortage/apr
-- rummd.gent
-- ainlusr/portage
-- "nttp://
-- drwxr-xr-x
-- ·bash是一个命令处理器，运行在文本窗口中，并能执行用户直接输入的命令
-- ·bash还能从文件中读取linxu命令，称之为脚本
-- ·bash支持通配符、管道、命令替换、条件判断等逻辑控制语句
-<!-- OCR_END -->
+bash 是一个命令处理器，关于它，先记住三句话：
 
-bash有诸多方便的功能，有助于运维人员提升工作效率
+* bash 运行在文本窗口中，能执行用户直接输入的命令；
+* bash 还能从文件中读取 Linux 命令，这就是脚本；
+* bash 支持通配符、管道、命令替换、条件判断等逻辑控制语句。
 
-**命令历史**
+bash 提供了诸多方便的功能，可以显著提升运维效率。
 
-**Shell会保留其会话中用户提交执行的命令**
+#### 命令历史
+
+**Shell 会保留本次会话中用户提交执行过的命令。**
 
 ```plain
 history    #命令，查看历史命令记录，注意【包含文件中和内存中的历史记录】
@@ -524,7 +350,7 @@ history    #命令，查看历史命令记录，注意【包含文件中和内�
 /root/.bash_history
 ```
 
-history命令
+history 命令的常用参数：
 
 ```plain
 history #命令 以及参数
@@ -533,7 +359,7 @@ history #命令 以及参数
 数字  ：显示最近n条命令  history  10
 ```
 
-调用历史命令
+快速调用历史命令：
 
 ```plain
 !n  #执行历史记录中的某n条命令
@@ -541,14 +367,16 @@ history #命令 以及参数
 !string   #执行名字以string开头的最近一次的命令
 ```
 
-调用上一次命令的最后一个参数
+调用上一次命令的最后一个参数：
 
 ```plain
 ESC .   #快捷键
 !$
 ```
 
-控制历史命令的环境变量
+> 💡 `ESC .` 和 `!$` 是日常使用频率极高的小技巧。比如刚 `cat /etc/sysconfig/network-scripts/ifcfg-eth0`，下一条想编辑它，直接 `vim` 后按 `ESC .` 即可粘出长路径。
+
+控制历史命令记录方式的环境变量：
 
 ```plain
 变量名：HISTCONTROL
@@ -561,45 +389,37 @@ ignoreboth
 [root@chaogelinux ~]# history
 ```
 
-### bash特性汇总
+#### bash 特性汇总
 
-* 文件路径tab键补全
+* 文件路径 Tab 键补全
 * 命令补全
-* 快捷键ctrl + a,e,u,k,l
+* 快捷键 Ctrl + a、e、u、k、l
 * 通配符
 * 命令历史
 * 命令别名
 * 命令行展开
 
-### 变量含义
+#### 变量含义
 
-学生时代所学的数学方程式，如x=1,y=2，那会称之为x，y是未知数
+学生时代的数学方程式，如 x=1、y=2，那时把 x、y 叫作未知数。
 
-对于计算机角度，x=1,y=2等于定义了两个变量，名字分别是x，y，且赋值了1和2
+站在计算机的角度，x=1、y=2 就是定义了两个变量，名字分别叫 x 和 y，并给它们赋了值 1 和 2。
 
-**变量是暂存数据的地方，相当于一种数据标记（像房间号标记了客人位置）：数据存在内存空间中，通过正确的变量名即可取出对应的值。**
+**变量是暂存数据的地方，相当于一种数据标记（就像房间号标记了客人所在的位置）：数据存在内存空间里，通过正确的变量名就能取出对应的值。**
 
-<!-- OCR_START -->
-- 房间
-- 变量
-- 房间名字
-- 变量名
-- 房间类型
-- 变量类型
-- 客人
-- 变量值
-<!-- OCR_END -->
+用"房间"来理解变量，对应关系如下：
 
-<!-- OCR_START -->
-- #
-- 定义Linux变量
-- name="超哥”
-- age=18
-<!-- OCR_END -->
+| 房间（比喻） | 变量（概念） |
+| --- | --- |
+| 房间名字 | 变量名 |
+| 房间类型 | 变量类型 |
+| 客人 | 变量值 |
 
-### shell变量
+就像数学题里给 x、y 求值一样，在 Linux 中直接写出赋值语句就完成了变量定义：`name="超哥"`、`age=18`。
 
-* 变量定义与赋值，注意变量与值之间不得有空格
+#### Shell 变量
+
+变量定义与赋值时要注意，变量名与值之间**不得有空格**：
 
 ```plain
 name="超哥"
@@ -608,7 +428,7 @@ name="超哥"
 bash变量是弱类型，无需事先声明类型，是将声明和赋值同时进行
 ```
 
-* 变量替换/引用
+变量的替换/引用：
 
 ```plain
 [root@chaogelinux ~]# name="超哥带你学bash"
@@ -618,12 +438,13 @@ bash变量是弱类型，无需事先声明类型，是将声明和赋值同时�
 超哥带你学bash
 ```
 
-* 变量名规则
-  * 名称定义要做到见名知意，且按照规则来，不得引用保留关键字（用 help 检查保留字）
-  * 只能包含数字、字母、下划线
-  * 不能以数字开头
-  * 不能用标点符号
-  * 变量名严格区分大小写
+变量名规则：
+
+  * 命名要做到见名知意，并遵守规则，不得引用保留关键字（可用 `help` 检查保留字）；
+  * 只能包含数字、字母、下划线；
+  * 不能以数字开头；
+  * 不能用标点符号；
+  * 变量名严格区分大小写。
 
 ```plain
 有效的变量名：
@@ -638,73 +459,37 @@ chao*ge
 chao+ge
 ```
 
-* 变量的作用域
-  * 本地变量，只针对当前的shell进程
+变量按作用范围可以分为以下几类：
+
+| 变量类别 | 作用范围 / 说明 |
+| --- | --- |
+| 本地变量 | 只对当前 shell 进程有效 |
+| 环境变量（全局变量） | 对当前 shell 及其任意子进程有效；分自定义、内置两种 |
+| 局部变量 | 在 shell 函数或 shell 脚本中定义 |
+| 位置参数变量 | 用于向 shell 脚本传递参数 |
+| 特殊变量 | shell 内置的具有特殊功效的变量，如 `$?`：0 表示成功，1-255 表示错误码 |
+| 自定义变量 | 手动赋值 `varName=value`，用 `${varName}` 或 `$varName` 引用 |
+
+本地变量只在当前 shell 进程中有效，可以用 `pstree` 查看 shell 进程的嵌套关系：
 
 ```plain
 pstree检查进程树
 ```
 
-* 
-<!-- OCR_START -->
-- 2. root@chaogelinux:~ (ssh)
-- X root@chaogelinux...81
-- ×root@chaogelinux:~
-- root@chaogelinux:~(ssh)
-- -crond
-- -dbus-daemon
-- -dockerd-current-
-- -docker-containe———9*[{docker-conta+
-- -17*[{dockerd-current}]
-- -lsmd
-- -Lvmetad
-- master
-- Tpickup
-- -qmgr
-- nginx-
-- ～』#
-- -polkitd-
-- —6*[{polkitd}]
-- -rsvsload2*[{rsvsload?]
-- sshd-
-- -bash-
-- csh-
-- -sshd——bash-
-- -pstree
-- -systemd-journal
-- -systemd-logind
-- -systemd-udevd
-- tuned—4*[{tuned}]
-- ~1#
-- ~」#
-<!-- OCR_END -->
+在一个开了多个终端窗口的桌面会话里执行 `pstree`，能清楚看到 `sshd—bash—csh—bash—csh—bash` 这样一串 Shell 嵌套链条，每开一个 SSH 终端，就多出一条 `sshd` 分支。
 
-\
-  
+一旦切换到另一种 Shell（比如 csh），原来定义的本地变量就找不到了：
 
-<!-- OCR_START -->
-- [root@chaogelinux ~]# name=123
-- [root@chaogelinux ~]# echo $name
-- 123
-- 切换shell
-- [root@chaogelinux ~]#
-- csh
-- 变量丢失
-- name: Undefined variable.
-- root@chaoaelinu
-<!-- OCR_END -->
+```plain
+[root@chaogelinux ~]# name=123
+[root@chaogelinux ~]# echo $name
+123
+[root@chaogelinux ~]# csh
+[root@chaogelinux ~]# echo $name
+name: Undefined variable.
+```
 
-  * 环境变量，也称为全局变量，针对当前shell以及其任意子进程，环境变量也分`自定义`、`内置`两种环境变量
-  * 局部变量，针对在`shell函数`或是`shell脚本`中定义
-* 位置参数变量：用于`shell脚本`中传递的参数
-* 特殊变量：shell内置的特殊功效变量
-  * $?
-    * 0：成功
-    * 1-255：错误码
-* 自定义变量
-  * 变量赋值：`varName=value`
-  * 变量引用：`${varName}`、`$varName`
-    * 双引号，变量名会替换为变量值
+引用变量时，单引号和双引号的行为不同。下面的例子中，双引号里的变量名会被替换成变量值，单引号里的内容则原样保留：
 
 ```plain
 [root@chaogelinux ~]# n1=1
@@ -718,11 +503,11 @@ pstree检查进程树
 $n2
 ```
 
-```
-    * 单引号，识别为普通字符串
-```
+* 单引号：识别为普通字符串。
 
-### 不同的执行方式，不同的shell环境
+> 📌 记忆要点：**双引号会解析变量，单引号里是什么就输出什么。**
+
+#### 不同的执行方式，不同的 Shell 环境
 
 ```plain
 [root@chaogelinux data]# echo user1='超哥' > testsource.sh
@@ -736,13 +521,12 @@ $n2
 
 解答：
 
-1.每次调用bash都会开启一个子shell，因此不保留当前的shell变量，通过`pstree`命令检查进程树
+1. 每次调用 bash 都会开启一个子 Shell，因此不会保留当前 Shell 的变量，可以通过 `pstree` 检查进程树；
+2. 调用 source 是在当前 Shell 环境加载脚本，因此变量会保留下来。
 
-2.调用source是在当前shell环境加载脚本，因此保留变量
+##### Shell 变量面试题
 
-#### shell变量面试题
-
-问，如下输入什么内容
+问：如下操作，最终输出什么内容？
 
 ```plain
 [root@chaogelinux data]# cat test.sh
@@ -754,31 +538,31 @@ B.超哥
 C.空
 ```
 
-## 环境变量设置
+### 环境变量设置
 
-环境变量一般指的是用export内置命令导出的变量，用于定义shell的运行环境、保证shell命令的正确执行。
+环境变量一般指的是用 export 内置命令导出的变量，用于定义 Shell 的运行环境、保证 Shell 命令正确执行。
 
-shell通过环境变量确定登录的用户名、PATH路径、文件系统等各种应用。
+Shell 通过环境变量确定登录用户名、PATH 路径、文件系统等各种信息。
 
-环境变量可以在命令行中临时创建，但是用户退出shell终端，变量即丢失，如要永久生效，需要修改`环境变量配置文件`
+环境变量可以在命令行中临时创建，但用户退出 Shell 终端后变量即丢失；如果要永久生效，就需要修改**环境变量配置文件**：
 
-* 用户个人配置文件`~/.bash_profile`、`~/.bashrc 远程登录用户特有文件`
-* 全局配置文件`/etc/profile`、`/etc/bashrc`，且系统建议最好创建在`/etc/profile.d/`，而非直接修改主文件，修改全局配置文件，影响所有登录系统的用户
+* 用户个人配置文件：`~/.bash_profile`、`~/.bashrc`（远程登录用户特有的文件）；
+* 全局配置文件：`/etc/profile`、`/etc/bashrc`。系统建议最好把自定义配置放在 `/etc/profile.d/` 下，而不是直接修改主文件；修改全局配置文件会影响所有登录系统的用户。
 
-**检查系统环境变量的命令**
+#### 检查环境变量的命令
 
-* set，输出所有变量，包括全局变量、局部变量
-* env，只显示全局变量
-* declare，输出所有的变量，如同set
-* export，显示和设置环境变量值
+* `set`：输出所有变量，包括全局变量、局部变量；
+* `env`：只显示全局变量；
+* `declare`：输出所有变量，如同 set；
+* `export`：显示和设置环境变量值。
 
-**撤销环境变量**
+#### 撤销环境变量
 
-* unset 变量名，删除变量或函数。
+* `unset 变量名`：删除变量或函数。
 
-**设置只读变量**
+#### 设置只读变量
 
-* readonly ，只有shell结束，只读变量失效
+* `readonly`：只有 Shell 结束时，只读变量才失效。
 
 ```plain
 直接readonly 显示当前系统只读变量
@@ -787,55 +571,58 @@ shell通过环境变量确定登录的用户名、PATH路径、文件系统等�
 -bash: name: 只读变量
 ```
 
-**系统保留环境变量关键字**
+#### 系统保留环境变量关键字
 
-bash内嵌了诸多环境变量，用于定义bash的工作环境
+bash 内嵌了诸多环境变量，用于定义 bash 的工作环境：
 
 ```plain
 [root@chaogelinux ~]# export |awk -F '[ :=]' '{print $3}'
 ```
 
-### bash多命令执行
+#### bash 多命令执行
 
 ```plain
 [root@chaogelinux home]# ls /data/;cd /tmp/;cd /home;cd /data
 ```
 
-### 环境变量初始化与加载顺序
+#### 环境变量初始化与加载顺序
 
-<!-- OCR_START -->
-环境变量文件加载顺序
-ssh登录Linux后，系统启动一个bashshell
-bash会读取若干个系统环境文件，检查环境变量设置
-/etc/profile：全局环境变量文件
-为系统的每个用户设置环境信息，当用户第一次登录时，该文件被执行，
-并从/etc/profile.d目录的配置文件中搜集shell的设置。
-然后读取/etc/profile.d目录下的脚本
-有系统诸多脚本，也放入自定义需要登录加载的脚本
-便于用于登录后立即运行脚本
-运行$HOME/.bash_profle（用户环境变量文件）
-运行$HOME/.bashrc
-运行/etc/bashrc
-<!-- OCR_END -->
+SSH 登录 Linux 后，系统会启动一个 bash shell，它会依次读取若干个环境文件，检查其中的环境变量设置，顺序如下：
 
-# shell实践
+1. **`/etc/profile`**：全局环境变量文件。为系统的每个用户设置环境信息，用户第一次登录时该文件被执行，并从 `/etc/profile.d` 目录的配置文件中搜集 Shell 设置；
+2. **读取 `/etc/profile.d` 目录下的脚本**：里面有系统自带的诸多脚本，也可以放入自定义的、需要登录时加载的脚本，便于用户登录后立即运行；
+3. **运行 `$HOME/.bash_profile`**：用户环境变量文件；
+4. **运行 `$HOME/.bashrc`**；
+5. **运行 `/etc/bashrc`**。
 
-<!-- OCR_START -->
-- Shell:
-- source script
-- command1
-- command2
-- ②
-- /bin/bash script
-- Subshell:
-- /script
-<!-- OCR_END -->
+---
 
-## 父子shell
+## 二、Shell 实践
 
-父shell：我们在登录某个虚拟机控制器终端的时候(连接某一个linux虚拟机)时，默认启动的交互式shell，然后等待命令输入
+同样一个脚本，用不同方式执行，背后可能是当前 Shell，也可能是新开启的子 Shell：
 
-ps命令参数，是否有横杠的参数作用是不一样的
+```plain
+① source script
+   Shell:  [source script] → [command 1] → [command 2] →
+
+② /bin/bash script
+   Shell:     [/bin/bash script] ──────────────────────────┐
+   Subshell:                       [command 1] → [command 2] ┘
+
+③ ./script
+   Shell:     [./script] ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐
+   Subshell:                [command 1] → [command 2] ────┘
+```
+
+* `source` 在**当前 Shell** 内依次执行命令；
+* `/bin/bash script` 由当前 Shell 启动一个**子 Shell**，命令在子 Shell 中执行；
+* `./script` 同样是在子 Shell 中执行（需要文件具备 x 权限）。
+
+### 父子 Shell
+
+**父 Shell**：登录某个虚拟控制器终端（连接某一台 Linux 虚拟机）时，默认启动的那个交互式 Shell，它启动后就等待用户输入命令。
+
+ps 命令的参数带不带横杠，作用是不一样的：
 
 ```plain
 -f 　显示UID,PPID,C与STIME栏位。
@@ -844,7 +631,7 @@ f 　用ASCII字符显示树状结构，表达进程间的相互关系。
 e 　列出进程时，显示每个进程所使用的环境变量。
 ```
 
-案例
+案例：登录后用一条命令查看进程的父子关系。
 
 ```plain
 1.于超老师登录自己的虚拟机
@@ -860,13 +647,11 @@ root     15107 15105  0 21:07 pts/0    00:00:00      \_ -bash
 root     16074 15107  0 21:11 pts/0    00:00:00          \_ ps --forest -ef
 ```
 
-## 子shell
+### 子 Shell
 
-当在CLI的提示符下，输入/bin/bash指令，或者其他bash指令，会创建一个新的shell程序，这就被称之为`子shell（child shell）`
+在 CLI 提示符下输入 `/bin/bash`（或其他 bash 指令），会创建一个新的 Shell 程序，这就是**子 Shell（child shell）**。
 
-子shell同样的拥有CLI提示符，可以输入命令。
-
-使用如下命令，超哥教你如何查看父子的诞生
+子 Shell 同样有 CLI 提示符，可以继续输入命令。下面通过两次 `ps -f` 观察父子 Shell 的诞生过程：
 
 ```plain
 [root@chaogelinux ~]# ps -f
@@ -883,23 +668,26 @@ root     17144 16966  0 21:18 pts/0    00:00:00 ps -f
 第二次执行bash，子shell的pid， 16966，ppid是15107，由此看出是子shell
 ```
 
-输入bash指令之后，一个子shell就产生了。
+输入 bash 指令后，一个子 Shell 就产生了：
 
-* 第一个ps -ef命令是在父shell里执行的
-* 第二个ps -ef是在子shell里执行的。
+* 第一个 `ps -f` 是在父 Shell 里执行的；
+* 第二个 `ps -f` 是在子 Shell 里执行的。
 
-<!-- OCR_START -->
-- 父shell
-- 子shell
-- 创建子shell
-- 发出命令：
-- bash
-- ps-f
-<!-- OCR_END -->
+整个过程可以表示为：
 
-子shell生成时，父进程的部分环境变量被复制到子shell里，这个后面于超老师在给大家说。
+```plain
+  父 shell                     子 shell
+┌──────────┐   创建子 shell   ┌──────────┐
+│ 发出命令： │ ───────────────▶ │ 发出命令： │
+│   bash   │                  │   ps -f  │
+└──────────┘                  └──────────┘
+```
 
-### 多个子shell
+子 Shell 生成时，父进程的部分环境变量会被复制到子 Shell 里，这一点后面还会详细说明。
+
+#### 多个子 Shell
+
+连续执行多次 bash，就会一层套一层地开启多个子 Shell：
 
 ```plain
 1.当前shell关系
@@ -919,51 +707,40 @@ root     23363 23190  1 09:25 pts/2    00:00:00                      \_ bash
 root     23537 23363  0 09:25 pts/2    00:00:00                          \_ ps -ef --forest
 ```
 
-<!-- OCR_START -->
-- 父shell
-- bash的子shell
-- 创建
-- 发出命令：
-- 子shell
-- bash
-- 创建子shell
-- bash的曾孙shell
-- ps
-- --forest
-<!-- OCR_END -->
+层级关系一目了然：父 shell 发出 `bash` 创建子 shell，子 shell 再发出 `bash` 创建孙 shell，依次向下就是曾孙 shell；最深处执行的 `ps --forest` 把整条链条都画了出来。
 
-退出子shell
+退出子 Shell：
 
 ```plain
 exit 可以退出子shell，也可以退出当前的虚拟控制台终端。
 只需要在父shell里输入exit就可以退出了。
 ```
 
-## 进程列表
+### 进程列表
 
-若是超哥想要执行一系列的命令，可以通过命令列表来实现，如下
+如果想一次性执行一系列命令，可以用分号把命令串起来：
 
 ```plain
 [root@chaogelinux ~]# pwd;ls;cd /opt;pwd;ls
 这样的写法，命令的确会依次执行，但是这并不是【进程列表】
 ```
 
-必须如下写法才是
+必须加上小括号，才是真正的进程列表：
 
 ```plain
 [root@chaogelinux opt]# (cd ~;pwd;ls ;cd /tmp;pwd;ls)
 命令列表，必须写入括号里，进程列表是生成子shell去执行对应的命令。
 ```
 
-进程列表的语法就是如上
+进程列表的语法就是：
 
 ```plain
 (command1;command2)
 ```
 
-### 检测子shell
+#### 检测子 Shell
 
-通过一个环境变量，检查子shell是否存在
+通过一个环境变量可以检查当前是否处于子 Shell 中：
 
 ```plain
 [root@chaogelinux opt]# echo $BASH_SUBSHELL
@@ -971,21 +748,21 @@ exit 可以退出子shell，也可以退出当前的虚拟控制台终端。
 结尾为0则没有子shell，非0就是有子shell
 ```
 
-非子shell的执行命令
+非子 Shell 执行命令：
 
 ```plain
 [root@chaogelinux opt]# cd ~;pwd;ls ;cd /tmp;pwd;ls;echo $BASH_SUBSHELL
 能够看到结果为0，表示是父shell直接执行
 ```
 
-子shell的执行形式
+子 Shell 的执行形式：
 
 ```plain
 [root@chaogelinux tmp]# (cd ~;pwd;ls ;cd /tmp;pwd;ls;echo $BASH_SUBSHELL)
 看到结果不为0了，表示是在子shell里运行了
 ```
 
-### 子shell嵌套
+#### 子 Shell 嵌套
 
 ```plain
 刚才我们是用了一个括号，开启子shell，现在可以开启多个子shell
@@ -999,22 +776,22 @@ exit 可以退出子shell，也可以退出当前的虚拟控制台终端。
 观察到环境变量的数字已经发生了变化，其实是通过两个括号，创建了2个子shell。
 ```
 
-shell脚本开发里，经常会使用子shell进行多进程处理。
+Shell 脚本开发中，经常利用子 Shell 进行多进程处理。
 
-## 后台执行与子shell
+### 后台执行与子 Shell
 
-在我们日常shell命令执行里，很多地方都有用到子shell，如进程列表、协程、管道等。
+日常执行 Shell 命令时，很多地方都会用到子 Shell，比如进程列表、协程、管道等。
 
-一个高效的子shell用法是和后台结合使用。
+一个高效的用法是把子 Shell 和后台执行结合起来。
 
-使用`sleep`命令
+先认识 `sleep` 命令：
 
 ```plain
 sleep 3
 sleep将你会话暂停3秒，然后返回shell
 ```
 
-不希望sleep卡住会话，将它放在后台
+不希望 sleep 卡住当前会话，可以把它放到后台：
 
 ```plain
 [root@chaogelinux tmp]# sleep 300&
@@ -1028,7 +805,7 @@ root     27557 24734  0 09:57 pts/2    00:00:00 ps -f
 我们发现是基于bash父shell的24734生成的27520
 ```
 
-### jobs命令
+#### jobs 命令
 
 ```plain
 [root@chaogelinux tmp]# jobs
@@ -1036,7 +813,7 @@ root     27557 24734  0 09:57 pts/2    00:00:00 ps -f
 [root@chaogelinux tmp]#
 ```
 
-jobs命令可以显示后台作业信息
+jobs 命令可以显示后台作业信息，加上 `-l` 还能看到 PID：
 
 ```plain
 [root@chaogelinux tmp]# jobs -l
@@ -1046,9 +823,9 @@ jobs命令可以显示后台作业信息
 [1]+  完成                  sleep 300
 ```
 
-### 进程列表放入后台
+#### 进程列表放入后台
 
-先看一个事例
+先看一个前台执行的例子：
 
 ```plain
 [root@chaogelinux tmp]# (sleep 2;echo $BASH_SUBSHELL;sleep 2)
@@ -1056,7 +833,7 @@ jobs命令可以显示后台作业信息
 这个案例，会有2秒的暂停，显示数字，表示只有一个子shell，然后又暂停了2秒，最终返回提示符
 ```
 
-在看下进程列表，结合后台模式的效果
+再看进程列表结合后台模式的效果：
 
 ```plain
 [root@chaogelinux tmp]# (sleep 2;echo $BASH_SUBSHELL;sleep 2)&
@@ -1065,9 +842,9 @@ jobs命令可以显示后台作业信息
 [1]+  完成                  ( sleep 2; echo $BASH_SUBSHELL; sleep 2 )
 ```
 
-这样的子shell用法，目的是在于，开辟子shell处理繁琐的工作，同时保证不会让子shell限制终端的使用。
+这种用法的目的是：开辟子 Shell 处理繁琐工作，同时不让它阻塞终端的使用。
 
-我们会在后面学习结合tar命令进行后台压缩的实用案例。
+后面还会学到结合 tar 命令进行后台压缩的实用案例：
 
 ```plain
 # 这里注意，tar压缩的时候，会有报警信息，原因是绝对路径的问题，可以忽略，是系统为了保护文件的操作
@@ -1075,7 +852,7 @@ jobs命令可以显示后台作业信息
 [1] 29931
 ```
 
-此时可以通过命令检查，父子shell的执行方式
+此时可以检查父子 Shell 的执行方式：
 
 ```plain
 [root@chaogelinux tmp]# ps -ef --forest
@@ -1087,9 +864,9 @@ root     30341 30337 16 10:28 pts/2    00:00:02          |   \_ tar -cf Tmp.tar 
 root     30452 24734  1 10:28 pts/2    00:00:00          \_ ps -ef --forest
 ```
 
-## 协程与子shell
+### 协程与子 Shell
 
-协程也是在后台创建子shell，然后在子shell中执行命令
+协程（coproc）同样是在后台创建子 Shell，然后在子 Shell 中执行命令：
 
 ```plain
 # 使用coproc命令
@@ -1107,7 +884,7 @@ root     31404 24734  0 10:34 pts/2    00:00:00          \_ sleep 10
 root     31440 24734  0 10:34 pts/2    00:00:00          \_ ps -ef --forest
 ```
 
-协程是将命令放在后台执行，也可以通过jobs命令看到
+协程把命令放在后台执行，也可以通过 jobs 命令看到：
 
 ```plain
 [root@chaogelinux tmp]# coproc sleep 10
@@ -1116,7 +893,7 @@ root     31440 24734  0 10:34 pts/2    00:00:00          \_ ps -ef --forest
 [1]+  运行中               coproc COPROC sleep 10 &
 ```
 
-协程给任务起了个名字，`COPROC`，也可以自己指定名字
+协程默认给任务起名叫 `COPROC`，也可以自己指定名字：
 
 ```plain
 [root@chaogelinux tmp]# coproc Chao_ge_job { sleep 10; }
@@ -1125,23 +902,23 @@ root     31440 24734  0 10:34 pts/2    00:00:00          \_ ps -ef --forest
 [1]+  运行中               coproc Chao_ge_job { sleep 10; } &
 ```
 
-通过这种写法，协程的名字指定了，注意扩展语法`{ 任务 }`花括号里面的空格。
+通过这种写法就指定了协程的名字，注意扩展语法 `{ 任务 }` 中花括号里面的空格。
 
-# 内建命令
+---
 
-这里超哥曾经在15年在上海面试运维的时候，面试官问过这个问题：你知道linux内置命令，外置命令吗？
+## 三、内建命令
 
-答：
+2015 年在上海面试运维岗位时，面试官问过这样一个问题：你知道 Linux 的内置命令和外置命令吗？
 
-> >
+回答要点是：
 
-> 内置命令：在系统启动时就加载入内存，常驻内存，执行效率更高，但是占用资源
+> 内置命令：系统启动时就加载进内存、常驻内存，执行效率更高，但占用资源；
 >
-> 外置命令：用户需要从硬盘中读取程序文件，再读入内存加载
+> 外置命令：需要时从硬盘读取程序文件，再加载进内存执行。
 
-## 外部命令
+### 外部命令
 
-外部命令也称作文件系统命令，存在于bash shell之外的程序，一般存在的路径是
+外部命令也称作文件系统命令，是存在于 bash shell 之外的程序，一般位于这些目录：
 
 ```plain
 /bin
@@ -1150,7 +927,7 @@ root     31440 24734  0 10:34 pts/2    00:00:00          \_ ps -ef --forest
 /usr/sbin
 ```
 
-例如ps就是外部命令
+例如 ps 就是一个外部命令：
 
 ```plain
 [root@chaogelinux tmp]# which ps
@@ -1161,7 +938,7 @@ ps 是 /usr/bin/ps
 -rwxr-xr-x 1 root root 100112 10月 19 2019 /usr/bin/ps
 ```
 
-外部命令在执行时，会创建一个子进程，我们还是可以通过ps命令查看，进程id号
+外部命令执行时会创建一个子进程，仍然可以通过 ps 查看进程号：
 
 ```plain
 [root@chaogelinux tmp]# ps -f
@@ -1171,24 +948,25 @@ root     24734 24731  0 09:36 pts/2    00:00:00 -bash
 ps命令是父bash，创建新的进程750执行的。
 ```
 
-<!-- OCR_START -->
-- 父进程
-- 子进程
-- 衍生
-- 发出外部命令：
-- 执行外部命令：
-- ps -f
-<!-- OCR_END -->
+过程上就是父进程发出外部命令，衍生出一个子进程去执行：
 
-无论是子进程，还是子shell，我们都可以通过发送`signaling信号`和其沟通。
+```plain
+  父进程                      子进程
+┌────────────┐  衍生子进程   ┌────────────┐
+│ 发出外部命令：│ ───────────▶ │ 执行外部命令：│
+│   ps -f    │               │   ps -f    │
+└────────────┘               └────────────┘
+```
 
-## 内置命令
+无论是子进程还是子 Shell，都可以通过发送 signaling 信号与它通信。
 
-内置命令和外置命令的区别，就在于`是否会创建子进程去执行`。
+### 内置命令
 
-内置命令和shell编译为一体，是shell的一部分，不需要外部程序文件执行。
+内置命令和外置命令的区别，就在于**是否会创建子进程去执行**。
 
-还是可以通过`type`了解命令是否是内建的。
+内置命令与 Shell 编译为一体，是 Shell 的一部分，不需要外部程序文件。
+
+可以通过 `type` 了解一条命令是否为内建：
 
 ```plain
 [root@chaogelinux tmp]# type cd
@@ -1197,48 +975,44 @@ cd 是 shell 内嵌
 exit 是 shell 内嵌
 ```
 
-因为内置命令不需要衍生子进程执行，也不用打开程序文件，执行速度更快，效率也更高。
+因为内置命令不需要衍生子进程，也不用打开程序文件，所以执行速度更快、效率更高。
 
-### 查看内置命令
+#### 查看内置命令
 
 ```plain
 # 该命令列出所有的bash shell可以用的内置命令
 [root@web01 ~ 11:33:33]$compgen -b
 ```
 
-### 查看外置命令
+#### 查看外置命令
 
-除了以上的内置命令，日常使用的大部分命令都是外部命令啦。
+除了以上内置命令，日常使用的大部分命令都是外部命令，用 `type` 验证一下即可。
 
-可以用type验证下即可。
+---
 
-# Linux环境变量
+## 四、Linux 环境变量
 
-变量的概念，超哥前面已经给大家介绍了。
+变量的概念前面已经介绍过。Linux 环境变量可以提升 Shell 的使用体验，很多程序和脚本通过环境变量获取系统信息、存储临时数据和配置信息。
 
-Linux环境变量可以提升shell使用体验，很多程序和脚本通过环境变量来获取系统信息，存储的临时数据和配置信息。
+### 什么是环境变量
 
-## 什么是环境变量
+`environment variable`（环境变量）的作用是存储有关 Shell 会话和工作环境的信息。
 
-`environment variable`的作用是存储有关shell会话和工作环境的信息，因此也称之为环境变量。
+它允许在内存中存放临时数据，便于程序或 Shell 轻松访问。
 
-它允许你在内存里存储临时数据，便于程序或者shell能够轻松的访问。
+bash shell 里，环境变量分为两类：
 
-bash shell里，环境变量分为两类：
+* 全局变量；
+* 局部变量。
 
-* 全局变量
-* 局部变量
+### 全局环境变量
 
-## 全局环境变量
+全局环境变量对 Shell 会话和所有子 Shell 都可见；局部环境变量则只对创建它们的 Shell 可见。
 
-全局环境变量对于shell会话和所有的子shell都是可以访问到的。
+Linux 在 bash 会话启动时就已经设置好了全局环境变量：
 
-局部环境变量是只针对创建他们的shell可见。
-
-Linux在bash会话启动时就设定里全局环境变量：
-
-* 系统环境变量，区别在于纯大写字母
-* 用户配置的环境变量
+* 系统环境变量：特点是全部使用大写字母；
+* 用户配置的环境变量。
 
 ```plain
 1.查看全局环境变量
@@ -1246,7 +1020,7 @@ env
 printenv
 ```
 
-要想显示某个环境变量的值
+显示某个环境变量的值：
 
 ```plain
 [root@web01 ~ 12:02:44]$printenv HOME
@@ -1262,23 +1036,19 @@ printenv
 /root
 ```
 
-## 局部环境变量
+### 局部环境变量
 
-局部变量只能在定义他们的进程里可见，局部变量无法单独查看，可以用set命令查到所有的环境变量，包含局部变量，全局变量，以及用户自定义变量。
+局部变量只能在定义它们的进程里可见。局部变量无法单独查看，可以用 set 命令查到所有环境变量，包括局部变量、全局变量以及用户自定义变量。
 
-> >
-
-> env、printenv、set之间的差异微小
+> env、printenv、set 之间的差异很小：
 >
-> set显示全局变量，局部变量，用户自定义变量，以及按照字母顺序排序
+> set 显示全局变量、局部变量、用户自定义变量，并按字母顺序排序；
 >
-> env、printenv命令和set的区别在于不会排序，也不会输出局部变量和自定义变量。
+> env、printenv 与 set 的区别在于不会排序，也不会输出局部变量和自定义变量。
 
-### 局部用户定义变量
+#### 局部用户定义变量
 
-注意，加上引号
-
-自定义的变量，尽量用小写字母，进行和系统变量区分开，防止修改系统变量导致灾难。
+自定义变量尽量用小写字母，以便和系统变量区分开，防止误改系统变量导致故障，赋值时注意加上引号。
 
 ```plain
 [root@web01 ~]# echo $my_name
@@ -1290,7 +1060,7 @@ printenv
 my_name=超哥
 ```
 
-局部变量，在父子shell是不可见的
+局部变量在父子 Shell 之间是不可见的：
 
 ```plain
 [root@web01 ~]# echo $my_name
@@ -1307,9 +1077,9 @@ exit
 [root@web01 ~]# echo $my_age
 ```
 
-想要解决这个问题，就可以设置全局变量来改变这个情况。
+想要解决这个问题，就可以通过设置全局变量来改变。
 
-## 设置全局变量
+### 设置全局变量
 
 ```plain
 [root@web01 ~]# export name='超哥带你学shell'
@@ -1323,15 +1093,13 @@ exit
 超哥带你学shell
 ```
 
-通过`export`命令设置全局变量，在子shell里也都是可见的。
+通过 `export` 设置的全局变量，在子 Shell 里也可见。
 
-### 作用域优先级
+#### 作用域优先级
 
-父shell的环境变量优先级，是高于子shell的，也就是：
+父 Shell 的环境变量优先级高于子 Shell，也就是说：子 Shell 里修改了全局变量，不会影响到父 Shell。
 
-* 子shell里修改了全局变量，也不回影响到父shell
-
-通过如下过程，**看出子shell不会影响到父shell的变量**
+通过下面的过程，可以清楚看出子 Shell 不会影响父 Shell 的变量：
 
 ```plain
 1.当前的父shell
@@ -1356,24 +1124,24 @@ exit
 2.子shell即使用export也无法修改父shell的变量值
 ```
 
-## 删除变量
+### 删除变量
 
 ```plain
 [root@web01 ~]# unset name
 [root@web01 ~]# echo $name
 ```
 
-要注意的还是，在子shell里删除变量，也不回影响父shell
+同样要注意，在子 Shell 里删除变量，也不会影响父 Shell。
 
-## 查找变量
+### 查找变量
 
-小技巧，过滤出部分系统的环境变量
+小技巧：过滤出部分系统环境变量。
 
 ```plain
 [root@web01 ~]# set |grep  '^[A-Z]' |wc -l
 ```
 
-查找出部分自定义变量
+查找出部分自定义变量：
 
 ```plain
 [root@web01 ~]# set |grep  '^[a-z]'
@@ -1384,13 +1152,13 @@ quote ()
 quote_readline ()
 ```
 
-## PATH变量
+### PATH 变量
 
-PATH变量的作用，超哥已经在其他章节给大家讲解过了。
+PATH 变量的作用在其他章节已经讲解过：它定义了 Shell 查找可执行命令的目录列表，命令能否直接敲名字运行，靠的就是它。
 
-## 登录Shell
+### 登录 Shell
 
-登录Linux时，bash shell是默认的shell启动，shell会从5个文件中读取，是否定义了环境变量
+登录 Linux 时，bash shell 默认启动，Shell 会从以下 5 个文件中读取环境变量定义：
 
 * /etc/profile
 * $HOME/.bash_profile
@@ -1398,35 +1166,35 @@ PATH变量的作用，超哥已经在其他章节给大家讲解过了。
 * $HOME/.bash_login
 * $HOME/.profile
 
-`/etc/profile`文件是系统上默认的bash主启动文件，每个用户启动都会执行该文件。
+`/etc/profile` 是系统默认的 bash 主启动文件，每个用户登录时都会执行它。
 
-该文件利用了`for`语句，进行配置文件循环读取，遍历执行`/etc/profile.d`目录下所有的文件
+该文件利用 `for` 语句循环读取配置，遍历执行 `/etc/profile.d` 目录下的所有文件：
 
 ```plain
 [root@web01 ~]# ls  /etc/profile.d/
 ```
 
-## 交互式shell
+### 交互式 shell
 
-刚才说的登录shell，是系统启动，首次登录时启动的shell。
+刚才说的登录 Shell，是系统启动、首次登录时的 Shell。
 
-交互式shell，指的是`当你手动输入bash指令，进入的子shell`，这个称之为交互式shell，提供命令行提示符，用户进行输入命令交互。
+交互式 Shell 指的是**手动输入 bash 指令进入的子 Shell**，它提供命令行提示符，让用户输入命令进行交互。
 
-> 如果bash是交互式shell启动的，不会访问/etc/profile，只会检查HOME目录下的.bashrc文件
+> 如果 bash 是以交互式 Shell 启动的，不会访问 /etc/profile，只检查 HOME 目录下的 .bashrc 文件：
 >
-> \[root@web01 ~]# cat ~/.bashrc
+> [root@web01 ~]# cat ~/.bashrc
 >
 > 这个文件有两个作用：
 >
-> 1.执行/etc/bashrc文件
+> 1. 执行 /etc/bashrc 文件；
 >
-> 2.为用户提供自定义的命令别名，自定义变量，以及shell函数执行。
+> 2. 为用户提供自定义的命令别名、自定义变量以及 shell 函数执行。
 
-## 非交互式shell
+### 非交互式 shell
 
-说了上面的两种shell，就是因为还存在非交互式shell。
+除了上面两种 Shell，还存在非交互式 Shell。
 
-这种形式是用来执行shell脚本，它没有命令行提示符。
+这种形式用来执行 Shell 脚本，它没有命令行提示符：
 
 ```plain
 [root@web01 ~]# cat hello.sh
@@ -1436,15 +1204,14 @@ echo 'hello 超哥，你讲的课真有意思'
 hello 超哥，你讲的课真有意思
 ```
 
-## 永久性环境变量
+### 永久性环境变量
 
-对于想要设置永久的环境变量，也就是每次开机都能够生效，大多数运维的习惯是写入`/etc/profile`
+想要设置永久生效的环境变量（每次开机都有效），大多数运维习惯把它写入 `/etc/profile`。
 
-但是要注意，如果系统某天升级了，这个文件也会更新，所定制的环境变量也就消失了。
+但要注意：系统某天升级时这个文件也可能被更新，定制的环境变量就会随之消失。
 
-因此正确的操作是
+因此更推荐的做法是：
 
-> 在/etc/profile.d/目录创建.sh文件，在该脚本文件中定义环境变量。
+> 在 /etc/profile.d/ 目录下创建 .sh 文件，在该脚本文件中定义环境变量。
 
-> 更新: 2022-12-20 21:16:31  
-> 原文: <https://www.yuque.com/chengkanghua/awf7cm/abeqrr>
+> 原文：<https://www.yuque.com/chengkanghua/awf7cm/abeqrr>

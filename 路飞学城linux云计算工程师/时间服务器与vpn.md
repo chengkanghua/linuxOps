@@ -1,234 +1,251 @@
-# 时间服务器与vpn
+# 时间服务器与 VPN
 
-## vpn作用
+> 这一章讲两件运维工作里非常实用的事：一是用 VPN 在公网上打通一条安全的"专用通道"，二是用 NTP 让全网机器的时间保持一致。前半部分弄懂 VPN 的原理，并用 OpenVPN 动手搭一套远程接入；后半部分掌握 NTP 时间服务器的搭建、状态查看与客户端时间管理。
 
-<!-- OCR_START -->
-- Virtual
-- P
-- rivate
-- Network
-<!-- OCR_END -->
+## 本章目录
+
+**第一篇 · VPN 虚拟专用网络**
+- 一、VPN 的作用
+- 二、VPN 介绍
+- 三、VPN 分类
+- 四、VPN 隧道协议
+- 五、VPN 服务实践
+- 六、VPN 客户端部署
+
+**第二篇 · NTP 时间服务器**
+- 七、时间服务器
+- 八、NTP 时间协议
+- 九、NTP 的应用
+- 十、环境准备与服务端配置
+- 十一、启动 NTP 与状态查看
+- 十二、客户端配置与手动时间管理
+
+---
+
+# 第一篇 · VPN 虚拟专用网络
+
+## 一、VPN 的作用
+
+VPN 是 **Virtual Private Network（虚拟专用网络）** 的缩写。一面盾牌上写着这三个单词，正好点明它最核心的价值——安全：在公开的互联网上，为你的数据撑起一条加密的专用通道。
 
 ### 能够访问墙外的内容
 
-
-<!-- OCR_START -->
-> You
-> Tube
-<!-- OCR_END -->
-
-
+很多国外网站和服务（如 Google、YouTube、Facebook、Twitter）在国内无法直接打开。借助 VPN，可以绕过这种网络访问限制，正常访问这些"墙外"的内容。
 
 ### 虚拟网络隧道
 
-
-<!-- OCR_START -->
-> S
-> f
-> You
-> Tube
-<!-- OCR_END -->
-
-
+VPN 会在你的设备和目标网络之间建立一条虚拟隧道。即使数据要穿过防火墙、经过公共互联网，隧道里的数据也是被封装和加密过的——外面的人只能看到一条隧道，看不到里面具体传了什么。
 
 ### 隧道数据传输
 
-
-<!-- OCR_START -->
-> 典
-> 典
-> 曲
-<!-- OCR_END -->
-
-
+进入隧道后，所有数据——聊天消息、邮件、购物订单、银行卡信息——都以加密形式传输。可以把它想象成一根内壁写满密文的管道：数据从这头进去、从那头出来，中途即使被截获也无法读懂。
 
 ### 保护服务器安全
-![1671596950472-dc447528-1453-4cdd-9020-4b9e9b0df29c.png](img/时间服务器与vpn/image5.png)
 
-## VPN介绍
+VPN 还能把访问者"藏"在盾牌后面安全地连接服务器：企业可以把重要服务器放在内网，只允许通过 VPN 接入的授权用户访问，避免这些服务器直接暴露在公网上被人扫描和攻击。
+
+## 二、VPN 介绍
 VPN 直译就是虚拟专用通道，是提供给企业之间或者个人与公司之间**安全数据传输**的隧道。
 
-虚拟私有网络（VPN）隧道是通过 Internet 隧道技术将两个不同地理位置的网络安全的连接起来的技术。
+虚拟私有网络（VPN）隧道，是通过 Internet 隧道技术将两个不同地理位置的网络安全地连接起来的技术。
 
 当两个网络是使用私有 IP 地址的私有局域网络时，它们之间是不能相互访问的，这时使用隧道技术就可以使得两个子网内的主机进行通讯。VPN 隧道技术经常被用于大型机构中不同办公区域子网的连接。
 
 有时，使用 VPN 隧道仅仅是因为它很安全。服务提供商与公司会使用这样一种方式架设网络，他们将重要的服务器（如，数据库，VoIP，银行服务器）放置到一个子网内，仅仅让有权限的用户通过 VPN 隧道进行访问。
 
-VPN (虚拟专用网)发展至今已经不在是一个单纯的经过加密的访问隧道了，它已经融合了**访问控制**、**传输管理**、**加密**、**路由选择**、**可用性管理**等多种功能，并在全球的信息安全体系中发挥着重要的作用。也在网络上，有关各种 VPN 协议优缺点的比较是仁者见仁，智者见智，很多技术人员由于出于使用目的考虑，包括访问控制、 安全和用户简单易用，灵活扩展等各方面，权衡利弊，难以取舍；尤其在 VOIP 语音环境中，网络安全显得尤为重要，因此现在越来越多的网络电话和语音网关支持 VPN 协议。
+VPN（虚拟专用网）发展至今已经不再是一个单纯的、经过加密的访问隧道了，它已经融合了**访问控制**、**传输管理**、**加密**、**路由选择**、**可用性管理**等多种功能，并在全球的信息安全体系中发挥着重要的作用。在网络上，有关各种 VPN 协议优缺点的比较仁者见仁、智者见智，很多技术人员出于实际使用目的考虑，要在访问控制、安全性、用户易用性、灵活扩展等各方面权衡利弊，难以取舍；尤其在 VOIP 语音环境中，网络安全显得尤为重要，因此现在越来越多的网络电话和语音网关支持 VPN 协议。
 
-<!-- OCR_START -->
-- 专用线路
-- 上海办事处
-- 北京办事处
-- 互联网络
-- PC主机
-- 服务器
-- 数据包-贵重
-- 虚拟专用线路
-<!-- OCR_END -->
+下图对比了"物理专线"和"VPN 虚拟专用线路"两种方式：上海办事处的 PC 主机要访问北京办事处的服务器，贵重的数据包既可以走顶部昂贵的专用线路，也可以走底部在互联网上建立的虚拟专用线路。
 
-+ 虚拟网络通道，保证数据专有安全，而不同于公开在互联网中的数据传输
-- 如送快递，普通快递，是成堆的放在一起，各家快递，各家的数据需要传递
-- 专线快递，如寄送一个价值连城的夜明珠，私人飞机专运，保证了安全性。
-+ 专线通道，太过于昂贵
+```plaintext
+                          ┌──────────┐
+                          │ 专用线路  │
+   ┌────────────┐         └──────────┘         ┌────────────┐
+   │ 上海办事处   │ ─────────────────────────▶ │ 北京办事处   │
+   │  PC 主机    │                            │   服务器    │
+   └────────────┘                            └────────────┘
+         │                                        ▲
+         │───────▶ 〔 互 联 网 络 〕───────────────┤
+         │                                        │
+         │  [数据包-贵重]                          │
+         └──────▶〔虚拟专用线路〕──────────────────┘
+```
 
-### VPN示意图
+普通互联网传输就像普通快递：各家的包裹成堆放在一起传递；物理专线则像用私人飞机专运一颗价值连城的夜明珠，安全性极高，但费用也极其昂贵。而 VPN 这条"虚拟专用线路"，正是在廉价的公网上模拟出专线级别的安全。
 
-<!-- OCR_START -->
-- 服务器组
-- 总部
-- UTT3640
-- VPN
-- 出差人员
-- Intemet
-- U2000
-- 分点1
-- 分点4
-<!-- OCR_END -->
+> 📌 一句话理解：**VPN = 在便宜的公网上，跑出昂贵专线的安全性。**
 
-## VPN分类
-企业环境中一般根据VPN的应用领域不同，把VPN划分为4类应用。
+### VPN 示意图
 
-### 主机远程访问VPN服务
-该情况一般用于超哥出差，休假等特殊情况远程办公，需要连接访问公司内部网络的场景，可以通过VPN拨号到公司内部，此时远程的超哥和办公室的其他同事就相当于在一个局域网了。
+一个典型的企业 VPN 场景：总部内网通过 UTT 3640 网关接入互联网，各个分点（分点 1、分点 4……）的 U2000 网关以及出差人员，都通过在 Internet 上建立的 VPN 隧道安全地连回总部。
 
-在家就可以访问公司内网，如文件服务器，OA办公四通，ERP，HTTP服务等等局域网应用。
+```plaintext
+                    ┌──────────── 总部 ────────────┐
+                    │  服务器组（服务器 + 办公 PC）   │
+                    └──────────────┬───────────────┘
+                                UTT 3640
+                                   │
+   ══════════ VPN ══════════│══════════ VPN ══════════ Internet
+              │               │              │
+          〔分点 1〕       〔出差人员〕      〔分点 4〕
+           U2000            (便携电脑)       U2000
+         (内网 PC ……)                     (内网 PC ……)
+```
 
-<!-- OCR_START -->
-- VirtualPrivateNetwork(VPN)
-- Internet
-- FileServer
-- Firewall
-- Office
-- Home User
-- Intranet
-- RemoteWorker
-<!-- OCR_END -->
+## 三、VPN 分类
+企业环境中，一般根据 VPN 的应用领域不同，把 VPN 划分为 4 类应用。
 
-对于运维人员需要个人电脑，拨号到企业网站的IDC机房，远程维护服务器。
+### 1. 主机远程访问 VPN 服务
 
-这是运维人员经常经常采用的方法，来维护企业里无外网IP地址的服务器等设备。
+这个场景一般用于超哥出差、休假等特殊情况下远程办公：需要访问公司内部网络时，可以通过 VPN 拨号接入公司内网。此时远程的超哥和办公室里的同事，就相当于处在同一个局域网里。
 
-### 企业网络之间的VPN服务
-在公司的分支机构的局域网和公司总部的LAN之间的VPn连接，通过公网Internet建立VPN将各地的公司分部LAN连接到公司总部的LAN。
+人在家中，就可以访问公司内网的文件服务器、OA 办公系统、ERP、HTTP 服务等各种局域网应用。
 
-例如全国各地的大超市业务结算。
+```plaintext
+   ┌───────────┐   ┌───────────────┐
+   │ Home User │   │ Remote Worker │
+   └─────┬─────┘   └───────┬───────┘
+         └────────┬────────┘
+             ╔════╧════╗
+             ║Internet ║
+             ╚════╤════╝
+                  │
+            [Firewall] ──▶ [Office] ──▶ File Server / Intranet
+```
 
-由于地域原因，通过VPN把不同地域的机器连接互相访问，就像是在一个局域网内。
+对于运维人员来说，则是用个人电脑拨号到企业的 IDC 机房，远程维护服务器。
 
-### 企业多IDC机房之间的VPN
-不同机房之间的业务管理和业务访问的数据传输。
+这是运维人员最常采用的方式，用来维护企业里那些没有外网 IP 地址的服务器等设备。
 
-### 企业外部VPN服务
-在全球供应商，合作伙伴的LAN和本部公司的LAN建立VPN
+### 2. 企业网络之间的 VPN 服务
 
-## VPN隧道协议
+在公司分支机构的局域网和公司总部的 LAN 之间建立 VPN 连接，通过公网 Internet 把各地分部的 LAN 连到总部的 LAN。
+
+比如全国各地连锁超市的业务结算系统。
+
+由于地域相隔，通过 VPN 把不同地域的机器连起来互相访问，用起来就像在同一个局域网内。
+
+### 3. 企业多 IDC 机房之间的 VPN
+
+用于不同机房之间的业务管理和业务访问的数据传输。
+
+### 4. 企业外部 VPN 服务
+
+在全球供应商、合作伙伴的 LAN 与本部公司的 LAN 之间建立 VPN。
+
+## 四、VPN 隧道协议
 ### PPTP
-**点对点隧道协议 (PPTP)** 是由包括微软和 3Com 等公司组成的 PPTP 论坛开发的一种点对点隧道协，基于拨号使用的 PPP 协议使用 PAP 或 CHAP 之类的加密算法，或者使用 Microsoft 的点对点加密算法 MPPE。其通过跨越基于 TCP/IP 的数据网络创建 VPN 实现了从远程客户端到专用企业服务器之间数据的安全传输。PPTP 支持通过公共网络(例如 Internet)建立按需的、多协议的、虚拟专用网络。PPTP 允许加密 IP 通讯，然后在要跨越公司 IP 网络或公共 IP 网络(如 Internet)发送的 IP 头中对其进行封装。
+**点对点隧道协议（PPTP）** 是由包括微软和 3Com 等公司组成的 PPTP 论坛开发的一种点对点隧道协议，基于拨号使用的 PPP 协议使用 PAP 或 CHAP 之类的加密算法，或者使用 Microsoft 的点对点加密算法 MPPE。其通过跨越基于 TCP/IP 的数据网络创建 VPN 实现了从远程客户端到专用企业服务器之间数据的安全传输。PPTP 支持通过公共网络(例如 Internet)建立按需的、多协议的、虚拟专用网络。PPTP 允许加密 IP 通讯，然后在要跨越公司 IP 网络或公共 IP 网络(如 Internet)发送的 IP 头中对其进行封装。
 
-典型的Linux平台开源软件就是PPTP。
+Linux 平台上典型的开源实现就是 PPTP。
 
-PPTP属于点对点方式应用，适合用户远程拨号到企业内部进行办公。
+PPTP 属于点对点方式的应用，适合用户远程拨号到企业内部办公。
 
-<!-- OCR_START -->
-- Internet
-- PPTPTunnel
-- R1Router
-- WAN:192.168.30.2/30
-- 172.22.22.1
-- Local:10.10.10.0/24
-- 172.22.22.2
-- R2Router
-- WAN:192.168.40.2/30
-- LAN:10.10.11.0/24
-- 10.10.10.4/24
-- 10.10.10.2/24
-- 10.10.11.2/24
-- 10.10.10.3/24
-- Site-to-Site PPTP
-<!-- OCR_END -->
+下面是一个站点到站点（Site-to-Site）的 PPTP 示例：两台路由器 R1、R2 各自接入互联网，并在彼此之间建立一条 PPTP 隧道，让两个内网可以互通。
+
+```plaintext
+                        ╔══════════╗
+                        ║ Internet ║
+                        ╚════╤═════╝
+              172.22.22.1 ╱  ╲ 172.22.22.2
+              ┌─────────┐╱  PPTP  ╲┌─────────┐
+              │R1 Router│  Tunnel  │R2 Router│
+              └────┬────┘          └────┬────┘
+       10.10.10.0/24              10.10.11.0/24
+        .2  .3  .4 ...                  .2 ...
+```
+
+| 设备 | 隧道地址 | WAN 地址 | 内网网段 |
+| --- | --- | --- | --- |
+| **R1 Router** | 172.22.22.1 | 192.168.30.2/30 | Local：10.10.10.0/24（主机 .2 / .3 / .4） |
+| **R2 Router** | 172.22.22.2 | 192.168.40.2/30 | LAN：10.10.11.0/24（主机 10.10.11.2） |
 
 **点对点隧道协议(PPTP，Point-to-Point Tunneling Protocol)将点对点协议(PPP，Point-to-Point Protocol)的数据帧封装进 IP 数据包中，通过 TCP／IP 网络进行传输**。PPTP 可以对 IP、IPX 或 NetBEUI 数据进行加密传递。PPTP 通过 PPTP 控制连接来创建、维护和终止一条隧道，并使用通用路由封装(GRE，Generic Routing Encapsulation)对 PPP 数据帧进行封装。封装前，PPP 数据帧的有效载荷(有效传输数据)首先必须经过加密、压缩或是两者的混合处理。
 
 ### L2TP
-**第 2 层隧道协议 (L2TP)** 是 IETF 基于 L2F (Cisco的第二层转发协议)开发的 PPTP 的后续版本。是一种工业标准 Internet 隧道协议，其可以为跨越面向数据包的媒体发送点到点协议 (PPP) 框架提供封装。PPTP 和 L2TP 都使用 PPP 协议对数据进行封装，然后添加附加包头用于数据在互联网络上的传输。**PPTP 只能在两端点间建立单一隧道。 L2TP 支持在两端点间使用多隧道，用户可以针对不同的服务质量创建不同的隧道**。**L2TP 可以提供隧道验证，而 PPTP 则不支持隧道验证**。**但是当 L2TP 或 PPTP 与 IPSEC 共同使用时，可以由 IPSEC 提供隧道验证，不需要在第2层协议上验证隧道使用 L2TP**。 **PPTP 要求互联网络为 IP 网络**。L2TP 只要求隧道媒介提供面向数据包的点对点的连接，L2TP 可以在 IP(使用UDP)，帧中继永久虚拟电路 (PVCs), X.25 虚拟电路(VCs)或 ATM VCs 网络上使用。
+**第 2 层隧道协议（L2TP）** 是 IETF 基于 L2F（Cisco 的第二层转发协议）开发的、PPTP 的后续版本。是一种工业标准 Internet 隧道协议，其可以为跨越面向数据包的媒体发送点到点协议 (PPP) 框架提供封装。PPTP 和 L2TP 都使用 PPP 协议对数据进行封装，然后添加附加包头用于数据在互联网络上的传输。**PPTP 只能在两端点间建立单一隧道。 L2TP 支持在两端点间使用多隧道，用户可以针对不同的服务质量创建不同的隧道**。**L2TP 可以提供隧道验证，而 PPTP 则不支持隧道验证**。**但是当 L2TP 或 PPTP 与 IPSEC 共同使用时，可以由 IPSEC 提供隧道验证，不需要在第2层协议上验证隧道使用 L2TP**。 **PPTP 要求互联网络为 IP 网络**。L2TP 只要求隧道媒介提供面向数据包的点对点的连接，L2TP 可以在 IP(使用UDP)，帧中继永久虚拟电路 (PVCs), X.25 虚拟电路(VCs)或 ATM VCs 网络上使用。
 
-<!-- OCR_START -->
-- Intemal
-- hosts
-- Security Gateway
-- Not
-- encrypted
-- VPN Tunnel
-- (IPsec)
-- Internet
-- Remote IPsec Client
-- 436 × 300
-<!-- OCR_END -->
+实际部署时 L2TP 通常和 IPsec 配合使用：内网主机到安全网关这一段是未加密的，网关之间跨越 Internet 的 VPN 隧道则由 IPsec 加密。
 
-L2TP和PPTP都是一个隧道协议，区别在于**L2TP 可以提供隧道验证，而 PPTP 则不支持隧道验证**。
+```plaintext
+ Internal
+ hosts ────(Not encrypted)────▶[Security Gateway]
+                                 │
+                  VPN Tunnel (IPsec) ── Encrypted
+                                 │
+                            ╔════╧════╗
+                            ║ Internet ║
+                            ╚════╤════╝
+                       Remote IPsec Client
+```
+
+L2TP 和 PPTP 都是隧道协议，核心区别在于：**L2TP 可以提供隧道验证，而 PPTP 不支持隧道验证**。
 
 ### IPSec
-**IPSec** 的隧道是由**封装**、**路由**与**解封装**组成整个过程。隧道将原始数据包隐藏(或封装)在新的数据包内部。该新的数据包可能会有新的寻址与路由信息，从而使其能够通过网络传输。
+**IPSec** 隧道的整个过程由**封装**、**路由**与**解封装**组成。隧道将原始数据包隐藏(或封装)在新的数据包内部。该新的数据包可能会有新的寻址与路由信息，从而使其能够通过网络传输。
 
 隧道与数据保密性结合使用时，在网络上窃听通讯的人将无法获取原始数据包数据(以及原始的源和目标)。封装的数据包到达目的地后，会删除封装，原始数据包头用于将数据包路由到最终目的地。
 
-<!-- OCR_START -->
-- IPSec
-- Modes
-- Transpor+ Mode
-- Gateway
-- Tunnel Mode
-<!-- OCR_END -->
+IPSec 有两种工作模式，区别在于"谁来加密、加密到哪一层"：
 
-### SSLVPN
+```plaintext
+  主机 A ◇═════════ Transport Mode ═════════◇ 主机 B
+          (端到端，直接加密主机之间的报文)
+
+  主机 A ──▶[Gateway] ◀═══ Tunnel Mode ═══▶[Gateway] ◀── 主机 B
+                    (网关之间加密整个报文)
+```
+
+| 模式 | 加密范围 | 典型场景 |
+| --- | --- | --- |
+| **传输模式 Transport Mode** | 只加密 IP 报文的载荷，保留原始 IP 头 | 两台主机之间端到端通信 |
+| **隧道模式 Tunnel Mode** | 整个原始 IP 报文被封装并加密，外层再套一个新 IP 头 | 两个安全网关之间建立站点 VPN |
+
+### SSL VPN
 SSL 协议提供了数据**私密性**、**端点验证**、**信息完整性**等特性。SSL 协议由许多子协议组成，其中两个主要的子协议是**握手协议**和**记录协议**。握手协议允许服务器和客户端在应用协议传输第一个数据字节以前，彼此确认，协商一种加密算法和密码钥匙。
 
 在数据传输期间，记录协议利用握手协议生成的密钥加密和解密后来交换的数据。
 
 SSL 独立于应用，因此任何一个应用程序都可以享受它的安全性而不必理会执行细节。SSL 置身于网络结构体系的**传输层**和**应用层**之间。此外，SSL 本身就被几乎所有的 Web 浏览器支持。这意味着客户端不需要为了支持 SSL 连接安装额外的软件。这两个特征就是 SSL 能应用于 VPN 的关键点。
 
-<!-- OCR_START -->
-- Port 1
-- 192.168.1.99/24
-- WAN1
-- FortiClient
-- 172.20.120.123
-- Remote user
-- SSL VPN
-- FortiGate
-- InternalNetwork
-- Web Portal
-<!-- OCR_END -->
+下图是一个 SSL VPN 的接入示例：远程用户既可以用专用客户端（FortiClient），也可以直接用浏览器访问 Web Portal，两种方式都通过 SSL VPN 连入 FortiGate 网关，再进入内部网络。
 
-### IPSec和SSL VPN区别
+```plaintext
+ Remote user ──[FortiClient]──┐
+                              ├──▶ SSL VPN ──▶┌──────────┐
+ Remote user ──[ Web Portal ]─┘     WAN1       │FortiGate │──▶ Internal Network
+                          (浏览器) 172.20.120.123 └──────────┘
+                                              Port1 192.168.1.99/24
+```
 
-<!-- OCR_START -->
-- IPSeC VS.SSLVPNs
-- Internet
-- Corporate
-- IPSecTunnel
-- Network
-- ①IPSeC
-- Remote User
-- ②Permitted Subnet(s)
-- With IPSec Client
-- VPN/Firewall
-- User's
-- Maitbox
-- ④Exchange
-- Server
-- SSL/TLS Tunnel
-- SSL VPN
-- Firewall
-- Gatevray
-- With Any Browser
-- Intranet
-- Permitted
-- URLs/Objects
-<!-- OCR_END -->
+| 角色 | 地址 / 说明 |
+| --- | --- |
+| Remote user（远程用户） | 通过 FortiClient 客户端或 Web Portal 浏览器接入 |
+| FortiGate WAN1 | 172.20.120.123（外网侧） |
+| FortiGate Port 1 | 192.168.1.99/24（内网侧） |
+| Internal Network | 接入后可访问的内部网络 |
 
-## VPN服务实践
+### IPSec 和 SSL VPN 的区别
+
+下图把两种 VPN 放在一起对比：IPSec 需要安装专用客户端，接入后直接开放授权的整个子网；SSL VPN 用任意浏览器即可，由网关做更细粒度的资源控制。
+
+```plaintext
+ Remote User                 ① IPsec VPN/Firewall      ② Corporate Network
+ With IPsec Client ══IPSec Tunnel══▶ [设备] ═══════▶ Permitted Subnet(s)
+
+ Remote User     Firewall ③ SSL VPN Gateway
+ With Any Browser ═SSL/TLS Tunnel══▶[砖墙][网关] ┬─④─▶ Exchange Server / User's Mailbox
+                                               └─⑤─▶ Intranet Server
+                                                     Permitted URLs/Objects
+```
+
+- **① IPsec VPN/Firewall**：用户端到企业边界的 IPsec 设备；
+- **② Permitted Subnet(s)**：接入后可访问的企业授权子网；
+- **③ SSL VPN Gateway**：部署在防火墙后的 SSL VPN 网关；
+- **④ Exchange Server**：可被授权访问的邮件服务器及用户邮箱；
+- **⑤ Intranet Server / Permitted URLs/Objects**：按策略开放的内网服务器、URL 和具体资源。
+
+## 五、VPN 服务实践
 利用虚拟专用网络，实现让外网主机获得架构中内网地址信息，实现利用内网地址进行数据传递
 
 ### 机器准备
@@ -240,10 +257,11 @@ web01                                                  172.20.1.7 （模拟私�
 
 PS：确保每台主机时间做好正确同步
 
-整个部署架构，肯定是分为客户端和服务端
+整个部署架构分为两部分：客户端和服务端。
 
-### VPN服务端部署
-准备好一台linux虚拟机
+### VPN 服务端部署
+
+准备好一台 Linux 虚拟机。
 
 ```bash
 1.配置好基础环境
@@ -266,115 +284,43 @@ Wed Aug  5 15:53:28 CST 2020
 3.明确关闭防火墙，大坑
 ```
 
-服务器准备2块网卡，一个模拟公网，一个模拟局域网，在vmware上添加即可
+服务器需要准备 2 块网卡：一块模拟公网，一块模拟局域网，在 VMware 里添加即可。
 
-这里mac和windows的网卡NAT添加是有区别的
+这里 macOS 和 Windows 的网卡 NAT 添加方式有区别。
 
-windows的vmware workstation添加方式较为简单
+Windows 的 VMware Workstation 添加方式比较简单。
 
-mac的方式如下：
+macOS 的方式如下。
 
 也可以看超哥的博客：[https://www.cnblogs.com/pyyu/p/9689138.html](https://www.cnblogs.com/pyyu/p/9689138.html)
 
-### mac自定义vmware网络-外网
+### macOS 自定义 VMware 网络——外网
 ```bash
 内网  172.20.1.63 仅主机模式
 外网     10.0.1.63   NAT模式
 ```
 
-1.vmware fusion偏好设置，添加nat自定义网络
+1. VMware Fusion 偏好设置，添加 NAT 自定义网络。
 
-偏好设置
+打开"偏好设置"，新建一个自定义网络 vmnet2，勾选"允许该网络上的虚拟机连接到外部网络（使用 NAT）"，子网 IP 填 10.0.1.0、子网掩码 255.255.255.0，并关闭该网络的 DHCP（后面由我们手动配置静态 IP）。
 
-<!-- OCR_START -->
-- 网络
-- 常规
-- 键盘与鼠标
-- 显示
-- 默认应用程
-- 反馈
-- Internet共享
-- 使用此配置的虚拟机将使用自定网络连接。
-- 与我的Mac共享
-- 桥接模式网络连接
-- 允许该网络上的虚拟机连接到外部网络 (使用 NAT)
-- 自动检测
-- 启用IPv6
-- Wi-Fi
-- IPv6 前缀:
-- fd15:4ba5:5a2b:1002::/64
-- AX88772A
-- 端口转发
-- USB 10/100/1000 LAN
-- AX88179...it Ethernet
-- 主机端口
-- 类型
-- 虚拟机IP地址
-- 描述
-- iPad USB
-- 蓝牙PAN
-- Thunderbolt Ethernet
-- iPhone USB 2
-- USB 10/10...00 LAN 2
-- iPhone USB 3
-- USB 10/10...00 LAN 3
-- 将Mac主机连接到该网络
-- 自定
-- 通过DHCP在该网络上提供地址
-- 仅供我的Mac
-- vmnet2
-- 子网 IP:
-- 10.0.1.0
-- 子网掩码：
-- 255.255.255.0
-- √需要通过鉴定才能进入混杂模式
-- 点按锁按钮以进行更改。
-- 还原
-- 应用
-<!-- OCR_END -->
+| 配置项 | 值 |
+| --- | --- |
+| 网络名称 | vmnet2 |
+| 子网 IP | 10.0.1.0 |
+| 子网掩码 | 255.255.255.0 |
+| NAT | 勾选（允许连接外部网络） |
+| DHCP | 关闭 |
 
-2.网络适配器1，选择vmnet2网络链接
+2. 网络适配器 1，选择 vmnet2 网络连接。
 
-<!-- OCR_START -->
-- 一小
-- G<
-- vpn_server-10.0.0.63
-- 断开连接网络适配器
-- NAT 模式
-- 桥接模式 (自动检测)
-- √自定 (vmnet2)
-- 仅主机模式
-- 网络适配器 设置...
-<!-- OCR_END -->
+在虚拟机的网络适配器设置中，选择"自定（vmnet2）"，而不是默认的 NAT / 桥接 / 仅主机模式。
 
-虚拟机连接
+3. 虚拟机连接。
 
-<!-- OCR_START -->
-- vpn_server-10.0.0.63
-- 显示全部
-- ...er-10.0.0.63：网络适配器
-- 添加设备...
-- ?连接网络适配器
-- 此网络适配器已配置为使用：
-- USB10/100/1000LAN
-- AX88179USB3....GigabitEthernet
-- 虚拟机使用自定网络连接。
-- iPad USB
-- 蓝牙PAN
-- 名称：vmnet2
-- ThunderboltEthernet
-- 类型：自定
-- iPhone USB 2
-- 子网 IP:10.0.1.0
-- 子网掩码：255.255.255.0
-- iPhone USB 3
-- 自定
-- 仅供我的Mac专用
-- vmnet2
-- 高级选项
-<!-- OCR_END -->
+在弹出的网络适配器配置窗口中确认：名称 vmnet2、类型自定、子网 IP 10.0.1.0、子网掩码 255.255.255.0，即表示该适配器已使用自定义网络。
 
-3.centos的网卡配置文件ifcfg-ens33
+4. CentOS 的网卡配置文件 ifcfg-ens33。
 
 ```bash
 [root@vpn_server ~]# cat /etc/sysconfig/network-scripts/ifcfg-ens33
@@ -401,7 +347,7 @@ NETMASK=255.255.255.0                        # <<<<<<<<<<
 DNS1=1.2.4.8                                        # <<<<<<<<<<
 ```
 
-正确设置后，确保client-server能够通信
+正确设置后，确保 client-server 能够通信。
 
 ```bash
 [yuchao@yumac vmnet2]$ping 10.0.1.63
@@ -410,49 +356,15 @@ PING 10.0.1.63 (10.0.1.63): 56 data bytes
 64 bytes from 10.0.1.63: icmp_seq=1 ttl=64 time=0.539 ms
 ```
 
-### mac设置仅主机-内网
-在加一个网络设备-添加网卡
+### macOS 设置仅主机网络——内网
 
-<!-- OCR_START -->
-- 显示全部
-- ..r-10.0.1.63
-- 网络适配器2
-- 添加设备...
-- 连接网络适配器
-- 此网络适配器已配置为使用：
-- USB 10/100/1000 LAN
-- 虚拟机使用专用虚拟网络连接到Mac。一般情况下，无
-- AX88179 USB 3...Gigabit Ethernet
-- 法在Mac上通过物理网络访问专用网络。
-- iPad USB
-- 多个虚拟机可同时连接到一个专用网络。
-- 蓝牙PAN
-- Thunderbolt Ethernet
-- iPhone USB 2
-- iPhone USB 3
-- 仅供我的 Mac 专用
-- vmnet2
-- 高级选项
-- MAC 地址:
-- 00:50:56:24:B9:F7
-- 生成
-- 网络模拟设置
-- 入站转换
-- 出站转换
-- 带宽：
-- 不受限
-- Kbps:
-- 数据包丢失 (%):
-- 0.0
-- 延迟 (毫秒):
-- 移除网络适配器
-<!-- OCR_END -->
+再添加一个网络设备，即添加第二块网卡。
 
-mac的vmware fusion仅主机模式设备是：
+在"添加设备"中选择网络适配器，网络适配器 2 选择"仅供我的 Mac 专用"（仅主机模式），其 MAC 地址会在下方显示，需要和后面 CentOS 配置保持一致。
+macOS 的 VMware Fusion 仅主机模式对应设备如下：
 
-vmnet1--仅主机，改成超哥这样的配置
-
-vmnet2--nat  
+- vmnet1：仅主机，改成下面这样的配置；
+- vmnet2：NAT。
 
 ```bash
 yumac:VMware Fusion root# cat /Library/Preferences/VMware\ Fusion/networking
@@ -470,9 +382,9 @@ answer VNET_2_NAT_PARAM_UDP_TIMEOUT 30
 answer VNET_2_VIRTUAL_ADAPTER yes
 ```
 
-拷贝ifcfg-ens33 改为Ifcfg-ens37
+拷贝 ifcfg-ens33，改名为 ifcfg-ens37。
 
-centos内针对仅主机的网络适配器，添加网卡配置文件
+在 CentOS 内针对仅主机的网络适配器，添加第二块网卡的配置文件。
 
 ```bash
 生成新的网卡UUID
@@ -502,7 +414,7 @@ IPADDR=172.20.1.63
 NETMASK=255.255.255.0
 ```
 
-## VPN服务端软件部署
+### VPN 服务端软件部署
 
 ```bash
 1.下载软件
@@ -725,10 +637,11 @@ mute 20  # 重复日志限额
 311:mute 20
 ```
 
-历经千辛万苦终于给服务端整好了，跟着超哥继续向下学
+历经千辛万苦，服务端终于整好了，跟着超哥继续向下学。
 
 ### 启动服务端
-### 修改内核转发
+
+#### 修改内核转发
 ```bash
 1.添加内核转发参数
 vim /etc/sysctl.conf
@@ -739,7 +652,7 @@ net.ipv4.ip_forward = 1
 sysctl -p
 ```
 
-  
+#### 编写 systemd 单元并启动服务
 
 ```bash
 # 编写openvpn启动单元文件
@@ -777,18 +690,18 @@ Created symlink from /etc/systemd/system/multi-user.target.wants/openvpn.service
 tcp        0      0 10.0.1.63:1194          0.0.0.0:*               LISTEN      2481/openvpn
 ```
 
-如果有错，检查配置文件，和超哥的文档对比。
+如果报错，检查配置文件，和超哥的文档逐项对比。
 
-  
- 
 
-## VPN客户端部署
-下载客户端，各个操作系统都有
+## 六、VPN 客户端部署
+
+下载客户端，各个操作系统都有对应的版本：
 
 [https://openvpn.net/download-open-vpn/](https://openvpn.net/download-open-vpn/)
 
 ### 修改客户端配置文件
-指定openvpn服务端信息即可
+
+只需要指定 OpenVPN 服务端的信息即可。
 
 ```bash
 windows，下载openvpn客户端软件后，进行客户端配置
@@ -871,28 +784,19 @@ total 16
 Serving HTTP on 0.0.0.0 port 80 ...
 ```
 
-此时可以在windows中下载该配置文件
+此时就可以在 Windows 中下载这些配置文件了。
 
-<!-- OCR_START -->
-- 计算机本地磁盘（C:）openvpn
-- 组织+
-- 包含到库中▼
-- 共享+
-- 新建文件夹
-- 收藏夹
-- 名称
-- 下载
-- ca
-- 桌面
-- client01
-- 最近访问的位置
-- client01.key
-- 视频
-<!-- OCR_END -->
+下载完成后，在本地 openvpn 目录里能看到三个文件：
 
-并且要再找到一个ovpn文件，也可以直接手动生成
+| 文件 | 作用 |
+| --- | --- |
+| ca.crt | CA 根证书 |
+| client01.crt | 客户端证书 |
+| client01.key | 客户端私钥 |
 
-client01.ovpn文件
+另外还需要一个 ovpn 文件，也可以直接手动生成。
+
+即 client01.ovpn 文件。
 
 ```bash
 client
@@ -910,42 +814,17 @@ cipher AES-256-CBC
 verb 3
 ```
 
-<!-- OCR_START -->
-- →计算机本地磁盘(C:)openvpn
-- 组织+
-- 包含到库中+
-- 共享
-- 新建文件夹
-- ☆收藏夹
-- 名称
-- 修改日期
-- 类型
-- 大小
-- 下载
-- 同ca
-- 2020/8/6 15:00
-- 安全证书
-- 2 KB
-- 桌面
-- client01
-- 5 KB
-- 最近访问的位置
-- client01.key
-- KEY 文件
-- 2020/8/6 15:34
-- OVPN Profile
-- 1 KB
-- 视频
-- 口图片
-<!-- OCR_END -->
+把 client01.ovpn 也放进同一个目录后，文件夹里就凑齐了四个文件：ca.crt（安全证书）、client01.crt（约 5KB）、client01.key（KEY 文件）和 client01.ovpn（OVPN Profile，约 1KB）。
 
-### 启动openvpn客户端
-**openvpn需要手动设置ip地址，因为关闭了DHCP功能**
+### 启动 OpenVPN 客户端
 
-通过openvpn连接后，进行连接，连接成功后，已然进入VPN的内网环境了
+**OpenVPN 需要手动设置 IP 地址，因为前面关闭了 DHCP 功能。**
+
+通过 OpenVPN 发起连接，连接成功后，就已经进入 VPN 的内网环境了。
 
 ```bash
-可以检查网络情况
+可以检查网络情况。
+
 1.服务端的隧道网段
 6: tun0: <POINTOPOINT,MULTICAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UNKNOWN group default qlen 100
     link/none
@@ -956,7 +835,7 @@ verb 3
 [root@vpn_server client01]#
 ```
 
-客户端尝试和VPN网络隧道通信
+客户端尝试与 VPN 网络隧道通信。
 
 ```bash
 1.和10.8.0.1地址通信
@@ -967,6 +846,7 @@ ssh 172.20.1.63
 ```
 
 ### 成功后示意图
+
 ```bash
 1.服务端的日志展示
 
@@ -1002,109 +882,28 @@ Max bcast/mcast queue length,0
 END
 ```
 
-<!-- OCR_START -->
-口13%
-13GB
-1.0 kB
-OpenVPNConnect
-inet6 ::1/128 scope host
-ssyste
-Profiles
-valid_lft forever preferred_lft forever
-WindowsIP配置
-ens33: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state
-windows客户端VPN
-link/ether 00:50:56:22:5c:3f brd ff:ff:ff:ff:ff:ff
-Linux服务端
-未知适配器本地连接：
-inet 10.0.1.63/24 brd 10.0.1.255 scope global ens33
-CONNECTED
-VPN服务端
-windows客户端通过openvpn连接
-连接特定的DNS后缀
-inet6 fe80::250:56ff:fe22:5c3f/64 scope link
-模拟公网IP
-地链接
-IPv6地址
-fe80::b921:3b2e:40c8:62b2
-OpenVPN Profile
-Mi
-IPv4地址
-10.8.0.2
-:ens37: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state
-10.0.1.63 [cliento1]
-255.255.255.0
-link/ether 00:50:56:24:b9:f7 brd ff:ff:ff:ff:ff:ff
-此处获取了VPN隧道ip
-inet 172.20.1.63/24 brd 172.20.1.255 scope global ens37
-以太网适配器Ethernet0：
-inet6fe80::250:56ff:fe24:b9f7/64scopeLtnk模拟内网IP
-windows客户端ip
-CONNECTION STATS
-连特定的DNS
-后缀
-：tun0: <POINTOPOINT,MULTICAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast
-fe80::a0e2:a1f2:6285:705a
-link/none
-10. 0. 1. 69
-86B/s
-inet 10.8.0.1/24 brd 10.8.0.255 scope global tun0
-valid_lftfreverpreferred_lft forever
-默认网关.
-:10. 0. 1. 2
-inet6 fe80::a4cd:99f4:97b1:6caf/64 scope link flags 800
-以太网适配器蓝牙网络连接：
-连接的VPN网段
-root@vpn_server client01]#
-媒体状态
-媒体已断开连接
-root@vpn_serverclient01]#tail-f/var/log/openvpn*
-/var/log/openvpn.log<==
-hu Aug 6 16:36:52 2020 TCPv4_SERVER link local (bound): [AF_INET]10.0.1.63:
-C:\Users\yu>ping 172. 20. 1.63
-因为连接了VPN，已然可以和内网通信！
-hu Aug 6 16:36:52 2020 TCPv4_SERVER link remote:[AF_UNSPEC]
-oB/s
-hu Aug 6 16:36:52 2020 MULTI: multi_init called,r=256 v=256
-正在Ping172.20.1.63具有32字节的数据：
-hu Aug
-6 16:36:52 2020 IFCONFIG P00L: base=10.8.0.2 size=252, ipv6=0
-来自
-BYTES IN
-BYTES OUT
-6 16:36:52 2020 ifconfig_pool_readC)，in='client01,10.8.0.2'，T0D0:
-0KB/S
-172.20.1.63
-hu Aug 6 16:36:52 2020 succeeded -> ifconfig_pool_set()
-172.20.1.63的回复：
-字节=32时间=1ms
-TTL=64
-hu Aug 6 16:36:52 2020 IFCONFIG P00L LIST
-172.20.1.63的回复：字节=32时间<1msTTL=64
-DURATION
-PACKET RECEIVED
-6 16:36:52 2020 client01,10.8.0.2
-6 16:36:52 2020 MULTI: TCP INIT maxclients=1024 maxevents=1028
-172.20.1.63的Ping统计信息：
-00:02:07
-5secago
-hu Aug6 16:36:52 2020 Initialization Sequence Completed
-数据包：
-已发送
-接收=4，丢失=0（0%丢失），
-=>/var/log/openvpn-status.log<==
-最短=0ms，最长=1ms，平均=0ms
-YOU
-此处的日志，已经看到消息
-penVPN CLIENT LIST
-pdated,Thu Aug 6 16:36:52 2020
-C:\Users\yu>
-ommon Name,Real Address,Bytes Received,Bytes Sent,Connected Since
-YOUR PRIVATE IP
-0802
-<!-- OCR_END -->
+这张全景截图同时展示了服务端、客户端和连接状态三部分信息。
 
-### 我们可以通过http服务，验证VPN成功了
+Linux 服务端的三块网卡：
+
+| 网卡 | IP 地址 | 含义 |
+| --- | --- | --- |
+| ens33 | 10.0.1.63/24 | 模拟公网 IP |
+| ens37 | 172.20.1.63/24 | 模拟内网 IP |
+| tun0 | 10.8.0.1/24 | VPN 隧道网段（服务端地址） |
+
+Windows 客户端的 IP 配置：
+
+| 适配器 | IPv4 地址 | 含义 |
+| --- | --- | --- |
+| 未知适配器 本地连接 | 10.8.0.2 / 255.255.255.0 | 获取到的 VPN 隧道 IP |
+| Ethernet0 | 10.0.1.69，网关 10.0.1.2 | Windows 客户端物理网卡 IP |
+
+OpenVPN Connect 客户端显示状态为 CONNECTED，连接的配置为 10.0.1.63 [client01]，分配到的私有 IP 为 10.8.0.2。
+
+此时在 Windows 上 ping 内网地址 172.20.1.63，4 个包全部收到、0% 丢失；在服务端 `tail -f /var/log/openvpn*` 也能看到 "Initialization Sequence Completed" 和客户端列表记录——说明因为连上了 VPN，客户端已经可以和内网正常通信。
+
+### 通过 HTTP 服务验证 VPN 是否成功
 
 ```bash
 1.在linux上启动80服务
@@ -1116,101 +915,72 @@ Serving HTTP on 0.0.0.0 port 80 ...
 
 2.windows上访问该VPN的地址（分别尝试，连接、断开VPN）
 
-<!-- OCR_START -->
-- OpenVPNConnect
-- 无法访问此页面
-- Profiles
-- 10.8.0.1/
-- DISCONNECTED
-- OpenVPNProfile
-- 10.0.1.63 [client01]
-- 嗯...无法访问此页面
-- 尝试此操作
-- ·请确保你已获取正确的网址：
-- http://10.8.0.1
-- 未连接VPN
-- ·在必应上搜索"http://10.8.0.
-- 无法访问VPN服务器的内容
-- ·刷新页面
-- 详细信息
-- 报告这一问题
-- 隐私声明
-<!-- OCR_END -->
+未连接 VPN 时（OpenVPN Connect 显示 DISCONNECTED），在浏览器访问 `http://10.8.0.1` 会提示"无法访问此页面"，无法获取 VPN 服务器上的内容。
 
-连接上VPN
+连接上 VPN。
 
-<!-- OCR_START -->
-- Directory listing for/
-- Profiles
-- 10.8.0.1/
-- 连接VPN
-- CONNECTED
-- 可以访问VPN服务端的内容了
-- OpenVPN Profile
-- 10.0.1.63 [client01]
-- ca.crt
-- client01.crt
-- client01.key
-- CONNECTIONSTATS
-- 2.3KB/s
-<!-- OCR_END -->
+连接成功后（状态显示 CONNECTED），再次访问 `http://10.8.0.1`，浏览器会显示该目录的文件列表（Directory listing for /），可以看到 ca.crt、client01.crt、client01.key 三个文件，证明已经能访问 VPN 服务端的内容了。
 
-  
- 
 
-# NTP时间服务器
+---
 
-<!-- OCR_START -->
-- Computers
-- GPS Satelite
-- Network Appliances
-- Network Time System
-- Server
-- Internet Time Server
-- Other NTP Devices
-<!-- OCR_END -->
+# 第二篇 · NTP 时间服务器
 
-## 时间服务器
-时间对于人类的作息非常重要，按时起床，按时上班，赶火车、火箭发射等等，都需要时间上的把控。
+## 七、时间服务器
 
-还有如卫星运转、监控、交换机、计算机时间等等，都离不开对时间的精准同步。
+时间对人类的作息非常重要：按时起床、按时上班、赶火车、火箭发射，都需要对时间的精准把控。
 
-为什么每次计算机重启之后，时间都能够保持正确同步呢？是因为你的电脑主板上有一个用于记录BIOS配置的电池，如果电池没电了，或者某些因素，导致BIOS数据被清空，电脑开机后，时间就不准确了。
+再比如卫星运转、监控、交换机、计算机系统时间等，也都离不开精准的时间同步。
 
-又或者可能操作系统程序的问题，软件上导致了时间不准确，那么我们都得调整下时间，得让计算机保持正确的状态。
+为什么每次计算机重启之后，时间还能保持正确呢？因为电脑主板上有一块专门给 BIOS 供电的电池。一旦电池没电，或者因某些原因导致 BIOS 数据被清空，电脑开机后的时间就不准了。
 
-生活里我们可以通过电视台，广播站，电话等等来调整我们的手表等事件。那么当计算机时间不准，我们如何让主机时间正确呢。
+又或者是操作系统本身的问题，软件层面导致时间不准，这时也需要手动调整时间，让计算机保持正确状态。
 
-时间对于现代人来说是很重要的，因为『 Time is money 』。既然时间如此重要，对于因特网来说应该也是很重要吧？
+生活中我们可以通过电视台、广播站、电话等来校准手表等计时器。那么当计算机时间不准时，又该如何让主机时间恢复正确呢？
 
-## NTP时间协议
+时间对现代人来说很重要，正所谓 "Time is money"。既然时间如此重要，对互联网而言想必同样重要吧？
 
-<!-- OCR_START -->
-- 公网时间服务器
-- 内网时间服务器
-<!-- OCR_END -->
+## 八、NTP 时间协议
 
-NTP（Network Time Protocol，网络时间协议）是用来使网络中的各个计算机时间同步的一种协议。它的用途是把计算机的时钟同步到世界协调时UTC，其精度在局域网内可达0.1ms，在互联网上绝大多数的地方其精度可以达到1-50ms。
+时间服务器可以直接让所有客户端去公网同步，也可以先由内网时间服务器向公网同步，再分发给内网客户端——后者是企业集群更常用的两级结构：
 
-NTP服务器就是利用NTP协议提供时间同步服务的。 ntp软件（支持ntp协议） CentOS6自带 CentOS7需要安装的 chrony软件（支持ntp协议） CentOS7自带
+```plaintext
+方案一：直连公网
+                    公网时间服务器
+                 ┌───┬───┴───┬───┐
+               主机 主机     主机 主机
 
-NTP基于UDP报文进行传输，使用的UDP端口号为123。
+方案二：内网服务器中转（推荐）
+                    公网时间服务器
+                         │
+                    内网时间服务器
+                 ┌───┬───┴───┬───┐
+               主机 主机     主机 主机
+```
 
-使用NTP的目的是对网络内所有具有时钟的设备进行时钟同步，使网络内所有设备的时钟保持一致，从而使设备能够提供基于统一时间的多种应用。
+NTP（Network Time Protocol，网络时间协议）是用来让网络中各台计算机时间同步的协议。它的作用是把计算机时钟同步到世界协调时 UTC，精度在局域网内可达 0.1ms，在互联网上绝大多数地方也能达到 1-50ms。
 
-对于运行NTP的本地系统，既可以接受来自其他时钟源的同步，又可以作为时钟源同步其他的时钟，并且可以和其他设备互相同步。
+NTP 服务器就是利用 NTP 协议提供时间同步服务的主机。常见的服务端软件有两种：ntp 软件（支持 NTP 协议，CentOS 6 自带，CentOS 7 需要安装）和 chrony 软件（支持 NTP 协议，CentOS 7 自带）。
 
-## NTP的应用
-对于网络中的各台设备来说，如果依靠管理员手工输入命令来修改系统时钟是不可能的，不但工作量巨大，而且也不能保证时钟的精确性。通过NTP，可以很快将网络中设备的时钟同步，同时也能保证很高的精度。 NTP主要应用于需要网络中所有设备时钟保持一致的场合，比如：
+NTP 基于 UDP 报文传输，使用的 UDP 端口号为 123。
 
-+ 在网络管理中，对于从不同设备采集来的日志信息、调试信息进行分析的时候，需要以时间作为参照依据。如nginx的访客日志
-+ 计费系统要求所有设备的时钟保持一致。
-+ 完成某些功能，如定时重启网络中的所有设备，此时要求所有设备的时钟保持一致。
-+ 多个系统协同处理同一个比较复杂的事件时，为保证正确的执行顺序，多个系统必须参考同一时钟。
-+ 在备份服务器和客户端之间进行增量备份时，要求备份服务器和所有客户端之间的时钟同步。
+使用 NTP 的目的，是对网络内所有带时钟的设备做时钟同步，让全网设备的时钟保持一致，从而支撑那些依赖统一时间的各类应用。
 
-## 环境准备
-准备一台linux虚拟机，且安装ntp服务
+对于运行 NTP 的本地系统，它既可以接受其他时钟源的同步，也可以作为时钟源去同步别的时钟，还可以和其他设备互相同步。
+
+## 九、NTP 的应用
+
+对网络中的各台设备来说，如果靠管理员手工敲命令修改系统时钟，既不现实——工作量巨大——也无法保证时钟精确。通过 NTP，可以很快把全网设备的时钟同步好，同时保证很高的精度。NTP 主要应用于需要所有设备时钟一致的场合：
+
++ 在网络管理中，分析从不同设备采集来的日志、调试信息时，需要以时间作为参照依据，比如 nginx 的访客日志；
++ 计费系统要求所有设备的时钟保持一致；
++ 某些功能，比如定时重启网络中的所有设备，要求所有设备时钟一致；
++ 多个系统协同处理同一个复杂事件时，为保证正确的执行顺序，各系统必须参考同一时钟；
++ 在备份服务器和客户端之间做增量备份时，要求备份服务器和所有客户端时钟同步。
+
+## 十、环境准备
+
+准备一台 Linux 虚拟机，并安装 ntp 服务。
 
 ```plain
 yum install ntp -y
@@ -1220,7 +990,8 @@ yum install ntp -y
 /usr/share/man/man5/ntp.conf.5.gz
 ```
 
-### 修改ntp配置文件
+### 修改 NTP 配置文件
+
 【权限控制】
 
 ```plain
@@ -1262,14 +1033,14 @@ iburst 当一个运程NTP服务器不可用时，向它发送一系列的并发�
  28 server ntp3.aliyun.com iburst
 ```
 
-## 启动ntp
+## 十一、启动 NTP
 ```plain
 [root@master-70 ~]# systemctl start ntpd
 [root@master-70 ~]# systemctl is-active ntpd
 active
 ```
 
-【观察ntpd服务端】
+### 观察 ntpd 服务端
 
 ```plain
 [root@master-70 ~]# netstat -tunlp|grep ntp
@@ -1284,7 +1055,8 @@ udp6       0      0 :::123                  :::*                                
 ```
 
 ### ntpstat
-可以使用ntpstat命令检测NTP服务到期是否和上游机器通信。
+
+可以使用 ntpstat 命令检测 NTP 服务到底有没有和上游机器通信。
 
 ```plain
 [root@master-70 ~]# ntpstat
@@ -1296,7 +1068,8 @@ synchronised to NTP server (120.25.115.20) at stratum 3
 ```
 
 ### ntpq
-该命令可以列出我们NTP服务器和上游NTP的状态。
+
+该命令可以列出本机 NTP 服务器和上游 NTP 的状态。
 
 ```plain
 [root@master-70 ~]# ntpq -p
@@ -1319,7 +1092,7 @@ jitter：Linux 系统时间与 BIOS 硬件时间的差异时间， 单位为 10^
 这里的时间已经非常精确了
 ```
 
-要注意服务器的123端口正确开放，你自己的NTP服务器正确的连接了上层NTP服务器。
+要注意服务器的 123 端口已正确开放，且本机 NTP 服务器已经正确连接了上层 NTP 服务器。
 
 ```plain
 [root@master-70 ~]# ntpq -p
@@ -1331,16 +1104,18 @@ jitter：Linux 系统时间与 BIOS 硬件时间的差异时间， 单位为 10^
 [root@master-70 ~]#
 ```
 
-## 客户端配置
-上面介绍了NTP服务器的安装与设定，如果客户端机器数量较少时，是没必要配置NTP服务器的，但是若是搭建计算机集群系统，那么使用时间服务器是很合适的。
+## 十二、客户端配置
 
-### Linux手动时间更新
-我们在之前学过Linux时间管理命令，且Linux系统有两个时间：
+上面介绍了 NTP 服务器的安装与设置。如果客户端机器数量很少，其实没必要单独配置 NTP 服务器；但如果要搭建计算机集群系统，使用时间服务器就非常合适。
 
-+ 软件时间：Linux自己的时间，从1970/01/01开始
-+ 硬件时间：计算机系统在BIOS记录的时间
+### Linux 手动时间更新
 
-### 软件时间date
+我们之前学过 Linux 的时间管理命令。Linux 系统里有两个时间：
+
++ 软件时间：Linux 自己维护的时间，从 1970/01/01 开始计时；
++ 硬件时间：计算机系统在 BIOS 里记录的时间。
+
+### 软件时间 date
 ```plain
 查看当前系统时间
 [root@master-70 ~]# date
@@ -1353,7 +1128,7 @@ jitter：Linux 系统时间与 BIOS 硬件时间的差异时间， 单位为 10^
 2020年 07月 15日 星期三 17:01:36 CST
 ```
 
-回退时间到前一小时
+把时间回退一小时。
 
 ```plain
 [root@master-70 ~]# date
@@ -1372,9 +1147,10 @@ YYYY 年份
 ```
 
 ### hwclock
-查看，修改BIOS的时间
 
-在修改软件始终方面，我们是通过date命令修改，如果要修改BIOS时间，得用hwclock指令
+查看、修改 BIOS 的时间。
+
+修改软件时钟是通过 date 命令；如果要修改 BIOS 时间，则要用 hwclock 指令。
 
 ```plain
 两个参数

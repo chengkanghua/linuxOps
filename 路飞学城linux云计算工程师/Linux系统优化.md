@@ -1,29 +1,52 @@
-# Linux系统优化
+# Linux 系统优化
 
-修改中英文
+> 本篇解决两件上手前的"小事"：一是如何在中文 / 英文之间切换系统语言，方便对照英文报错查资料；二是 Linux 软件包管理——从程序的来源、格式，到 rpm、yum、systemctl 的用法，最后讲源代码编译安装。学完你就能熟练地装软件、查软件、管服务。
+
+## 本章目录
+
+- 一、修改系统语言（中英文）
+- 二、Linux 软件包管理
+  - 不同操作系统的安装包
+  - 编程语言
+  - 程序格式
+  - 程序包管理器
+  - 获取程序包的途径
+  - rpm 命令
+  - 软件包依赖关系
+  - systemctl 命令
+  - 源代码编译安装
+
+---
+
+## 一、修改系统语言（中英文）
+
+Linux 的显示语言由 locale（区域设置）决定。给环境变量 `LC_ALL` 赋不同的值，就能在中英文之间切换：
 
 ```plain
 export LC_ALL=en_US.UTF-8
 export LC_ALL=zh_CN.UTF-8
 ```
 
-# Linux软件包管理
+- 第一行：把当前环境切换成英文；
+- 第二行：切换回中文。
 
-windows程序
+> 💡 这种写法只对当前登录会话生效，重新登录后失效。查看当前区域设置可执行只读命令 `locale`；需要永久生效时，CentOS 7 一般修改 `/etc/locale.conf`（例如设置 `LANG=en_US.UTF-8`）。
 
-<!-- OCR_START -->
-https://dldir1.qq.c0m/qqfile/qq/QQ9.0.7/24121/QQ9.0.7.24121.exe
-重试
-<!-- OCR_END -->
+## 二、Linux 软件包管理
 
-macos程序
+### 不同操作系统的安装包
 
-<!-- OCR_START -->
-http://dldir1.qq.com/qqfile/QQforMac/QQ_V6.5.2.dmg
-重试
-<!-- OCR_END -->
+同一个 QQ，在不同平台上的安装包格式完全不同：
 
-Linux程序
+| 平台 | 常见安装包格式 | QQ 安装包示例 |
+| --- | --- | --- |
+| Windows | `.exe`、`.msi` | `QQ9.0.7.24121.exe` |
+| macOS | `.dmg`、`.pkg` | `QQ_V6.5.2.dmg` |
+| Linux | `.rpm`、`.deb`（因发行版而异） | 见下方说明 |
+
+原截图是浏览器下载 QQ 时的页面：Windows 包的下载地址以 `.exe` 结尾、Mac 包以 `.dmg` 结尾，下载失败时页面会给出"重试"按钮。
+
+所谓软件包，就是把应用程序、配置文件和数据打到一起的产物：
 
 ```plain
 软件包顾名思义就是将应用程序、配置文件和数据打包的产物，所有的linux发行版都采用了某种形式的软件包系统，这使得linux软件管理和在windows下一样方便，suse、red hat、fedora等发行版都是用rpm包，Debian和Ubuntu则使用.deb格式的软件包。
@@ -32,106 +55,35 @@ redis-3-4-3.rpm
 nginx2-3-2.rpm
 ```
 
-## 编程语言
+### 编程语言
 
-<!-- OCR_START -->
-- LanguagePascal
-- C/AL
-- SYMP
-- HAL/S
-- ALGOL
-- DATATREVE
-- SMSCRPT
-- MPLE
-- PL
-- Ajax
-- Clojre
-- Object
-- Not
-- Trac
-- Mcrocode
-- code
-- Ly
-- SALSA ATS
-- ELAN
-- Adenine
-- Assembly
-- LispVB
-- TADPOL
-- language
-- shell
-- Windowt/Des
-- 十十
-- SuperTak
-- JavaScript
-- IMP
-- ABC
-- Visual
-- foet
-- Delphi DASL
-- GaeeMorhey
-- Prolog
-- Caynre
-- Camlz
-- Go
-- ECMASapt
-- bac
-- JASS
-- Corstrait
-- PEARL
-- Estisp ObjectScript
-- lava
-- Oxygene
-- Programming
-- LSS
-- ScriptPHP
-- Ruby
-- EXEC
-- Action
-- CarVision
-- REXX
-- RPL
-- NETosn
-- Common
-- Doonerag
-- COBOL
-- CraghTak
-- Python
-- Tung
-- CRCAModA-2
-- ISWM
-- AcMoby
-- Uface
-- HaXa
-- WATFOR
-- Cara
-<!-- OCR_END -->
+编程语言的种类非常多——原截图是一张"编程语言词云"，里面挤了上百种语言的名字，字号越大代表越热门，其中最醒目的是 C、Java、JavaScript、PHP、Python、C++ 等。
 
-* 系统级开发：
-  * C/C++：httpd、nginx
-  * golang：docker
-* 应用及开发：
-  * java：hadoop，hbase
-  * python：openstack
-  * perl
-  * ruby
-  * php
+在 Linux 生态里，这些语言按使用场景大致分成两个层次：
 
-## 程序格式
+| 层次 | 语言 | 代表软件 |
+| --- | --- | --- |
+| 系统级开发 | C/C++ | httpd、nginx |
+|  | golang | docker |
+| 应用级开发 | java | hadoop，hbase |
+|  | python | openstack |
+|  | perl / ruby / php | — |
 
-**C/C++程序源代码**
+### 程序格式
+
+**C/C++ 程序源代码**
+
+C/C++ 的源代码是纯文本格式，需要借助"编译器、头文件、开发库"组成的编译开发环境，才能编译成机器能执行的二进制程序：
 
 ```plain
 文本格式的程度代码
 ```
 
-编译开发环境
-
 ```plain
 编译器、头文件、开发库
 ```
 
-二进制格式组成
+编译出来的二进制程序，一般由下面几部分组成：
 
 ```plain
 程序(软件)组成部分：
@@ -141,9 +93,9 @@ nginx2-3-2.rpm
     帮助文件    readme    /usr/share/man
 ```
 
-**java/python程序**
+**java/python 程序**
 
-源代码
+这类程序不直接编译成机器码，而是先编译成运行在各自虚拟机上的格式：
 
 ```plain
 编译成能够在python虚拟机pvm上运行的格式
@@ -151,63 +103,33 @@ nginx2-3-2.rpm
 
 **项目构建工具**
 
+管理编译过程也需要专门的构建工具：
+
 ```plain
 c/c++  ：make工具
 ```
 
-<!-- OCR_START -->
-- 机器码
-- 安装包
-- 七巧板零件
-- 七巧板拼图
-- 系统可以直接执行
-<!-- OCR_END -->
+原截图用"七巧板"打了个比方：源代码是一堆零散的**七巧板零件**，经过编译、打包变成机器码形式的**安装包**（拼好的七巧板图案），机器码是系统可以直接执行的：
 
-## 程序包管理器
+```plain
+源代码（七巧板零件）──编译 / 打包──▶ 机器码安装包（七巧板拼图）──▶ 系统可以直接执行
+```
+
+### 程序包管理器
 
 在 RPM（红帽软件包管理器）出现之前，Linux 装软件只能用源码包：服务程序大多只提供源代码，运维要自行编译、解决依赖，还要兼顾其他程序和库的关系，安装/升级/卸载/查询都非常困难，对知识和耐心要求极高。
 
 RPM 正是为解决这些问题而设计：它类似 Windows 的控制面板，建立统一的数据库文件，详细记录软件信息，并能自动分析依赖关系。
 
-<!-- OCR_START -->
-- 程序和功能
-- 个控制面板程序程序和功能
-- 搜索“程序和功
-- 控制面板主页
-- 卸载或更改程序
-- 查看已安装的更新
-- 若要卸最图序，请从列表中将其选中，然后单击“卸城”、“更改“或”修复，
-- 启用或关闭Windows功能
-- 组织
-- 名称
-- 发布者
-- 安装时间
-- 大小
-- 版本
-- 360安全浏宽界7
-- 360安全中心
-- 2014/10/5
-- 卸载(U)
-- 7.1.1
-- AMD Catalyst Control Center
-- AMD
-- 1.00,
-- MicrosoftVisualC++2012Redistributable（x86)-11.0.
-- Microsoft Corporation
-- 17.3 MB
-- 11.0
-- 温英特尔（R）核芯显卡驱动屋序
-- Intel Corporation
-- 74.2 MB9.17.
-- 360安全中心产品版本：7.1.1.200
-<!-- OCR_END -->
+原截图是 Windows 控制面板的"程序和功能"界面：可以按名称、发布者、安装时间、大小、版本查看已安装软件，选中后点"卸载 / 更改 / 修复"。RPM 在 Linux 里扮演的就是类似角色。
 
-Linux程序包管理器，几个发行版
+不同发行版使用的包管理器和软件包格式如下：
 
-* debian(Ubuntu)：dpt、dpkg、
-  * .deb
-* redhat：`redhat package manager，简称rpm`
-* suse：`rpm`
+| 发行版 | 包管理器 | 软件包格式 |
+| --- | --- | --- |
+| Debian / Ubuntu | dpkg（常用 apt/apt-get 作为前端） | `.deb` |
+| RedHat / CentOS / Fedora | rpm（常用 yum/dnf 作为前端） | `.rpm` |
+| SUSE | rpm（常用 zypper 作为前端） | `.rpm` |
 
 **源代码格式**
 
@@ -217,7 +139,7 @@ nginx-1.12.0.tar.gz
 node-v10.15.3-linux-x64.tar
 ```
 
-**rpm包格式**
+**rpm 包格式**
 
 ```plain
 格式：name-version-release.arch.rpm
@@ -225,42 +147,32 @@ wget-1.14-18.el7.x86_64.rpm
 名字，版本号，架构型号
 ```
 
-<!-- OCR_START -->
-DownloadPackages:
-Red HatEnterprise Linux7/ Oracle Linux7(x86,64-bit),RPM Bundle
-8.0.12
-589.9M
-Download
-(mysql-8.0.12-1.el7.x86_64.rpm-bundle.tar)
-MD5:124407c79aa6ab6717951d2f056d989c|Signature
-453.0M
-(mysql-8.0.12-1.el7.aarch64.rpm-bundle.tar)
-MD5:4aa4234db895532ca9ebde30235fd8ea|Signature
-RedHatEnterpriseLinux7/OracleLinux7(x86,64-bit),RPMPackage
-348.9M
-MySQL Server
-(mysql-community-server-8.0.12-1.el7.x86_64.rpm)
-MD5:ebc02ca3bb0df6eaef832d7ab25edc62
-347.7M
-(mysql-community-server-8.0.12-1.el7.aarch64.rpm)
-MD5:c4285f503b21c9f70053d56da0d4cd43
-25.5M
-Client Utilities
-(mysql-community-client-8.0.12-1.el7.x86_64.rpm)
-MD5:8a665fabed7b66f3c90f6747419e27b8
-<!-- OCR_END -->
+原截图是 MySQL 官网 8.0.12 版本的下载列表，可以直观看到"同一个软件、不同平台 / 用途对应不同的包"，文件名里就带着架构信息：
 
-## 获取程序包的途径
+| 适用平台 | 包形式 | 文件名 | 大小 |
+| --- | --- | --- | --- |
+| RHEL 7 / Oracle Linux 7（x86，64-bit） | RPM Bundle 合集 | mysql-8.0.12-1.el7.x86_64.rpm-bundle.tar | 589.9M |
+| RHEL 7 / Oracle Linux 7（ARM，64-bit） | RPM Bundle 合集 | mysql-8.0.12-1.el7.aarch64.rpm-bundle.tar | 453.0M |
+| x86，64-bit · MySQL Server | 单个 RPM | mysql-community-server-8.0.12-1.el7.x86_64.rpm | 348.9M |
+| ARM，64-bit · MySQL Server | 单个 RPM | mysql-community-server-8.0.12-1.el7.aarch64.rpm | 347.7M |
+| x86，64-bit · Client Utilities | 单个 RPM | mysql-community-client-8.0.12-1.el7.x86_64.rpm | 25.5M |
 
-互联网上提供的软件，可能存在后门，存在安全隐患，插件
+> 💡 `x86_64` 和 `aarch64` 是两种 CPU 架构：前者对应 Intel/AMD，后者对应 ARM（例如鲲鹏、车载 Thor 这类平台）。装包必须选对架构，否则装不上也跑不了。
 
-*最为正确的途径*
+### 获取程序包的途径
 
-* 操作系统发行版本光盘
-* 文件服务器
-* 镜像站点
+> ⚠️ 互联网上随手搜到的软件，可能被植入后门或捆绑插件，存在安全隐患。下载软件包应尽量走正规、可信的渠道。
 
-开源镜像站
+最为正确的途径有：发行版自带光盘、单位内部文件服务器、官方镜像站点。具体可分为：
+
+| 途径 | 说明 |
+| --- | --- |
+| 操作系统发行版光盘 | 随系统发行，和系统版本严格匹配，最可信 |
+| 开源镜像站 | 官方仓库的完整镜像，下载速度快 |
+| EPEL | 可信任的第三方组织，为 CentOS/RHEL 提供大量额外软件包 |
+| 搜索引擎（如 rpmfind） | 按名字找散落的 rpm 包，需仔细甄别来源 |
+
+常用的开源镜像站：
 
 ```plain
 http://mirrors.aliyun.com
@@ -269,20 +181,22 @@ http://mirrors.sohu.com/centos/7.5.1804/os/x86_64/Packages/
 http://mirrors.163.com
 ```
 
-* epel，提供centos众多额外的第三方包，可信任的第三方软件包组织
+EPEL 镜像地址：
 
 ```plain
 http://mirrors.sohu.com/fedora-epel/7/x86_64/Packages/
 https://mirrors.aliyun.com/epel/7/x86_64/Packages/m/
 ```
 
-* 搜索引擎
+通过搜索引擎找包（示例为 rpmfind 上的 lrzsz 包）：
 
 ```plain
 http://www.rpmfind.net/linux/mageia/distrib/7/x86_64/media/core/release/lrzsz-0.12.21-22.mga7.x86_64.rpm
 ```
 
-## rpm命令
+### rpm 命令
+
+rpm 的基本用法和常用操作格式如下：
 
 ```plain
 rpm命令：rpm  [OPTIONS]  [PACKAGE_FILE]
@@ -295,7 +209,7 @@ rpm命令：rpm  [OPTIONS]  [PACKAGE_FILE]
 查询文件属于哪个 RPM 的命令格式 　 rpm -qf filename
 ```
 
-案例
+下面通过一个完整案例，演示安装前测试、安装、升级和卸载：
 
 ```plain
 wget http://www.rpmfind.net/linux/mageia/distrib/7/x86_64/media/core/release/lrzsz-0.12.21-22.mga7.x86_64.rpm
@@ -313,207 +227,92 @@ wget http://www.rpmfind.net/linux/mageia/distrib/7/x86_64/media/core/release/lrz
 警告：lrzsz-0.12.21-22.mga7.x86_64.rpm: 头V4 RSA/SHA256 Signature, 密钥 ID 80420f66: NOKEY
 准备中...                          ################################# [100%]
 正在升级/安装...
-   1:lrzsz-0.12.21-22.mga7            ################################# [100%]
+   1:lrzsz-0.12.21-22.mga            ################################# [100%]
 #卸载lrzsz工具
 rpm -e lrzsz
 ```
 
-## 软件包依赖关系
+> 💡 输出里的 `NOKEY` 警告表示该包没有用系统已信任的 GPG 密钥签名，不影响安装；在确定包来源可信的前提下可以忽略。
+
+### 软件包依赖关系
 
 早期装软件很费劲：管理员得下载源码、编译，还要为系统做各种调整。源码编译虽提高了定制自由度，但在小软件上耗费精力并不划算，于是软件包应运而生。
 
-软件包管理把管理员从无休止的兼容问题中解放出来——yum 能自动搜索依赖并完成安装。而 rpm 包的依赖关系，是由包的作者在制作时定义的。
+软件包管理把管理员从无休止的兼容问题中解放出来——yum 能自动搜索依赖并完成安装。而 rpm 包的依赖关系，是由包的作者在制作时定义的：
 
 ```plain
 必须解决依赖关系，软件才能正常工作
 ```
 
-<!-- OCR_START -->
-- q:Quit
-- dD,E:DeL
-- U,U,I:Undel
-- r,R:Regb,B:ReqBy
-- i:Info
-- c,c:commit
-- F2:Help
-- 19.6M cmake
-- 2.8.12.1-1.fc19.i686
-- 18.3M kdenlive
-- 0.9.6-2.fc19.i686
-- 17.8M selinux-policy-targeted
-- 3.12.1-54.fc19.n0arch
-- 17.5M python-sqlalchemy
-- 0.8.3-1.fc19.i686
-- 16.4M wqy-zenhei-fonts
-- 0.9.46-10.fc19.n0arch
-- 15.5M gCC-C++
-- 4.8.3-1.fc19.i686
-- 15.2M shutter
-- 0.90-2.fc19.noarch
-- 368K
-- ImageMagick-perl
-- 6.7.8.9-5.fc19.i686
-- 7.4M
-- 2
-- ImageMagick
-- 14.3M
-- glibc
-- 2.17-14.fc19.i686
-- OK
-- basesystem
-- 10.0-8.fc19.noarch
-- 113.7M
-- -glibc-common
-- 3.4M
-- +bash
-- 4.2.45-1.fc19.i686
-- 145K
-- +libselinux
-- 2.1.13-15.fc19.i686
-- 1.9M
-- tzdata
-- 2013c-1.fc19.n0arch
-- 199K
-- libgcc
-- 330K
-- +nss-softokn-freebl
-- 3.14.3-1.fc19.i686
-- 22.4M
-- perl
-- 5.16.3-265.fc19.i686
-- 28K
-- perl-carp
-- 1.26-243.fc19.n0arch
-- Pkgs:1650
-- （3.7GB）
-- Del:O（OKB）
-- Break:o1
-- (flags）---（18)
-<!-- OCR_END -->
+原截图是一个文本界面的包管理工具，展示了 `shutter` 包的依赖树：它直接或间接依赖了 ImageMagick-perl、ImageMagick、glibc、perl、bash 等众多软件包，层级关系如下：
 
-### 自动解决依赖关系软件包管理器
+```plain
+shutter
+ ├─ ImageMagick-perl
+ │   ├─ ImageMagick
+ │   │   └─ glibc
+ │   │       ├─ basesystem
+ │   │       ├─ glibc-common ──▶ bash
+ │   │       ├─ libselinux
+ │   │       └─ tzdata
+ │   ├─ libgcc ──▶ nss-softokn-freebl
+ │   └─ perl ──▶ perl-Carp
+ └─ bash
+```
 
-* Yum，红帽系列rpm包管理工具
-* apt-get，deb包管理工具
-* zypper，suse的rpm包管理工具
+#### 自动解决依赖关系的软件包管理器
 
-*windows软件管理工具*
+主流发行版都有能自动解决依赖的"上层"包管理器：
 
-<!-- OCR_START -->
-- 360
-- 欧件大全
-- 软件升级
-- 软件即
-- 软件体检
-- 游戏中心
-- 手机必管
-- 软件管家
-- 热门精选
-- ）【公告】360用户男：整建有你，一路圆行！
-- 手机助手
-- 我的软件
-- 热门按索榜
-- 最受好评榜
-- 新秀软件榜
-- 软件风云榜
-- 页游排行榜
-- 单机游戏排行榜
-- 今日热门
-- 软件排行
-- 腾讯QQ
-- 2401049
-- 一键升级
-- 酷我音乐
-- 957269
-- 一健安装
-- 装机必册
-- 360安全测览器
-- 1700111
-- 已安装
-- 软件宝库
-- 快用苹果助手
-- 997269
-- 键安装
-- 全部软件（22279）
-- 酷豹音乐
-- 1436481
-- 美阳秀秀
-- 888511
-- 视须软件（789）
-- 天工具（185）
-- 暴风影音
-- 1312251
-- 一键安装
-- 鲁大师
-- 781954
-- 览（84）
-- 手心输入法
-- 1096100
-- 360杀奇
-- 682681
-- 下载
-- 游戏乐（7859）
-- 网络游戏（483）
-- 乐软件（548）
-- 360极速测览器
-- 643453
-- Adobe Reader
-- 536926
-- 安全杀毒（91）
-- 系统工具（2200）
-- 阿里旺旺
-- 603123
-- 迅雷看看
-- 503516
-- 下载工具（129）
-- 极速版迅
-- 599194
-- 谷歌拼音输入法
-- 476863
-- 办公软件（723）
-- 手机数码（259）
-- 语音
-- 571321
-- 风行网络电影
-- 455573
-- 入法（93）
-- 款件管家目版本：5.1.0.1120
-- 软件小动手设置下积营理
-<!-- OCR_END -->
+| 工具 | 适用包 / 发行版 |
+| --- | --- |
+| yum | 红帽系列的 rpm 包 |
+| apt-get | Debian / Ubuntu 的 deb 包 |
+| zypper | SUSE 的 rpm 包 |
 
-*Linux软件管理*
+Windows 上也有类似思路的图形化工具：原截图是"360 软件管家"，提供软件大全、软件升级、软件卸载、软件体检等功能，在排行榜上点"一键安装 / 一键升级"即可，底层同样是自动处理依赖。
 
-<!-- OCR_START -->
-- 通过配置文件指定仓库地址
-- Yum软件仓库
-- /etc/yum.repos.d/*.repo
-- 服务器
-- 客户端
-- cache
-- 缓存数据
-<!-- OCR_END -->
+Linux 上对应的是 yum 机制。原截图展示了它的整体结构：一台 **Yum 软件仓库服务器**通过网络同时给多个**客户端**提供软件包，客户端本地用 cache 缓存数据，仓库地址则通过配置文件 `/etc/yum.repos.d/*.repo` 指定：
 
-**yum命令**是在Fedora和RedHat以及SUSE中基于rpm的软件包管理器，它可以使系统管理人员交互和自动化地更细与管理RPM软件包，能够从指定的服务器自动下载RPM包并且安装，可以自动处理依赖性关系，并且一次安装所有依赖的软体包，无须繁琐地一次次下载、安装。
+```plain
+                ┌──────────────────────────┐
+                │   Yum 软件仓库服务器       │
+                │   RPM 包 + 依赖元数据      │
+                └─────────────┬────────────┘
+                              │  HTTP / FTP
+          ┌───────────────────┼───────────────────┐
+          ▼                   ▼                   ▼
+      ┌─────────┐         ┌─────────┐         ┌─────────┐
+      │ 客户端   │         │ 客户端   │         │ 客户端   │
+      │ cache   │         │ cache   │         │ cache   │
+      └─────────┘         └─────────┘         └─────────┘
 
-尽管 RPM 能够帮助用户查询软件相关的依赖关系，但问题还是要运维人员自己来解决， 而有些大型软件可能与数十个程序都有依赖关系，在这种情况下安装软件会是非常痛苦的。
+客户端通过配置文件 /etc/yum.repos.d/*.repo 指定仓库地址
+```
 
-Yum 软件仓库便是为了进一步降低软件安装难度和复杂度而设计的技术。Yum 软件仓库可以 根据用户的要求分析出所需软件包及其相关的依赖关系，然后自动从服务器下载软件包并安装到系统。
+**yum** 是 Fedora、RedHat 以及 SUSE/CentOS 中基于 rpm 的软件包管理器，能让管理员交互式或自动化地维护、管理 RPM 软件包：它从指定的服务器自动下载 RPM 包并安装，自动处理依赖关系，一次装齐所有依赖，不必再繁琐地一个个下载、安装。
 
-Yum 软件仓库中的 RPM 软件包可以是由红帽官方发布的，也可以是第三方发布的，当然也可以是自己编写的。
+RPM 虽然能查询依赖关系，但依赖仍要运维自己动手解决，大型软件可能依赖数十个程序，手工安装非常痛苦。Yum 软件仓库正是为进一步降低安装难度而设计的：它根据需求分析出所需软件包及依赖，自动从服务器下载并安装。仓库里的 RPM 包可以是红帽官方发布的、第三方发布的，也可以是自己制作的。
 
-### yum工具
+> 📌 一句话记忆：**rpm 负责单个包的安装与查询，yum 在 rpm 之上自动解决依赖；yum 的软件来源就是 yum 仓库（repository）。**
 
-* Yum（全称为 Yellow dog Updater, Modified）是一个在Fedora和RedHat以及CentOS中的Shell前端软件包管理器。基于RPM包管理，能够从指定的服务器自动下载RPM包并且安装，可以自动处理依赖性关系，并且一次安装所有依赖的软件包，无须繁琐地一次次下载、安装。
-* 说到yum源就必须说到linux系统中特有的依赖关系问题，yum就是为了解决依赖关系而存在的。yum源就相当是一个目录项，当我们使用yum机制安装软件时，若需要安装依赖软件，则yum机制就会根据在yum源中定义好的路径查找依赖软件，并将依赖软件安装好。
-* YUM是“Yellow dog Updater, Modified”的缩写，是一个软件包管理器，YUM从指定的地方（相关网站的rpm包地址或本地的rpm路径）自动下载RPM包并且安装，能够很好的解决依赖关系问题。
-* YUM的基本工作机制如下： 服务器端：在服务器上面存放了所有的RPM软件包，然后以相关的功能去分析每个RPM文件的依赖性关系，将这些数据记录成文件存放在服务器的某特定目录内。 客户端：如果需要安装某个软件时，先下载服务器上面记录的依赖性关系文件(可通过WWW或FTP方式)，通过对服务器端下载的纪录数据进行分析，然后取得所有相关的软件，一次全部下载下来进行安装。
-* Yum repository：yum仓库，存储了众多的软件包，以及相关的元数据文件
-  * 文件服务器
-    * ftp://
-    * http://
-    * nfs://
-    * file://
-  * yum仓库可以存在多个，自动选择软件最新的，以及优先选择离我们近的仓库下载
+#### yum 工具
+
+- yum 全称为 **Yellow dog Updater, Modified**，是 Fedora、RedHat、CentOS 中基于 RPM 的 Shell 前端软件包管理器，能从指定服务器自动下载 RPM 包并安装、自动处理依赖，无须一次次手工下载。
+- yum 就是为了解决依赖关系而存在的：yum 源相当于一个目录项，安装软件时，yum 按照源中定义好的路径查找并安装依赖包。
+- 基本工作机制分两端：**服务器端**存放所有 RPM 包，并分析每个 RPM 的依赖关系、把结果记录成元数据文件放在特定目录；**客户端**安装软件时，先通过 WWW 或 FTP 下载依赖关系元数据，分析后把所有相关软件一次全部下载安装。
+- yum 仓库（Yum repository）存储了众多软件包及相关元数据，可以通过多种协议提供：
+
+| 协议 | 前缀示例 |
+| --- | --- |
+| FTP | `ftp://` |
+| HTTP | `http://` |
+| NFS | `nfs://` |
+| 本地文件 | `file://` |
+
+yum 可以同时配置多个仓库，自动选择软件最新、离客户端最近的仓库下载。
+
+yum 本身其实也是一个 rpm 软件，可以用 rpm 查询：
 
 ```plain
 #yum其实也是一个rpm软件
@@ -521,7 +320,9 @@ Yum 软件仓库中的 RPM 软件包可以是由红帽官方发布的，也可�
 yum-3.4.3-163.el7.centos.noarch
 ```
 
-### yum客户端
+#### yum 客户端
+
+`/etc/yum.conf` 为所有仓库提供公共配置，下面这份文件里带注释列出了缓存目录、日志路径、签名校验等默认设置：
 
 ```plain
 /etc/yum.conf  #为所有仓库提供公共配置
@@ -552,61 +353,17 @@ distroverpkg=centos-release
 # in /etc/yum.repos.d
 ```
 
-### repo仓库文件
+#### repo 仓库文件
 
-<!-- OCR_START -->
-mirrors.aliyun.com/centos/7/
-2.root@chaogelinux:/etc/yum.
-X root@chaogelinux:/.. 81
-Indexof/centos/7/
-#CentOS-Base.repo
-The mirror system uses the connecting IP address of the client and the
-# update status of each mirror to pick mirrors that are updated to and
-atomic/
-28-
-# geographically close to the client. You should use this for Centos updates
-centosplus/
-14-
-cloud/
-# unless you are manually picking other mirrors.
-configmanagement/
-cr/
-dotnet/
-29-
-# If the mirrorlist= does not work for you, as a fall back you can try the
-extras/
-11-
-# remarked out baseurl= line instead.
-fasttrac
-isos/
-06-
-nfv/
-opstools/
-os/
-13-
-paas/
-[base]
-rt/
-10-
-sclo/
-name=Centos-$releasever - Base - mirrors.aliyun.com
-storage/
-failovermethod=priority
-updates/
-baseurl=http://mirrors.aliyun.com/centos/$releasever/os/$basearch/
-virt/
-http://mirrors.aliyuncs.com/centos/$releasever/os/$basearch/
-http://mirrors.cloud.aliyuncs.com/centos/$releasever/os/$basearch/
-gpgcheck=1
-gpgkey=http://mirrors.aliyun.com/centos/RPM-GPG-KEY-CentOS-7
-#released updates
-name=Centos-$releasever - Updates - mirrors.aliyun.com
-baseurl=http://mirrors.aliyun.com/centos/$releasever/updates/$basearch/
-http://mirrors.aliyuncs.com/centos/$releasever/updates/$basearch/
-http://mirrors.cloud.aliyuncs.com/centos/$releasever/updates/$basearch/
-#additionalpackagesthat maybeuseful
-name=Centos-$releasever - Extras - mirrors.aliyun.com
-<!-- OCR_END -->
+原截图左边是浏览器打开 `mirrors.aliyun.com/centos/7/` 看到的目录列表（`atomic/`、`centosplus/`、`cloud/`、`extras/`、`os/`、`updates/`、`virt/` 等），右边是 `/etc/yum.repos.d/CentOS-Base.repo` 的内容，红线把两者对应起来：repo 文件里的 `[base]`、`[updates]`、`[extras]` 段，分别指向镜像站上的 `os/`、`updates/`、`extras/` 目录：
+
+| repo 文件中的段 | 对应镜像站目录 | 提供内容 |
+| --- | --- | --- |
+| `[base]` | `os/$basearch/` | 系统基础软件包 |
+| `[updates]` | `updates/$basearch/` | 已发布的升级更新包 |
+| `[extras]` | `extras/$basearch/` | 额外附加软件包 |
+
+完整的仓库配置文件写法如下，每个字段的含义都在注释里：
 
 ```plain
 /etc/yum.repos.d/*.repo #提供仓库的地址文件
@@ -638,7 +395,7 @@ gpgcheck=0
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
 ```
 
-自定义一个简单的repo文件
+也可以自定义一个简单的 repo 文件：
 
 ```plain
 touch chaoge.repo #写入
@@ -652,10 +409,14 @@ baseurl=http://chaoge.com/epel/7/os/x86_64/
 gpgcheck=0
 ```
 
-### 配置yum源
+#### 配置 yum 源
 
-* `[http://mirrors.163.com/](http://mirrors.163.com/)`
-* `[https://opsx.alibaba.com/mirrors](https://opsx.alibaba.com/mirrors)`
+常用的镜像源站点：
+
+- [http://mirrors.163.com/](http://mirrors.163.com/)
+- [https://opsx.alibaba.com/mirrors](https://opsx.alibaba.com/mirrors)
+
+更换为阿里云源的完整步骤（备份、下载 repo 文件、重建缓存、配置 EPEL 等）：
 
 ```plain
 1.备份现有repo仓库
@@ -680,9 +441,11 @@ epel(RHEL 5)
 wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-5.repo
 ```
 
-* `[http://mirrors.sohu.com/](http://mirrors.sohu.com/)`
+搜狐镜像站也可以作为选择：[http://mirrors.sohu.com/](http://mirrors.sohu.com/)
 
-### yum命令
+#### yum 命令
+
+yum 的完整子命令、常用操作、命令行选项和 repo 文件变量如下：
 
 ```plain
 yum命令的用法：
@@ -742,7 +505,7 @@ yum命令的用法：
 查看指定的特性(可以是某文件)是由哪个程序包所提供：
     provides | whatprovides feature1 [feature2] [...]
 清理本地缓存：
-clean [headers|packages|metadata|dbcache|plugins|expire-cache|all]
+    clean [headers|packages|metadata|dbcache|plugins|expire-cache|all]
 构建缓存：
     makecache
 搜索：
@@ -792,44 +555,26 @@ baseurl=http://chaoge.com/centos/5/os/x86_64/
 gpgcheck=0
 ```
 
-## systemctl命令
+### systemctl 命令
 
-<!-- OCR_START -->
-- systemctl
-- 相关命令：service，chkconfig
-- systemd 是Linux下的一款系统和服务管理器，兼容 SysV 和LSB的启动脚本。systemd的特性有：支持并行化任务；同时采用socket式与D-Bus总线式激活服务；按需
-- 启动守护进程（daemon）；利用Linux的cgroups监视进程；支持快照和系统恢复；维护挂载点和自动挂载点；各服务间基于依赖关系进行精密控制。
-- 任务
-- 旧指令
-- 新指令
-- 使某服务自动启动
-- chkconfig--level3httpd on
-- systemctlenablehttpd.service
-- 使某服务不自动启动
-- systemctldisablehttpd.service
-- 检查服务状态
-- servicehttpdstatus
-- Systemctlstatushttpd.service（服务详细信息）systemctlis-enabledhttpd.service（仅显示是否Active)
-- 显示所有已启动的服务
-- chkconfig--ist
-- systemctlist-units--type=service
-- 启动某服务
-- servicehttpdstart
-- systemctlstarthttpd.service
-- 停止某服务
-- servicehttpdstop
-- systemctlstophttpd.service
-- 重启某服务
-- servicehttpdrestart
-- systemctlrestarthttpd.service
-- 某服务重新加载配置文件
-- servicehttpdreload
-- systemctlreloadhttpd.service
-<!-- OCR_END -->
+systemd 是 Linux 下的一款系统和服务管理器，兼容 SysV 和 LSB 的启动脚本。它的主要特性有：支持并行化任务；同时采用 socket 式与 D-Bus 总线式激活服务；按需启动守护进程（daemon）；利用 Linux 的 cgroups 监视进程；支持快照和系统恢复；维护挂载点和自动挂载点；各服务间基于依赖关系进行精密控制。
 
-## 源代码编译安装
+相关的旧命令是 `service`、`chkconfig`，新旧指令对比如下：
 
-无论是rpm命令或是yum命令，都是安装二进制格式的程序包，别人编译好的
+| 任务 | 旧指令 | 新指令 |
+| --- | --- | --- |
+| 使某服务自动启动 | chkconfig --level 3 httpd on | systemctl enable httpd.service |
+| 使某服务不自动启动 | chkconfig --level 3 httpd off | systemctl disable httpd.service |
+| 检查服务状态 | service httpd status | systemctl status httpd.service（服务详细信息） systemctl is-enabled httpd.service（仅显示是否 Active） |
+| 显示所有已启动的服务 | chkconfig --list | systemctl list-units --type=service |
+| 启动某服务 | service httpd start | systemctl start httpd.service |
+| 停止某服务 | service httpd stop | systemctl stop httpd.service |
+| 重启某服务 | service httpd restart | systemctl restart httpd.service |
+| 某服务重新加载配置文件 | service httpd reload | systemctl reload httpd.service |
+
+### 源代码编译安装
+
+无论是 rpm 命令还是 yum 命令，安装的都是别人编译好的二进制格式程序包：
 
 ```plain
 mysql-xx.rpm
@@ -837,31 +582,35 @@ redis-xx.rpm
 nginx-xx.rpm
 ```
 
-可能存在的问题，别人给的rpm包，可能版本较低，不合适我们现有的需求
+这种方式可能存在的问题是：别人提供的 rpm 包版本往往较低，不一定满足我们现有的需求。
 
-### yum和编译安装的区别
+#### yum 和编译安装的区别
 
-*yum的优缺点*
+yum 安装的优缺点：
 
-* yum是自动去yum源中寻找rpm包下载且安装，自动解决依赖，自动指定安装路径，无须人为干预
-* 适合初学者，不用考虑依赖关系即可安装使用大部分软件
-* 功能由rpm包控制，这个rpm包也是别人编译好的，版本可能较低，功能受限，存在漏洞
-* yum自动安装的软件不能定义软件的路径，与功能，机器数量较多，与后期维护成本较大
+| 方面 | 说明 |
+| --- | --- |
+| 优点 | 自动去 yum 源寻找 rpm 包下载安装，自动解决依赖、自动指定安装路径，无须人为干预 |
+| 优点 | 适合初学者，不用考虑依赖即可安装使用大部分软件 |
+| 缺点 | 功能由 rpm 包控制，包也是别人编译好的，版本可能较低、功能受限，甚至存在漏洞 |
+| 缺点 | 不能自定义安装路径与功能；机器数量较多时，后期维护成本较大 |
 
-*编译安装优缺点*
+编译安装的优缺点：
 
-* 可以手动下载最新源代码，按照指定需求，设置参数，指定安装路径，扩展第三方功能，更加灵活
-* 无法自动解决依赖关系，对新手不友好
+| 方面 | 说明 |
+| --- | --- |
+| 优点 | 可手动下载最新源代码，按需设置参数、指定安装路径、扩展第三方功能，更加灵活 |
+| 缺点 | 无法自动解决依赖关系，对新手不友好 |
 
-**建议方式**
+建议的方式：
 
 ```plain
 yum和编译安装结合使用，能够最大程度解决问题
 ```
 
-### 编译三部曲
+#### 编译三部曲
 
-前提条件：准备好开发工具以及开发环境
+开始编译前，要先准备好开发工具和开发环境：
 
 ```plain
 开发工具：gcc make等
@@ -870,24 +619,16 @@ yum groupinstall "Development Tools"
 yum groupinstall "Server Platform Development"
 ```
 
-<!-- OCR_START -->
-- 源文件
-- 预处理
-- 纯C
-- 编译器
-- cpp
-- cC
-- 汇编程序
-- 可执行文件
-- 链接器
-- 目标文件
-- 汇编器
-- ld
-- as
-- 库文件
-<!-- OCR_END -->
+原截图是 C 程序从源代码到可执行文件的完整处理流程，涉及预处理器、编译器、汇编器、链接器四类工具：
 
-第一曲，执行脚本`configure`文件
+```plain
+源文件      预处理       纯 C      编译器     汇编程序    汇编器    目标文件    链接器
+ .c ──cpp──▶ .c ──cc──▶ .s ──as──▶ .o ──ld──▶ 可执行文件
+                                            ▲
+                                      库文件 .a
+```
+
+第一曲，执行脚本 `configure` 文件：
 
 ```plain
 ./configure --prefix=软件安装路径
@@ -896,7 +637,7 @@ yum groupinstall "Server Platform Development"
 检查依赖到的外部环境
 ```
 
-第二曲，执行make命令
+第二曲，执行 make 命令：
 
 ```plain
 make是Linux开发套件里面自动化编译的一个控制程序，他通过借助 Makefile 里面编写的编译规范进行自动化的调用 gcc 、ld 以及运行某些需要的程序进行编译的程序。一般情况下，他所使用的 Makefile 控制代码，由 configure 这个设置脚本根据给定的参数和系统环境生成。
@@ -904,13 +645,17 @@ make这一步就是编译，大多数的源代码包都经过这一步进行编�
 make 的作用是开始进行源代码编译，以及一些功能的提供，这些功能由他的 Makefile 设置文件提供相关的功能，比如 make install 一般表示进行安装，make uninstall 是卸载，不加参数就是默认的进行源代码编译。
 ```
 
-第三曲：开始安装 make install
+第三曲，开始安装 make install：
 
 ```plain
 开始安装软件到./configure指定的安装路径
 ```
 
-### 源码编译安装nginx
+> 📌 一句话记忆：**编译三部曲 = `./configure`（传参数、查依赖、生成 Makefile）→ `make`（按 Makefile 编译）→ `make install`（拷贝文件到安装目录）。**
+
+#### 源码编译安装 nginx
+
+下面以编译安装 nginx 1.12.0 为例，走一遍完整流程，包括编译环境准备、编译三部曲和安装后的环境变量配置：
 
 ```plain
 1.准备编译环境
@@ -940,7 +685,20 @@ export PATH=/opt/ngx112/sbin:$PATH
 12.启动nginx，可以访问页面
 ```
 
-### 环境变量配置文件
+> ⚠️ 注意上面示例里安装前缀出现了 `nginx112` 和 `ngx112` 两种写法。实际操作时，启动路径和 PATH 必须与第 5 步 `--prefix` 指定的目录保持一致，否则会找不到程序。
+
+#### 环境变量配置文件
+
+Shell 相关的几个环境变量配置文件，作用范围和执行时机各不相同：
+
+| 文件 | 作用范围 | 读取时机 |
+| --- | --- | --- |
+| `/etc/profile` | 系统全局，所有用户 | 登录（login）时执行，并从 `/etc/profile.d` 加载配置 |
+| `~/.profile` | 当前用户 | 登录时执行一次，默认会调用 `~/.bashrc` |
+| `~/.bashrc` | 当前用户 | 登录时以及每次打开新 shell 时读取 |
+| `~/.bash_logout` | 当前用户 | 每次退出 bash shell 时执行，常放清理命令 |
+
+各文件的详细说明及登录 shell 的执行顺序：
 
 ```plain
 /etc/profile
@@ -955,6 +713,8 @@ export PATH=/opt/ngx112/sbin:$PATH
 登陆shell
 登陆shell时，首先执行/etc/profile，之后执行用户目录下的~/.profile,~/.profile中会执行~/.bashrc。
 ```
+
+---
 
 > 更新: 2021-01-17 12:14:03  
 > 原文: <https://www.yuque.com/chengkanghua/awf7cm/fg42uf>

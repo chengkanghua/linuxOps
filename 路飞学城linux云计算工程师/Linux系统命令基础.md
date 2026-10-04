@@ -1,48 +1,81 @@
-# Linux系统命令基础
+# Linux 系统命令基础
 
-![1610807057639-17f70e2d-64f3-4004-80da-8f034b6e363a.png](img/Linux系统命令基础/image1.png)
+> 前面咱们已经成功安装了 Linux 系统——CentOS 7。从这一章开始，跟着超哥一起奔向 Linux 命令行的世界。
+>
+> 本篇前半部分讲命令行长什么样、Linux 的目录树和挂载概念；后半部分逐个练习文件和目录管理的高频命令，最后聊帮助命令、开关机、快捷键、环境变量、路径概念，以及 Linux 的开机启动流程。
 
-前面咱们已经成功安装了Linux系统--centos7，那么现在跟着超哥奔向Linux命令行的世界。
+## 本章目录
 
-## Linux命令格式
+**第一篇 · 命令基础与目录结构**
+- 一、Linux 命令格式
+- 二、Linux 命令行提示符
+- 三、操作系统目录分隔符
+- 四、Linux 与 Windows 的目录结构比较
+- 五、图解 Linux 与 Windows 目录
+- 六、Linux 目录挂载
+- 七、为什么要学 Linux 命令
 
-<!-- OCR_START -->
-- 命令
-- 条件/参数
-- 对象/文件/目录
-- 空格
-- 结婚
-- 有车有房有存款
-- 白富美
-- 没有车有房有存款
-- 是个女的就行
-- rm
-- -f
-- /tmp/oldboy.txt
-<!-- OCR_END -->
+**第二篇 · 文件及目录管理命令**
+- 八、文件目录命令总览
+- 九、cd 命令：切换目录
+- 十、tree 命令：树形展示
+- 十一、ls 命令：查看目录内容
+- 十二、mkdir 命令：创建目录
+- 十三、touch 命令：创建文件 / 修改时间戳
+- 十四、cp 命令：复制
+- 十五、mv 命令：移动与重命名
+- 十六、rm 命令：删除
 
-1.一般情况下，【参数】是可选的，一些情况下【文件或路径】也是可选的
+**第三篇 · 帮助、开关机与 Shell 基础**
+- 十七、Linux 帮助命令
+- 十八、Linux 开关机命令
+- 十九、Linux 命令行常用快捷键
+- 二十、Linux 的环境变量
+- 二十一、绝对路径与相对路径
 
-2.参数 > 同一个命令，跟上不同的参数执行不同的功能
+**第四篇 · 系统文件与启动流程**
+- 二十二、系统重要文件路径
+- 二十三、Linux 开机启动流程
+
+---
+
+# 第一篇 · 命令基础与目录结构
+
+## 一、Linux 命令格式
+
+一条 Linux 命令的通用写法是：**命令 + 条件/参数 + 对象（文件或目录）**，各部分之间用空格隔开。超哥用一张搞笑的"结婚"表格帮你记住这个结构：
+
+| 命令 | 空格 | 条件/参数 | 空格 | 对象/文件/目录 |
+| --- | --- | --- | --- | --- |
+| 结婚 | 空格 | -有车有房有存款 | 空格 | 白富美 |
+| 结婚 | 空格 | -没有车有房有存款 | 空格 | 是个女的就行 |
+| rm | 空格 | -f | 空格 | /tmp/oldboy.txt |
+
+对应到真实命令，最后一行就是 `rm -f /tmp/oldboy.txt`：`rm` 是命令，`-f` 是参数，`/tmp/oldboy.txt` 是要处理的对象。
+
+1. 一般情况下，【参数】是可选的，一些情况下【文件或路径】也是可选的
+
+2. 参数 > 同一个命令，跟上不同的参数执行不同的功能
 
 执行linux命令，添加参数的目的是让命令更加贴切实际工作的需要！
 
 linux命令，参数之间，普遍应该用一个或多个空格分割！
 
-## Linux命令行
+> 💡 参数通常以一个短横杠 `-` 开头（短格式，如 `-f`），两个短横杠 `--` 开头的是长格式（如 `--force`）。很多命令两者等价，先记住常用的短格式即可。
 
-<!-- OCR_START -->
-- [root@oldboy_python ~]#
-- 提示符
-- 主机名
-- 机器名
-- 你当前在哪？
-- 用户名
-- 路径
-- 我是谁？
-- 38线
-- 分割线
-<!-- OCR_END -->
+## 二、Linux 命令行提示符
+
+登录系统后，终端里最先看到的就是一行**命令提示符**。以 `[root@oldboy_python ~]#` 为例，每一部分都有含义：
+
+| 组成部分 | 图中内容 | 含义 |
+| --- | --- | --- |
+| 用户名 | root | 我是谁？（当前登录的用户） |
+| @ | @ | 分隔符（戏称"三八线"） |
+| 主机名 / 机器名 | oldboy_python | 这台机器叫什么 |
+| 路径 | ~ | 你当前在哪？（`~` 代表家目录） |
+| 提示符 | # | `#` 表示超级用户，`$` 表示普通用户 |
+
+再看一遍普通用户和超级用户提示符的区别：
 
 ```plain
 命令提示符
@@ -56,25 +89,31 @@ pylinux 主机名
 $ 普通用户身份提示符
 ```
 
-## 操作系统目录分隔符
+> 📌 记住一个安全常识：看到 `#` 要格外小心，你现在是 root，敲下的每一条命令都可能直接影响整台机器。
 
-*windows平台命令行目录分隔符*
+## 三、操作系统目录分隔符
 
-<!-- OCR_START -->
+*Windows 平台命令行目录分隔符：*
+
+```plain
 C:\Users\yuchao\oldboy>
-Windows以反斜杠分割目录
-<!-- OCR_END -->
+```
 
-*Linux平台命令行目录分隔符*
+Windows 以**反斜杠** `\` 分割目录。
 
-<!-- OCR_START -->
+*Linux 平台命令行目录分隔符：*
+
+```plain
 [root@pylinux /opt/python37]#
-Linux系统以正斜杠分割目录
-<!-- OCR_END -->
+```
 
-## Linux与Windows的目录结构比较
+Linux 系统以**正斜杠** `/` 分割目录。
 
-Linux首先是建立一个根"/"文件系统，所有的目录也都是由根目录衍生出来。
+> ⚠️ 初学最容易犯的错就是斜杠写反。记住：Linux 世界里路径一律用正斜杠 `/`，而且第一个 `/` 是根目录。
+
+## 四、Linux 与 Windows 的目录结构比较
+
+Linux首先是建立一个根"/"文件系统，所有的目录也都是由根目录衍生出来。
 
 登录系统后，在当前命令窗口输入命令:
 
@@ -82,31 +121,13 @@ Linux首先是建立一个根"/"文件系统，所有的目录也都是由根目
 ls /
 ```
 
-查看结果如下图：
+这个命令用来查看根目录下都有什么，输出如下：
 
-<!-- OCR_START -->
-- [root@pylinux
-- ls/
-- bin
-- dev
-- home
-- lib64
-- mnt
-- proc
-- srv
-- tmpl
-- var
-- boot
-- etc
-- lib
-- media
-- opt
-- root
-- sbin
-- sys
-- usr
-- ~]#
-<!-- OCR_END -->
+```plain
+[root@pylinux ~]# ls /
+bin dev home lib64 mnt proc run srv tmp var
+boot etc lib media opt root sbin sys usr
+```
 
 在Linux底下，所有的文件与目录都是由根目录开始，是目录与文件的源头，然后一个个的分支下来，如同树枝状，因此称为这种目录配置为：**目录树**。
 
@@ -116,40 +137,33 @@ ls /
 * 每一个目录不止能使用本地的文件系统，也可以使用网络上的文件系统，可以利用NFS服务器挂载特定目录。
 * 每一个文件在此目录树中的文件名，包含完整路径都是独一无二的。
 
-## 图解linux与Windows目录
+## 五、图解 Linux 与 Windows 目录
 
 *Linux与windows区别*
 
 * windows特点:E:\学习视频\高清视频\\
 * Linux目录特点:/etc/hosts /root/data/oldboy.txt
 
-<!-- OCR_START -->
-- 3
-- Linux与Windows目录结构对比
-- 切从根开始
-- C盘
-- D盘
-- E盘
-- /(根目录）
-- 倒挂的树形结构
-- oldboy/
-- windows
-- 软件
-- 视频
-- 学习
-- datal
-- etc/
-- root/
-- hosts
-- peng/
-- sysconfig
-- 高清
-- oldboy.txt
-- zhi/
-- network-scripts
-- ifcfg-etho
-- li/
-<!-- OCR_END -->
+下图是两边目录结构的对比，先用 ASCII 图还原一下。
+
+**Windows：每个盘符都是一棵独立的树，C 盘、D 盘、E 盘平级。**
+
+```plain
+C盘 ── windows 文件夹
+   └─ 软件 文件夹
+D盘 ── 视频 文件夹
+E盘 ── 学习视频 ── 高清视频
+```
+
+**Linux：只有一棵倒挂的树，一切从根 `/` 开始。**
+
+```plain
+/（根目录）
+├── oldboy/ ── peng/ ── zhi/ ── li/
+├── data/   ── sysconfig ── network-scripts ── ifcfg-eth0
+├── etc/    ── hosts
+└── root/   ── data/ ── oldboy.txt
+```
 
 **Linux** 系统目录结构基本特点：
 
@@ -161,21 +175,20 @@ ls /
 
 4.Linux 下设备不挂载不能使用，不挂载的设备相当于没门没窗户的监狱(进不去出不来)，挂载相当于给设备创造了一个入口(挂载点，一般为目录)
 
-## Linux目录挂载
+## 六、Linux 目录挂载
 
 **挂载**通常是将一个`存储设备`挂接到一个已经存在的`目录`上，访问这个`目录`就是访问该存储设备的内容。
 
 对 Linux 来说**一切皆文件**：所有文件都放在以根目录为起点的树形目录结构中，硬件设备也以文件形式存在。
 
-<!-- OCR_START -->
-- /sdb1
-- /bin /home /lib/usr
-- /a
-- /b
-- /c
-- a）Linux系统文件目录（一部分）
-- b)U盘文件系统目录
-<!-- OCR_END -->
+挂载之前，Linux 自己的文件系统和 U 盘的文件系统是两套互相独立的结构：
+
+```plain
+a) Linux 系统文件目录（一部分）           b) U 盘文件系统目录
+          /                                     /sdb1
+     ┌────┼────┬─────┐                     ┌───┼───┐
+   /bin /home /lib  /usr ...              /a  /b  /c ...
+```
 
 如图所示，是U盘存储设备和Linux系统自己的文件系统结构，此时Linux想要使用U盘的硬件设备，必须将Linux`本身的目录`和硬件设备的文件目录合二为一，此过程就称之为`挂载`。
 
@@ -184,51 +197,40 @@ ls /
 挂载之后，这个目录被称为挂载点
 ```
 
-<!-- OCR_START -->
-- /bin
-- /home
-- /lib
-- 0/usr
-- /sdb-u(sdb1)
-- /a
-- /b
-- /c
-<!-- OCR_END -->
+挂载之后，两套结构合成了一套，U 盘文件系统成为 Linux 目录树的一根新"树枝"：
+
+```plain
+          /
+     ┌────┼────┬────┬─────────────────┐
+   /bin /home /lib  /usr   /sdb-u(sdb1)
+                              ├── /a
+                              ├── /b
+                              └── /c ...
+```
 
 此时 U 盘文件系统已成为 Linux 文件系统的一部分，访问 `/sdb-u` 文件夹即是访问 U 盘中的文件夹。
 
-<!-- OCR_START -->
-- Linux目录结构
-- /dev存放抽象硬件
-- dev
-- boot
-- /boot存放内核与启动文件
-- /lib存放系统库文件
-- lib
-- bin
-- /bin存放二进制文件（可执行命令）
-- /sbin存放特权级二进制文件
-- sbin
-- usr
-- /usr存放安装程序（软件默认目录）
-- /var存放经常变化的文件
-- var
-- mnt
-- /mnt文件挂载目录（u盘、光驱）
-- /home普通用户目录
-- home
-- root
-- /root特权用户目录
-- /etc存放配置文件目录
-- etc
-- opt
-- /opt大型软件存放目录(非强制)
-<!-- OCR_END -->
+根目录下这些常见目录分别是干什么的，先看一张总览图，后面还有逐个的详细说明：
+
+| 目录 | 存放内容 |
+| --- | --- |
+| /dev | 存放抽象硬件 |
+| /boot | 存放内核与启动文件 |
+| /lib | 存放系统库文件 |
+| /bin | 存放二进制文件（可执行命令） |
+| /sbin | 存放特权级二进制文件 |
+| /usr | 存放安装程序（软件默认目录） |
+| /var | 存放经常变化的文件 |
+| /mnt | 文件挂载目录（U 盘、光驱） |
+| /home | 普通用户目录 |
+| /root | 特权用户目录 |
+| /etc | 存放配置文件目录 |
+| /opt | 大型软件存放目录（非强制） |
 
 * **/bin**：bin是Binary的缩写, 这个目录存放着最经常使用的命令。
-* \*\*/boot：\*\*这里存放的是启动Linux时使用的一些核心文件，包括一些连接文件以及镜像文件。
-* \*\*/dev ：\*\*dev是Device(设备)的缩写, 该目录下存放的是Linux的外部设备，在Linux中访问设备的方式和访问文件的方式是相同的。
-* \*\*/etc：\*\*这个目录用来存放所有的系统管理所需要的配置文件和子目录。
+* **/boot：**这里存放的是启动Linux时使用的一些核心文件，包括一些连接文件以及镜像文件。
+* **/dev ：**dev是Device(设备)的缩写, 该目录下存放的是Linux的外部设备，在Linux中访问设备的方式和访问文件的方式是相同的。
+* **/etc：**这个目录用来存放所有的系统管理所需要的配置文件和子目录。
 * **/home**：用户的主目录，在Linux中，每个用户都有一个自己的目录，一般该目录名是以用户的账号命名的。
 * **/lib**：这个目录里存放着系统最基本的动态连接共享库，其作用类似于Windows里的DLL文件。几乎所有的应用程序都需要用到这些共享库。
 * **/lost+found**：这个目录一般情况下是空的，当系统非法关机后，这里就存放了一些文件。
@@ -249,9 +251,9 @@ echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_all
   sysfs文件系统集成了下面3种文件系统的信息：针对进程信息的proc文件系统、针对设备的devfs文件系统以及针对伪终端的devpts文件系统。该文件系统是内核设备树的一个直观反映。当一个内核对象被创建的时候，对应的文件和目录也在内核对象子系统中被创建。
 * **/tmp**：这个目录是用来存放一些临时文件的。
 * **/usr**：这是一个非常重要的目录，用户的很多应用程序和文件都放在这个目录下，类似于windows下的program files目录。
-* \*\*/usr/bin：\*\*系统用户使用的应用程序。
-* \*\*/usr/sbin：\*\*超级用户使用的比较高级的管理程序和系统守护程序。
-* \*\*/usr/src：\*\*内核源代码默认的放置目录。
+* **/usr/bin：**系统用户使用的应用程序。
+* **/usr/sbin：**超级用户使用的比较高级的管理程序和系统守护程序。
+* **/usr/src：**内核源代码默认的放置目录。
 * **/var**：这个目录中存放着在不断扩充着的东西，我们习惯将那些经常被修改的目录放在这个目录下。包括各种日志文件。
 
 在linux系统中，有几个目录是比较重要的，平时需要注意不要误删除或者随意更改内部文件。
@@ -264,7 +266,7 @@ echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_all
 
 **/var： 这是一个非常重要的目录，系统上跑了很多程序，那么每个程序都会有相应的日志产生，而这些日志就被记录到这个目录下，具体在/var/log 目录下，另外mail的预设放置也是在这里。**
 
-## 为什么要学Linux命令
+## 七、为什么要学 Linux 命令
 
 * Linux从诞生就是黑屏界面，所有操作倚靠命令完成，如磁盘读写、文件操作、网络管理等
 * 企业中，服务器的维护工作都是`ssh客户端`完成，没有图形界面
@@ -279,56 +281,15 @@ echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_all
 
 **可能是看我骨骼惊奇吧！！**
 
-<!-- OCR_START -->
-find fing
-mkdin
-100個
-umiq uuep uudeeode
-UNIX
-hgrp chmod chow
-df diff dircmp
-labelit
-最常用的指合
-quotaoff rep
-tee telnet
-uuglist uulog uuname uupick uustat uuto uux vacation vai volcopy wait
-we who write ar at batch cal cancel cat cc cd chgrp chmod chown cmp
-compress cp cpio crontab crypt csplit cu cut date df diff diremp dispadmin du
-echo file find finger fsck ftp grep id join kill labelit In logname lp lpatat
-mail mesg mkdir mkfs more mv news nice nohup od paek pcat unpcak
-passwd pr priocntl ps pwd quota quotaon quotaoff rep rlogin rm rmdir rsh
-rwho shl sleep sort spell split su tail talk tar te
-elnet touch tr tty umask
-uname uniq uucp uudecode
-uname uupick uustat
-uuto uux vacat
-at batch cal cancel
-cat
-ontab crypt
-espl
-fsck fup
-grep it
-T0Te
-mv news
-wd pr priocntl
-ota
-quotaon qu
-rm rmdir rsh rwho shl sleep sor
-su
-tail talk tar tee telnet touch tr tty umask uname uniq uue
-ecode
-uuencode uuglist uulog uuname uupick uustat uuto uux vacation vai volcopy
-wait wall wc who write ar at batch cal cancel cat cc cd chgrp chmod chown
-cmp comm compress cp cpio crontab crypt csplit cu cut date df diff dircmp
-dispadmin du echo file find finger fsck ftp grep id join kill labelit ln logname
-nohup od pack pcat
-unpcak passwd pr prio
-uotaoff rep rlogin rm
-rmdir rsh rwho shl sleep sort spell split su tail talk tar tee telnet toueh tr tty
-umask uname uniq uucp uudecode uuencode uuglist uulog uuname uupic
-<!-- OCR_END -->
+那本书叫《100 个 UNIX 最常用的指令》：封面从上到下铺满密密麻麻的命令名，底部画着键盘和鼠标，出版方是和硕科技文化有限公司。想表达的意思很直接——日常高频使用的命令也就百来个，不用被命令数量吓到。
 
-## Linux文件及目录管理命令
+---
+
+# 第二篇 · 文件及目录管理命令
+
+## 八、文件目录命令总览
+
+文件和目录管理最基础的六条命令：
 
 | 命令 | 对应英文 | 作用 |
 | --- | --- | --- |
@@ -349,26 +310,23 @@ umask uname uniq uucp uudecode uuencode uuglist uulog uuname uupic
 /            顶级根目录
 ```
 
-### *cd命令，变换目录*
+> 📌 这五个特殊路径是后面所有目录操作的基础，尤其是 `.`、`..`、`~`，务必记牢。
 
-cd是change directory的缩写，这是用来变换工作目录的命令，注意命令和目录之间有一个空格。
+## 九、cd 命令：切换目录
 
-<!-- OCR_START -->
-- J#Cd
-- 进入用户家目录
-- [rootelocalhost "]# pwd
-- 打印当前目录
-- /root
-- 没有加上路径，也代表进入家目录
-- 去往上一级目录
-- rootelocalhost/]#cd
-- 返回刚才的目录
-- [rootelocalhost "]#cd/home/
-- 进入/home目录
-- [rootelocalhost home]# cd../
-- 进入指定的上一层目录
-- rootelocalhost/]#
-<!-- OCR_END -->
+cd是change directory的缩写，这是用来变换工作目录的命令，注意命令和目录之间有一个空格。
+
+下面是超哥在终端里演示的几种常见用法，对照右侧说明看：
+
+| 执行的操作 | 作用 |
+| --- | --- |
+| `cd ~` | 进入用户家目录 |
+| `pwd`（输出 `/root`） | 打印当前目录 |
+| `cd` | 不加任何路径，也代表进入家目录 |
+| `cd ..` | 去往上一级目录 |
+| `cd -`（输出 `/root`） | 返回刚才的目录 |
+| `cd /home/` | 进入 /home 目录 |
+| `cd ../`（在 /home 下执行） | 进入指定的上一层目录 |
 
 需要注意的是，在所有目录底下都存在两个目录，分别是【.】和【..】，分别代表当前目录，上层目录！那么如何证明它的存在呢？
 
@@ -379,98 +337,53 @@ umask uname uniq uucp uudecode uuencode uuglist uulog uuname uupic
 ls -la /  以竖状格式化显示列出/目录所有内容
 ```
 
-<!-- OCR_START -->
-- rootelocalhost "l# 1s -la/
-- 命令
-- total 16
-- 两个目录
-- lr-xr-xr-x.
-- 17 root root
-- 224Ju11600:17
-- .当前
-- r-Xr
-- 一式
-- 224Ju116 08:17
-- 7Ju1 16 00:13 bin
-- 上一级
-- root root
-- -) usr/bin
-- 5 root root
-- 4096Ju1
-- 16 00:18 boot
-- 21
-- 3280Ju1
-- 16
-- 00:19 dev
-- rr-xr-X
-- 75
-- 8192 Ju1
-- etc
-- 2
-- 6Apr
-- 11
-- home
-- 1
-- 7Ju1
-- 1ib
-- usr/lib
-- 1 root root
-- 9Jul
-- 1ib64
-- ->usr/lib64
-- PLD
-- 2 root root
-- 6 Apr 11
-- med ia
-- mmt
-- -X
-- opt
-- 109 root root
-- 0Jul
-- proc
-- 114 Jul
-- 08:18 root
-- rDr-X-X.
-- 23 root root
-- 680 Ju1
-- 12:51run
-- rWrWxrWX.
-- 8Jul
-- 08:13 sbin
-- -> usr/sbin
-- lrwxr-xr-X.
-- sry
-- r-xr-xr-x.
-- 13 root root
-- Jul
-- sys
-- lrwrwxrwt.
-- 8 root root
-- 151Jul
-- tmp
-- 155 Jul
-- 00:13 usr
-- rwx-xr-x
-- 19 root root
-- 267Ju1 1600:19var
-<!-- OCR_END -->
+执行后的完整输出如下，注意最上面的 `.` 和 `..` 两行——任何目录下都有它们：
 
-### *tree命令*
+```plain
+[root@localhost ~]# ls -la /
+total 16
+dr-xr-xr-x.  17 root root  224 Jul 16 00:17 .
+dr-xr-xr-x.  17 root root  224 Jul 16 00:17 ..
+lrwxrwxrwx.   1 root root    7 Jul 16 00:13 bin -> usr/bin
+dr-xr-xr-x.   5 root root 4096 Jul 16 00:18 boot
+drwxr-xr-x.  21 root root 3280 Jul 16 00:19 dev
+drwxr-xr-x.  75 root root 8192 Jul 16 00:19 etc
+drwxr-xr-x.   2 root root    6 Apr 11 12:59 home
+lrwxrwxrwx.   1 root root    7 Jul 16 00:13 lib -> usr/lib
+lrwxrwxrwx.   1 root root    9 Jul 16 00:13 lib64 -> usr/lib64
+drwxr-xr-x.   2 root root    6 Apr 11 12:59 media
+drwxr-xr-x.   2 root root    6 Apr 11 12:59 mnt
+drwxr-xr-x.   2 root root    6 Apr 11 12:59 opt
+dr-xr-xr-x. 109 root root    0 Jul 16 00:19 proc
+dr-xr-x---.   2 root root  114 Jul 16 00:18 root
+drwxr-xr-x.  23 root root  680 Jul 16 12:51 run
+lrwxrwxrwx.   1 root root    8 Jul 16 00:13 sbin -> usr/sbin
+drwxr-xr-x.   2 root root    6 Apr 11 12:59 srv
+dr-xr-xr-x.  13 root root    0 Jul 16 00:19 sys
+drwxrwxrwt.   8 root root  151 Jul 16 12:51 tmp
+drwxr-xr-x.  13 root root  155 Jul 16 00:13 usr
+drwxr-xr-x.  19 root root  267 Jul 16 00:19 var
+```
 
-以树形结构显示目录下内容
+> 💡 这是 CentOS 7 的输出：`bin`、`sbin`、`lib`、`lib64` 都变成了软链接，指向 `usr/` 下的同名目录，所以你会看到 `bin -> usr/bin` 这样的箭头。
 
-<!-- OCR_START -->
-- 级目录1
-- 一级目录2
-- 二级目录2.1
-- 二级目录2.2
-- 级目录3
-- 二级目录3.1
-- 二级目录3.2
-- 二级目录3.3
-- 三级目录3.3.1
-- 三级目录3.3.2
-<!-- OCR_END -->
+## 十、tree 命令：树形展示
+
+以树形结构显示目录下内容。它展示的层级关系大致是这个样子：
+
+```plain
+.
+├── 一级目录1
+├── 一级目录2
+│   ├── 二级目录2.1
+│   └── 二级目录2.2
+└── 一级目录3
+    ├── 二级目录3.1
+    ├── 二级目录3.2
+    └── 二级目录3.3
+        ├── 三级目录3.3.1
+        └── 三级目录3.3.2
+```
 
 tree命令可能要单独安装：
 
@@ -486,7 +399,7 @@ tree常用参数
 -F 在条目后加上文件类型的指示符号(* ， /， = ， @ ， | ，其中的一个) 目录/
 ```
 
-### *ls命令*
+## 十一、ls 命令：查看目录内容
 
 显示目录下内容及属性信息的命令
 
@@ -519,80 +432,18 @@ ls -d */    列出当前所有目录
 ll -hS    ./*    显示出当前目录下所有内容详细，且以kb,mb,gb单位从大到小排序
 ```
 
-<!-- OCR_START -->
-- [root@pylinuxbin]#ls-F
-- 深蓝色以/结尾是文件夹
-- 浅蓝色且结尾是@代表是链接文件
-- 2to3@
-- f2py3.7*
-- imageio_remove_bin*
-- python3.7m-config*
-- tango_monitor
-- taurusimage*
-- 2to3-3.7*
-- fandango*
-- pasteurize*
-- python3-config@
-- tango_property*
-- tauruspanel*
-- CopyCatDS*
-- flask*
-- pip3*
-- pyvenv@
-- tango_servers*
-- taurusplot*
-- csv2tango*
-- FolderDs*
-- pip3.7*
-- pyvenv-3.7*
-- taurusconfigbrowser*
-- taurustestsuite*
-- ctds*
-- folder-gui*
-- -pycache
-- sardanact*
-- tauruscurve*
-- taurustrend*
-- django-admin*
-- futurize*
-- pydoc3@
-- skivi*
-- taurusdemo*
-- taurustrend1d*
-- django-admin.py
-- glances*
-- pydoc3.7*
-- sqlformat*
-- taurusdesigner*
-- taurustrend2d*
-- DynamicDS*
-- heiheihei白色普通文件
-- python3@
-- tango2csv*
-- taurusdevicepanel*
-- virtualenv*
-- easy_install-3.7*
-- idle3@
-- python3.7*
-- tango2json*
-- taurusform*
-- WorkerDs*
-- f2py*
-- idle3.7*
-- python3.7-config@
-- tango_cleanup*
-- taurusgui*
-- f2py3*
-- imageio_download_bin*
-- tango_host*
-- taurusiconcatalog*
-- [root@pylinux
-- bin]#
-- 绿色且结尾是*代表可执行文件
-- [root@pylinux bin]#
-<!-- OCR_END -->
+加上 `-F` 参数后，终端会用颜色和结尾符号直接告诉你文件类型。下图是某 bin 目录下执行 `ls -F` 的效果，归纳如下：
 
-### *mkdir命令*
+| 颜色与结尾 | 文件类型 | 图中例子 |
+| --- | --- | --- |
+| 深蓝色、以 `/` 结尾 | 文件夹 | __pycache__/ |
+| 浅蓝色、以 `@` 结尾 | 链接文件（软链接） | 2to3@、python3-config@、pyvenv@、pydoc3@、python3@、idle3@、python3.7-config@ |
+| 绿色、以 `*` 结尾 | 可执行文件 | f2py3.7*、flask*、pip3*、fandango*、django-admin*、glances*、virtualenv*、taurusgui* 等 |
+| 白色、无特殊符号 | 普通文件 | heiheihei、django-admin.py |
+
+> ⚠️ 注意 `django-admin.py` 虽然名字带 `.py`，但在图中是普通文件；文件类型看权限位和颜色，不靠后缀名判断，这点和 Windows 不一样。
+
+## 十二、mkdir 命令：创建目录
 
 创建文件夹
 
@@ -612,42 +463,45 @@ mkdir alex{1..5}    创建连续的目录
 mkdir cunzhang longting  创建少量连续目录
 ```
 
-<!-- OCR_START -->
-- [root@pylinuxtmp]#mkdiralex{1..5}
-- [root@pylinuxtmp]# ls
-- 创建大量连续的文件夹
-- alex1alex2alex3
-- alex4
-- alex5
-- [root@pylinuxtmp]#
-- [root@pylinux tmp]#mkdir{alex,pyyu,mjj}
-- 创建少量文件夹
-- alexalex1
-- alex2
-- alex3
-- alex4alex5
-- 5mjjpyyu
-- [root@pylinux tmp]#mkdircunzhang longting
-- alex2alex3
-- cunzhang longtingmjj pyyu
-- [root@pylinuxtmp]#mkdir-p./boy/{mjj,cunzhang}./girl/{longting}
-- 递归创建文件夹
-- boy
-- cunzhang girllongting mjj pyyu
-- [root@pylinuxtmp]#tree
-- alex
-- alex1
-- cunzhang
-- boy底下有 cunzhang、mj
-- mjj
-- girl
-- {longting}
-- girl底下有longting
-- pyyu
-- 15directories,0files
-<!-- OCR_END -->
+在终端里逐条执行，再配合 `ls` 和 `tree` 看结果，过程如下：
 
-### *touch命令*
+```plain
+[root@pylinux tmp]# mkdir alex{1..5}
+[root@pylinux tmp]# ls
+alex1  alex2  alex3  alex4  alex5
+[root@pylinux tmp]# mkdir {alex,pyyu,mjj}
+[root@pylinux tmp]# ls
+alex  alex1  alex2  alex3  alex4  alex5  mjj  pyyu
+[root@pylinux tmp]# mkdir cunzhang longting
+[root@pylinux tmp]# ls
+alex  alex1  alex2  alex3  alex4  alex5  cunzhang  longting  mjj  pyyu
+[root@pylinux tmp]# mkdir -p ./boy/{mjj,cunzhang} ./girl/{longting}
+[root@pylinux tmp]# ls
+alex  alex1  alex2  alex3  alex4  alex5  boy  cunzhang  girl  longting  mjj  pyyu
+[root@pylinux tmp]# tree
+.
+├── alex
+├── alex1
+├── alex2
+├── alex3
+├── alex4
+├── alex5
+├── boy
+│   ├── cunzhang
+│   └── mjj
+├── cunzhang
+├── girl
+│   └── {longting}
+├── longting
+├── mjj
+└── pyyu
+
+15 directories, 0 files
+```
+
+> 💡 注意最后那个目录名真的是 `{longting}`：花括号里只有一个元素时不会做"展开"，bash 会把大括号原样当成目录名。想得到 `longting`，直接写 `./girl/longting` 即可，别手多加花括号。
+
+## 十三、touch 命令：创建文件 / 修改时间戳
 
 创建文件或修改文件时间戳
 
@@ -665,24 +519,15 @@ touch {a..z}
 
 案例
 
-<!-- OCR_START -->
-- root@pylinuxtmp]#touch{1..5}
-- [root@pylinuxtmp]#
-- [root@pylinuxtmp]#touchalex{1..5}
-- [root@pylinux tmp]# touch {001..5}
-- Troot@pylinuxtmpl#ls
-- 001
-- 002003
-- 004
-- 005
-- 2
-- 3
-- 5
-- alex1
-- alex2
-- alex3
-- alex4alex5
-<!-- OCR_END -->
+用花括号一次性批量创建文件，`ls` 查看结果：
+
+```plain
+[root@pylinux tmp]# touch {1..5}
+[root@pylinux tmp]# touch alex{1..5}
+[root@pylinux tmp]# touch {001..5}
+[root@pylinux tmp]# ls
+001  002  003  004  005  1  2  3  4  5  alex1  alex2  alex3  alex4  alex5
+```
 
 ```plain
 修改文件时间
@@ -690,7 +535,9 @@ touch -t 06010808 alex1    #修改alex1文件的时间是 6月1号8点8分
 touch -r alex1 alex2        #把alex2的时间改成alex1一样
 ```
 
-### *cp复制*
+> 💡 `{001..5}` 这种写法会自动补零，生成 `001`、`002` 这样等宽的文件名，批量排序时特别好用。
+
+## 十四、cp 命令：复制
 
 复制命令
 
@@ -702,13 +549,7 @@ ctrl + c 复制
 ctrl + v 黏贴
 ```
 
-<!-- OCR_START -->
-- 鼠标右击
-- 复制
-- 粘贴
-- windows
-- 放马过来
-<!-- OCR_END -->
+Windows 下还可以用鼠标右键点"复制"、再右键点"粘贴"，图形化操作非常直观。Linux 里没有这两个快捷键，复制要靠 `cp` 命令。
 
 linux复制
 
@@ -769,7 +610,7 @@ luffyCity  luffyCity2
 取消cp别名的方式
 
 * 使用命令绝对路径
-* 命令开头用反斜线 \\
+* 命令开头用反斜线 \
 * 取消cp命令别名
 * 写入环境变量配置文件
 
@@ -796,27 +637,22 @@ alias mv='mv -i'
 
 快速备份配置文件
 
-<!-- OCR_START -->
-[root@pylinuxopt]#cp/etc/sysconfig/network-scripts/ifcfg-eth0/etc/sysconfig/network-scripts/ifcfg-eth0.bak
-[root@pylinuxopt]#
-路径重复了，可以省略写法
-源文件
-复制备份文件
-[root@pylinuxopt]#cp/etc/sysconfig/network-scripts/ifcfg-etho{,.origin}
-此为bash语法，大括号拆开如上的路径，再复制
-[root@pylinuxopt]#ls/etc/sysconfig/network-scripts/ifcfg-eth0
-ifcfg-eth0.origin
-简写方式备份了网卡配置文件
-ifcfg-etho
-ifcfg-etho.bak
-<!-- OCR_END -->
+修改配置前先备份是个救命的好习惯。网卡配置文件路径很长、源和目标路径又重复，可以这样写：
 
-### *mv命令*
+```plain
+[root@pylinux opt]# cp /etc/sysconfig/network-scripts/ifcfg-eth0 /etc/sysconfig/network-scripts/ifcfg-eth0.bak
+[root@pylinux opt]# cp /etc/sysconfig/network-scripts/ifcfg-eth0{,.origin}
+```
 
-<!-- OCR_START -->
-- 瞬间移动
-- 什么？移动命令？
-<!-- OCR_END -->
+第二条用的是 Bash 的大括号展开语法：`ifcfg-eth0{,.origin}` 会被拆成 `ifcfg-eth0` 和 `ifcfg-eth0.origin` 两个路径，一条命令完成备份。备份后该目录下能看到三个文件：
+
+```plain
+ifcfg-eth0   ifcfg-eth0.bak   ifcfg-eth0.origin
+```
+
+## 十五、mv 命令：移动与重命名
+
+下面这个命令能让文件"瞬间移动"——它就是 `mv`，负责移动文件，也负责给文件改名。
 
 ```plain
 mv命令就是move的缩写，作用是移动或是重命名文件
@@ -833,34 +669,38 @@ mv命令就是move的缩写，作用是移动或是重命名文件
 
 **mv移动|重命名**
 
-<!-- OCR_START -->
-- [root@pylinux tmp]# mkdir -p alex/dsb
-- root@pylinux tmp]#
-- [root@pylinuxtmp]# tree
-- alex
-- 当前/tmp目录下有个alex文件夹且，里面有个dsb文件夹
-- dsb
-- 2 directories,@
-- 0files
-- [root@pylinux tmp]# mkdir lufficity
-- 创建lufficity文件夹
-- [root@pylinux tmp]# mv alex/
-- lufficity/
-- [root@pylinux tmp]# ls
-- 将alex文件夹，放入luffycity内
-- [root@pylinux tmp]# ls lufficity/
-- 目标文件夹存在，则是移动
-- Troot@pylinux tmp]#
-- alex lufficity
-- 如果目标文件夹是不存在的
-- oldboy_alex/
-- lufficity oldboy_alex
-- mv命令作用就是
-- 重命名
-- [root@pylinux tmp]# ls oldboy_alex/
-- [root@pylinux
-- （ tmp]#
-<!-- OCR_END -->
+判断 mv 到底是"移动"还是"重命名"，关键看**目标文件夹存不存在**。先准备环境并演示"目标存在 → 移动"：
+
+```plain
+[root@pylinux tmp]# mkdir -p alex/dsb
+[root@pylinux tmp]# tree
+.
+└── alex
+    └── dsb
+
+2 directories, 0 files
+[root@pylinux tmp]# mkdir lufficity
+[root@pylinux tmp]# mv alex/ lufficity/
+[root@pylinux tmp]# ls
+lufficity
+[root@pylinux tmp]# ls lufficity/
+alex
+```
+
+目标文件夹存在，alex 被搬进了 lufficity 里面。再演示"目标不存在 → 重命名"：
+
+```plain
+[root@pylinux tmp]# mkdir -p alex/dsb
+[root@pylinux tmp]# ls
+alex  lufficity
+[root@pylinux tmp]# mv alex/ oldboy_alex/
+[root@pylinux tmp]# ls
+lufficity  oldboy_alex
+[root@pylinux tmp]# ls oldboy_alex/
+dsb
+```
+
+目标文件夹不存在，alex 直接改名叫 oldboy_alex，里面的 dsb 原样保留。
 
 mv案例
 
@@ -881,38 +721,26 @@ mv file1.txt file2.txt dir/
 mv dir/file*   ../
 ```
 
-<!-- OCR_START -->
-- [root@pylinux tmp]# touch caixukun
-- [root@pylinux t
-- tmp]#
-- [root@pylinux tmp]#
-- mvcaixukun
-- kunkun
-- 目标文件kunkun不存在
-- mv是改名作用
-- [root@pylinuxtmp]#ls
-- touch wuyifan
-- [root@pylinux tmp]# touch kuanmian
-- 目标文件kuanmian已存在
-- mv通过-i参数提示是否覆盖
-- [root@pylinux tmp]# mv wuyifan kuanmian
-- mv:
-- 是否覆盖"kuanmian"?
-<!-- OCR_END -->
+文件的改名和覆盖提示，终端里的实际效果如下：
 
-### *rm命令*
+```plain
+[root@pylinux tmp]# touch caixukun
+[root@pylinux tmp]# mv caixukun kunkun
+[root@pylinux tmp]# ls
+kunkun
+[root@pylinux tmp]# touch wuyifan
+[root@pylinux tmp]# touch kuanmian
+[root@pylinux tmp]# mv wuyifan kuanmian
+mv: 是否覆盖"kuanmian"?  n
+```
+
+目标文件 kunkun 不存在，mv 起改名作用；目标文件 kuanmian 已存在，默认的 `-i` 参数会提示是否覆盖。
+
+## 十六、rm 命令：删除
 
 Linux在使用rm（删除）、cp（覆盖）、mv（搬家）等命令的时候，必须非常小心，因为这些命令都是“炸弹”，想必大家都听过“删库到跑路”，一言不合“rm -rf /”，假如你真的这么做了，那么。。。上帝保佑你
 
-
-
-<!-- OCR_START -->
-> 从现在开始
-> 炒鱿鱼
-> 你不用再请假了
-<!-- OCR_END -->
-
-
+网上有张漫画特别贴切：老板怒气冲冲举着手机对员工吼——"从现在开始，你不用再请假了！"没错，你被炒鱿鱼了。乱敲删除命令，真的可能是这个下场。
 
 ```plain
 用法：rm [选项]... 文件...
@@ -965,11 +793,19 @@ rm -rf 文件夹
 已删除目录："./q"
 ```
 
+> ⚠️ `rm -rf` 默认不进回收站、删除即释放。敲回车前至少检查两件事：路径写没写对（尤其有没有多余空格）、当前在哪个目录。生产环境里涉及删除，先 `pwd` 和 `ls` 确认目标再动手。
+
 **注意文件恢复**
 
 rm命令删除文件后可以通过如ext3grep工具恢复数据，若是想要粉碎文件，还有其他方式
 
-## Linux帮助命令
+> 💡 所谓"恢复"有很强的前提：删除后该分区没有再写入新数据、文件系统类型受支持，而且很多时候要先把磁盘 umount 下来做只读分析。所以别指望删除后都能救回来，事前备份永远比事后恢复靠谱。
+
+---
+
+# 第三篇 · 帮助、开关机与 Shell 基础
+
+## 十七、Linux 帮助命令
 
 *man帮助命令*
 
@@ -983,42 +819,14 @@ man  ls
 进入man帮助文档后，按下q退出
 ```
 
-<!-- OCR_START -->
-- 老男孩教育出品-如何使用Linux的man手册
-- CP(1)
-- User
-- Commands
-- NAME
-- 命令一
-- 一句话简介
-- CP
-- copy
-- filesanddirectories
-- SYNOPSIS（命令格式）
-- cp [OPTION]..
-- [-T] SOURCE DEST
-- 命令的格式
-- 中括号里面的内容可以省略
-- [OPTION]...
-- SOURCE...DIRECTORY
-- -tDIRECTORYSOURCE.
-- DESCRIPTION（描述）
-- Copy SOURCE toDEST,or multipleSOURCE(s)toDIRECTORY.
-- 命令的详细说明
-- Mandatoryargumentstolongoptionsaremandatoryforshortoptionstoo.
-- a，
-- --archive
-- sameas
-- -dR
-- --preserve-all
-- --backup[=CONTROL]
-- makeabackupofeachexistingdestinationfile
-- 命令的参数
-- -b
-- like--backupbutdoesnotacceptanargument
-- -copy-contents
-- copycontentsofspecialfileswhenrecursive
-<!-- OCR_END -->
+打开 `man cp` 后，手册内容按固定栏目分区，对照下图看：
+
+| man 手册栏目 | 内容 |
+| --- | --- |
+| NAME | 命令一句话简介，如 `cp - copy files and directories` |
+| SYNOPSIS（命令格式） | 列出 `cp [OPTION]... [-T] SOURCE DEST` 等写法，**中括号里的内容可以省略** |
+| DESCRIPTION（描述） | 命令的详细说明，如 `Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY.` |
+| 参数列表 | 逐个解释选项，如 `-a, --archive`、`-b`、`--copy-contents` 等 |
 
 *使用--help参数*
 
@@ -1050,7 +858,9 @@ info 命令
 互联网有很多在线linux中文文档网站
 ```
 
-## Linux开关机命令
+> 💡 四种获取帮助的优先级建议：先试 `命令 --help`（最快）；看不懂再 `man 命令`（最全）；`help` 只对 cd、echo 这类 bash 内置命令有效；`info` 内容更庞大，入门阶段用得少。判断是不是内置命令，可以用 `type 命令名`。
+
+## 十八、Linux 开关机命令
 
 *shutdown重启或者关机*
 
@@ -1109,7 +919,9 @@ halt 关机
 | logout | 注销退出当前用户 |
 | exit | 注销退出当前用户，快捷键ctrl + d |
 
-## Linux命令行常用快捷键
+> ⚠️ 这些命令自己练习时可以敲；远程登录到真实服务器上，绝不能随手执行关机/重启，必须先评估业务影响并走确认流程。`shutdown -h 1` 这种"延时执行"的如果后悔了，可以用 `shutdown -c` 取消。
+
+## 十九、Linux 命令行常用快捷键
 
 ```plain
 ctrl + c     cancel取消当前操作
@@ -1120,7 +932,9 @@ ctrl + e    光标移到行尾
 ctrl + u  删除光标到行首的内容
 ```
 
-## Linux的环境变量
+> 💡 补充两个同样高频的：`ctrl + w` 删除光标前的一个单词；`ctrl + r` 搜索历史命令，输关键字就能翻出以前敲过的长命令。
+
+## 二十、Linux 的环境变量
 
 同学们应该都会配置windows下的环境变量（PATH），都知道系统会按照PATH的设定，去每个PATH定义的目录下搜索可执行文件。
 
@@ -1135,13 +949,14 @@ $符号后面跟上PATH,表示输出PATH的变量
 
 PATH(一定是大写的)这个变量是由一堆目录组成，分隔符是":"号，而不同于windows的";"号。
 
-<!-- OCR_START -->
-[root@luffycity~]#echo$PATH
+```plain
+[root@luffycity ~]# echo $PATH
 /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
-[root@luffycity~]#
-<!-- OCR_END -->
+```
 
-## 绝对路径与相对路径
+> 💡 为什么敲 `ls` 不用写全 `/usr/bin/ls`？因为系统会按 PATH 中目录的先后顺序去找可执行文件，找到了就执行。如果自己写的脚本"命令找不到"，十有八九是脚本所在目录不在 PATH 里——可以用全路径执行，或把目录加进 PATH。
+
+## 二十一、绝对路径与相对路径
 
 Linux中非常重要的概念--路径，路径用来定位如何找到某个文件。
 
@@ -1151,7 +966,9 @@ Linux中非常重要的概念--路径，路径用来定位如何找到某个文�
 
 1.先坐飞机来中国北京，从北京机场坐地铁到沙河地铁站，然后走路800米到沙河汇德商厦，上四楼，找到超哥，结束寻路。
 
-　　2. 超哥就在汇德商厦403办公室，武佩奇后面坐着呢！！！
+　　2. 超哥就在汇德商厦403办公室，武佩奇后面坐着呢！！！
+
+第一种说法从"中国北京"这个唯一起点一步步描述，相当于**绝对路径**；第二种说法拿"你现在的位置"当参照，相当于**相对路径**。
 
 Linux下特别注意文件名/路径的写法，可以将所谓的路径(path)定义为绝对路径(absolute)和相对路径(relative)。这两种文件名/路径的写法依据是这样的：
 
@@ -1165,109 +982,123 @@ Linux下特别注意文件名/路径的写法，可以将所谓的路径(path)�
 1. cd /var/log (绝对路径)
 2. cd ../var/log(相对路径)
 
-结果如图：
-
 因为你在/home底下，因此你要回到上一层(../)之后，才能继续前往/var，特别注意：
 
 * . :代表当前的目录，也可以用./ 来表示
 * .. :代表上一层的目录，也可以用../来表示
 
-<!-- OCR_START -->
-- [root@python_linux home]# pwd
-- 打印当前位置
-- /home
-- ..
-- 相对路径
-- [[root@python_linux home]# cd ../var/log
-- [[root@python_linux log]# pwd
-- 进入/var/log目录
-- /var/log
-- [root@python_linux log]#
-<!-- OCR_END -->
+先看相对路径的执行过程：
 
-<!-- OCR_START -->
-[[root@python_linux home]# pwd
+```plain
+[root@python_linux home]# pwd
 /home
-[[root@python_linux home]# cd /var/log
-使用绝对路径，切换目录
-[[root@python_linux log]# pwd
+[root@python_linux home]# cd ../var/log
+[root@python_linux log]# pwd
 /var/log
-<!-- OCR_END -->
+```
 
-# Linux系统文件与启动流程
+再看绝对路径的写法——不管当前在哪，从 `/` 出发永远不会错：
+
+```plain
+[root@python_linux home]# pwd
+/home
+[root@python_linux home]# cd /var/log
+[root@python_linux log]# pwd
+/var/log
+```
+
+> 📌 一句话区分：**以 `/` 开头的是绝对路径，以 `.`、`..` 或文件名直接开头的是相对路径。** 写脚本时优先用绝对路径，换个目录执行也不会找不到文件。
+
+---
+
+# 第四篇 · 系统文件与启动流程
+
+## 二十二、系统重要文件路径
 
 ### /etc初始化系统重要文件
 
-* /etc/sysconfig/network-scripts/ifcfg-eth0:网卡配置文件
-* /etc/resolv.conf:Linux系统DNS客户端配置文件
-* /etc/hostname (CentOS7) /etc/sysconfig/network:(CentOS 6)主机名配置文件
-* /etc/hosts:系统本地的DNS解析文件
-* /etc/fstab:配置开机设备自动挂载的文件
-* /etc/rc.local:存放开机自启动程序命令的文件
-* /etc/inittab:系统启动设定运行级别等配置的文件
-* /etc/profile及/etc/bashrc:配置系统的环境变量/别名等的文件
-* /etc/profile.d:用户登录后执行的脚本所在的目录
-* /etc/issue和/etc/issue.net:配置在用户登录终端前显示信息的文件
-* /etc/init.d:软件启动程序所在的目录(centos 6)
-* /usr/lib/systemd/system/ 软件启动程序所在的目录(centos 7)
-* /etc/motd:配置用户登录系统之后显示提示内容的文件
-* /etc/redhat-release:声明RedHat版本号和名称信息的文件
-* /etc/sysctl.conf:Linux内核参数设置文件
+`/etc` 下集中了系统和服务的配置文件，下面这些是运维排查时最常打交道的：
+
+| 文件路径 | 作用 |
+| --- | --- |
+| /etc/sysconfig/network-scripts/ifcfg-eth0 | 网卡配置文件 |
+| /etc/resolv.conf | Linux系统DNS客户端配置文件 |
+| /etc/hostname (CentOS7) /etc/sysconfig/network:(CentOS 6) | 主机名配置文件 |
+| /etc/hosts | 系统本地的DNS解析文件 |
+| /etc/fstab | 配置开机设备自动挂载的文件 |
+| /etc/rc.local | 存放开机自启动程序命令的文件 |
+| /etc/inittab | 系统启动设定运行级别等配置的文件 |
+| /etc/profile及/etc/bashrc | 配置系统的环境变量/别名等的文件 |
+| /etc/profile.d | 用户登录后执行的脚本所在的目录 |
+| /etc/issue和/etc/issue.net | 配置在用户登录终端前显示信息的文件 |
+| /etc/init.d | 软件启动程序所在的目录(centos 6) |
+| /usr/lib/systemd/system/ | 软件启动程序所在的目录(centos 7) |
+| /etc/motd | 配置用户登录系统之后显示提示内容的文件 |
+| /etc/redhat-release | 声明RedHat版本号和名称信息的文件 |
+| /etc/sysctl.conf | Linux内核参数设置文件 |
 
 ### /proc重要路径
 
-/proc/meminfo:系统内存信息
+`/proc` 是内核和内存信息的"窗口"，排查 CPU、内存、负载问题时常读：
 
-/proc/cpuinfo:关于处理器的信息，如类型，厂家，型号，性能等
-
-/proc/loadavg:系统负载信息，uptime 的结果
-
-/proc/mounts:已加载的文件系统的列表
+| 文件路径 | 内容 |
+| --- | --- |
+| /proc/meminfo | 系统内存信息 |
+| /proc/cpuinfo | 关于处理器的信息，如类型，厂家，型号，性能等 |
+| /proc/loadavg | 系统负载信息，uptime 的结果 |
+| /proc/mounts | 已加载的文件系统的列表 |
 
 ### /var目录下文件
 
-/var/log:记录系统及软件运行信息文件所在的目录
+`/var` 下存放经常变化的东西，排查问题最先翻日志：
 
-/var/log/messages:系统级别日志文件
+| 文件路径 | 内容 |
+| --- | --- |
+| /var/log | 记录系统及软件运行信息文件所在的目录 |
+| /var/log/messages | 系统级别日志文件 |
+| /var/log/secure | 用户登录信息日志文件 |
+| /var/log/dmesg | 记录硬件信息加载情况的日志文件 |
 
-/var/log/secure:用户登录信息日志文件
+> 💡 实车排障时这几个文件是"老朋友"：系统服务报错看 `/var/log/messages`，怀疑有人登录或被爆破看 `/var/log/secure`，硬件没识别出来看 `dmesg` 和 `/var/log/dmesg`。
 
-/var/log/dmesg:记录硬件信息加载情况的日志文件
-
-## Linux开机启动流程
+## 二十三、Linux 开机启动流程
 
 作为一个运维人，必须得保障服务器正确工作，机器宕机了，也得明确是什么问题，从何查起，那么了解启动流程就能够对症下药，排查问题。
 
-<!-- OCR_START -->
-- 老男孩教育-Linux启动流程-CentOS6.x
-- 老男孩教育
-- oldboyedu.com
-- 启动mingetty显示登录界面运行
-- 按下电源
-- 明哥tty
-- mmware
-- 开机自检
-- C6开机自启动
-- 根据运行级别运行/etc/rc数字.d下面的脚本
-- 有问题
-- C6设置主机名
-- 读取/etc/rc.sysinit初始化系统
-- ip地址
-- MBR引导
-- 通过硬盘启动
-- C6运行级别
-- 读取/etc/inittab
-- 男孩教育
-- dboyedu.com
-- GRUB菜单
-- 加载内核
-- 运行INIT进程
-- 选择不同内核
-- C6第一个启动
-- C6单用户模式
-- 加载到内存
-- 的进程
-<!-- OCR_END -->
+### CentOS 6 启动流程
+
+CentOS 6 从按下电源到出现登录界面，整体流程如下：
+
+```plain
+按下电源
+  │
+  ▼
+开机自检（BIOS）
+  │
+  ▼
+MBR 引导
+  │
+  ▼
+GRUB 菜单（可以选择不同内核 / C6 单用户模式）
+  │
+  ▼
+加载内核（加载到内存）
+  │
+  ▼
+运行 INIT 进程（C6 第一个启动的进程）
+  │
+  ▼
+读取 /etc/inittab（确定 C6 运行级别）
+  │
+  ▼
+读取 /etc/rc.sysinit 初始化系统（设置主机名、IP 地址）
+  │
+  ▼
+根据运行级别运行 /etc/rc数字.d 下面的脚本（C6 开机自启动）
+  │
+  ▼
+启动 mingetty 显示登录界面，运行 login（明哥 tty）
+```
 
 * *BIOS自检*
 
@@ -1291,7 +1122,7 @@ grub 是 boot loader 中的一种，就 grub 来说，为了打破在 MBR 中只
 
 * *加载内核*
 
-内核(Kerenl)在得到系统控制权之后，首先要进行自身初始化，而初始化的主要作用是: 探测可识别到的所有硬件设备; 加载硬件驱动程序，即加载真正的根文件系统所在设备的驱动程序(有可能会借助于 ramdisk 加载 驱动); 以只读方式挂载根文件系统(如果有借助于 ramdisk 这个临时文件系统(虚根)，则在这一步之后 会执行根切换;否则不执行根切换); 运行用户空间的第一个应用程序:/sbin/init。 到这里内核空间的启动流程就结束了，而接下来是用户空间完成后续的系统启动流程。 注意:ramdisk 和内核是由 boot loader 一同加载到内存当中的，ramdisk 是用于实现系统初始化的、 基于内存的磁盘设备，即加载至内存(的某一段空间)后把内存当磁盘使用，并在内存中作为临时 根文件系统提供给内核使用，帮助内核挂载真正的根文件系统。而之所以能够帮助内核挂载根文件 系统是因为在 ramdisk 这个临时文件系统的/lib/modules 目录下有真正的根文件系统所在设备的驱动 程序;除此之外，这个临时文件系统也遵循 FHS，例如有这些固定目录结构:/bin, /sbin, /lib, /lib64, /etc, /mnt, /media, ... 因为 Linux 内核有一个特性就是通过使用缓冲/缓存来达到加速对磁盘上文件的访问的目的，而 ramdisk 是加载到内存并模拟成磁盘来使用的，所以 Linux 就会为内存中的“磁盘”再使用一层缓冲 /缓存，但是 ramdisk 本来就是内存，它只不过被当成硬盘来使用罢了，这就造成双缓冲/缓存了，而 且不会起到提速效果，甚至影响了访问性能;CentOS 5 系列以及之前版本的 ramdisk 文件为 initrd- VERSION-RELEASE.img，就会出现上述所说到的问题;而为了解决一问题，CentOS 6/7 系列版本就将其改为 initramfs-VERSION-RELEASE.img，使用文件系统的方式就可以避免双缓冲/缓存了，可 以说这是一种提速机制。
+内核(Kerenl)在得到系统控制权之后，首先要进行自身初始化，而初始化的主要作用是: 探测可识别到的所有硬件设备; 加载硬件驱动程序，即加载真正的根文件系统所在设备的驱动程序(有可能会借助于 ramdisk 加载 驱动); 以只读方式挂载根文件系统(如果有借助于 ramdisk 这个临时文件系统(虚根)，则在这一步之后 会执行根切换;否则不执行根切换); 运行用户空间的第一个应用程序:/sbin/init。 到这里内核空间的启动流程就结束了，而接下来是用户空间完成后续的系统启动流程。 注意:ramdisk 和内核是由 boot loader 一同加载到内存当中的，ramdisk 是用于实现系统初始化的、 基于内存的磁盘设备，即加载至内存(的某一段空间)后把内存当磁盘使用，并在内存中作为临时 根文件系统提供给内核使用，帮助内核挂载真正的根文件系统。而之所以能够帮助内核挂载根文件系统是因为在 ramdisk 这个临时文件系统的/lib/modules 目录下有真正的根文件系统所在设备的驱动 程序;除此之外，这个临时文件系统也遵循 FHS，例如有这些固定目录结构:/bin, /sbin, /lib, /lib64, /etc, /mnt, /media, ... 因为 Linux 内核有一个特性就是通过使用缓冲/缓存来达到加速对磁盘上文件的访问的目的，而 ramdisk 是加载到内存并模拟成磁盘来使用的，所以 Linux 就会为内存中的“磁盘”再使用一层缓冲 /缓存，但是 ramdisk 本来就是内存，它只不过被当成硬盘来使用罢了，这就造成双缓冲/缓存了，而 且不会起到提速效果，甚至影响了访问性能;CentOS 5 系列以及之前版本的 ramdisk 文件为 initrd- VERSION-RELEASE.img，就会出现上述所说到的问题;而为了解决一问题，CentOS 6/7 系列版本就将其改为 initramfs-VERSION-RELEASE.img，使用文件系统的方式就可以避免双缓冲/缓存了，可 以说这是一种提速机制。
 
 * *启动init进程*
 
@@ -1307,47 +1138,46 @@ inittab 文件里面定义了系统默认运行级别，这一步做了一些工
 
 激活 udev 和 selinux 可以在 grub.conf 中,kernel 行添加 selinux=0 以关闭 selinux; 挂载/etc/fstab 文件中定义的文件系统; 检测根文件系统，并以读写方式重新挂载根文件系统; 设置系统时钟;
 
-激活 swap 设备; 根据/etc/sysctl.conf 文件设置内核参数; 激活 lvm 及 software raid 设备; 加载额外设备的驱动程序; 清理操作。 /etc/rc\*.d/文件(各种服务) 里面定义的是各种服务的启动脚本，可以 ls 查看，S 开头代表开机启动的服务，K 开头的是关机要 执行的任务。#代表数字，一个数字代表一个运行级别，共 7 个运行级别。 /etc/rc.d/rc.local 文件 这里面可以自定义开机启动的命令。
+激活 swap 设备; 根据/etc/sysctl.conf 文件设置内核参数; 激活 lvm 及 software raid 设备; 加载额外设备的驱动程序; 清理操作。 /etc/rc*.d/文件(各种服务) 里面定义的是各种服务的启动脚本，可以 ls 查看，S 开头代表开机启动的服务，K 开头的是关机要 执行的任务。#代表数字，一个数字代表一个运行级别，共 7 个运行级别。 /etc/rc.d/rc.local 文件 这里面可以自定义开机启动的命令。
 
 * *执行/bin/login*
 
 执行/bin/login 程序，等待用户登录。
 
-### centos7启动流程
+### CentOS 7 启动流程
 
-<!-- OCR_START -->
-老男孩教育-Linux启动流程-CentOS7.x
-.e16.x86_640manx86_64
+CentOS 7 的前半段和 CentOS 6 基本一样，区别从第一个用户进程开始：`init` 换成了 `systemd`，后面的服务改为并行启动。整体流程：
+
+```plain
 按下电源
-启动login显示登录界面
-oldboyedu42-1nb1ogin:
-并行启动/usr/ib/systemd/system
-老男孩教育
-wmware
-开机自检
-并行启动
-(BIOS)
-各种服务
-letc/systemd/system/
-oldboyedu.com
-服务
-/usr/lib/systemd/system/runlevel0.target->poweroff.target
-/usr/lib/systemd/system/runlevel1.target->rescue.target
-MBR引导
-/usr/lib/systemd/system/runlevel2.target->multi-user.target
-读取运行级别
-target(7)
-multi-user.target
-/etc/systemd/system/default.target
-/usr/lib/systemd/system/runlevel3.target->multi-user.target
-/usr/lib/systemd/system/runlevel4.target->multi-user.target
-/usr/lib/systemd/system/runlevel5.target->graphical.target
-GRUB菜单
+  │
+  ▼
+开机自检（BIOS）
+  │
+  ▼
+MBR 引导
+  │
+  ▼
+GRUB 菜单
+  │
+  ▼
 加载内核
-systemd
-C7第一个启动
-的进程
-<!-- OCR_END -->
+  │
+  ▼
+systemd（C7 第一个启动的进程）
+  │
+  ▼
+读取运行级别 target(7)：/etc/systemd/system/default.target
+  │
+  ▼
+进入 multi-user.target
+  │
+  ▼
+并行启动 /usr/lib/systemd/system、/etc/systemd/system/ 下的各种服务
+  │
+  ▼
+启动 login 显示登录界面
+```
 
 CentOS7 和 CentOS6 启动流程差不多，只不过到 init 程序时候，改为了 systemd，因此详细解释一下 systemd 后的启动流程。
 
@@ -1378,6 +1208,10 @@ centos7的7个启动模式是：
 * systemd执行multi-user.target下的/etc/rc.d/rc.local。
 * Systemd 执行 multi-user.target 下的 getty.target 及登录服务;
 * systemd 执行 graphical 需要的服务。
+
+> 💡 传统 `init` 是一件一件串行启动服务，速度慢；`systemd` 按依赖关系并行启动，这是 CentOS 7 开机明显变快的主要原因。运维排查服务时，对应的命令也从 `service 服务名 status` 变成了 `systemctl status 服务名`。
+
+---
 
 > 更新: 2022-12-20 20:54:07  
 > 原文: <https://www.yuque.com/chengkanghua/awf7cm/sdeetr>
