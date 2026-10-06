@@ -132,7 +132,7 @@ ok
 已存在
 ```
 
-  
+
 -d 测试目录
 
 ```plain
@@ -226,7 +226,7 @@ check_nginx_status.sh  echo_var.sh   hello            learn_if.sh  special_var.s
 
 ### 变量测试
 所谓变量测试，在这里就是变量存储着文件名，效果还是一样的  
- 
+
 
 ```plain
 [root@chaogelinux shell_program]# [ -f $file1 ] && echo ok || echo no
@@ -260,7 +260,7 @@ no
 很多linux自带的shell脚本，都是大佬给你写好的参考模板，非常值得学习
 
 /etc/init.d/network  
- 
+
 
 ```plain
  16 # Source function library.
@@ -293,26 +293,19 @@ su_kill() {
 ## 字符串测试
 字符串是运维日常操作的数据类型，在脚本开发里用的也很多，例如判断两个字符串是否相等，字符串是否为空等
 
-<!-- OCR_START -->
-- 常用字符串测试操作符
-- 说明
+### 字符串测试
 
-```text
--n"字符串"
-若字符串的长度不为0，则为真，即测试表达式成立，n可以理解为nozero
--z"字符串"
-若字符串的长度为0，则为真，即测试表达式成立，z可以理解为zero的缩写
-"串1"="串2"
-若字符串1等于字符串2，则为真，即测试表达式成立，可使用“==”代替“=”
-"串1"!="串2"
-若字符串1不等于字符串2，则为真，即测试表达式成立，但不能用“!==”代替“!=”
-```
-<!-- OCR_END -->
+| 常用字符串测试操作符 | 说明 |
+|---|---|
+| `-n "字符串"` | 若字符串的长度不为0，则为真，n可以理解为nozero |
+| `-z "字符串"` | 若字符串的长度为0，则为真，z可以理解为zero的缩写 |
+| `"串1" = "串2"` | 若字符串1等于字符串2，则为真，可使用“==”代替“=” |
+| `"串1" != "串2"` | 若字符串1不等于字符串2，则为真，不能用“!==”代替“!=”
 
 上面超哥列出来的mysql脚本，正式用的该条件，对用户测试。
 
 注意官方的mysql脚本如何写的  
-   
+
 
 ```plain
 su_kill() {
@@ -377,7 +370,7 @@ ok
 no
 ```
 
-  
+
 判断不相等
 
 ```plain
@@ -437,26 +430,17 @@ ok
 ## 整数比较符测试
 我们在脚本开发中，会用到对数值的比较判断，也就是常见的大于，小于，等于之类
 
-<!-- OCR_START -->
-- 在[以及test中使用的比较符号
-- 在(())和[]]中使用的比较符号
-- 说明
-- -eq
-- ==或=
-- 相等，全拼为equal
-- -ne
-- !=
-- 不相等，全拼为notequal
-- -gt
-- 大于，全拼为 greater than
-- -ge
-- V=
-- 大于等于，全拼为 greaterequal
-- -1t
-- 小于，全拼为less than
-- -le
-- 小于等于，全拼为less equal
-<!-- OCR_END -->
+### 整数比较符测试
+在不同语法中的整数比较符号：
+
+| 比较符号 | 在[ ]和test中使用 | 在[[ ]]和(())中使用 | 说明 |
+|---|---|---|---|
+| `-eq` | 是 | 不能 | 相等，全拼为equal |
+| `-ne` | 是 | 不能 | 不相等，全拼为notequal |
+| `-gt` | 是 | 是 | 大于，全拼为 greater than |
+| `-ge` | 是 | 是 | 大于等于，全拼为 greaterequal |
+| `-lt` | 是 | 是 | 小于，全拼为less than |
+| `-le` | 是 | 是 | 小于等于，全拼为less equal |
 
 > 语法注意：在中括号里，数值条件测试，大于，小于号，需要用转义符号
 >
@@ -509,7 +493,7 @@ yes
 no
 ```
 
-  
+
 2.比较符，在双中括号的用法 [[]]
 
 ### 双中括号
@@ -579,18 +563,13 @@ yes
 ## 逻辑操作符
 逻辑运算，也就是生活里的 真，假概念
 
-<!-- OCR_START -->
-- 在[]和test中使用的操作符
-- 在[]]和（()）中使用的操作符
-- 说明
-- -a
-- &&
-- and，与，两端都为真，则结果为真
-- -0
-- 1
-- or，或，两端有一个为真，则结果为真
-- not，非，两端相反，则结果为真
-<!-- OCR_END -->
+### 逻辑操作符
+
+| 逻辑操作符 | 在[ ]和test中使用 | 在[[ ]]和(())中使用 | 说明 |
+|---|---|---|---|
+| `-a` | 是 | 不能 | and（与），两端都为真，则结果为真 |
+| `-o` | 是 | 不能 | or（或），两端有一个为真，则结果为真 |
+| `!` | 是 | 是 | not（非），两端相反，则结果为真 |
 
 > ! 取反，也就是结果相反的值
 >
@@ -713,7 +692,7 @@ read -p "pls input a char: " var1
 }
 ```
 
-  
+
 执行
 
 ```plain
@@ -867,45 +846,25 @@ The num you input must be {1|2|3}
 
 表参考
 
-<!-- OCR_START -->
-- 测试表达式符号
-- test
-- []]
-- (0)
-- 边界为是否需要空格
-- 需要
-- 不需要
-- 逻辑操作符
-- !、-a、-0
-- !、&&、
-- !、&&、II
-- -eq、-gt、-lt、-
-- -eq、-gt、-lt、-ge、-le
-- 、、、
-- >=
-- 整数比较操作符
-- ge、-le
-- 或=、>、、>=、<=
-- <n
-- 字符串比较操作符
-- =、==、!=
-- =、==、=
-- 不支持
-- 支持
-- 是否支持通配符匹配
-<!-- OCR_END -->
+### 条件测试语法对比表
+
+| 测试类型 | test | [ ] | [[ ]] | (()) |
+|---|---|---|---|---|
+| 边界是否需要空格 | 是 | 是 | 是 | 否 |
+| 逻辑操作符 | !、-a、-o | !、-a、-o | !、&&、\|\| | !、&&、\|\| |
+| 整数比较操作符 | -eq、-ne、-gt、-ge、-lt、-le | -eq、-ne、-gt、-ge、-lt、-le | -gt、-ge、-lt、-le、==、!= | ==、!=、>、<、>=、<= |
+| 字符串比较操作符 | =、==、!= | =、==、!= | =、==、!= | ==、!= |
+| 是否支持通配符匹配 | 不支持 | 不支持 | 支持 | 不支持 |
 
   
- 
+
 
 # if语句
 
-<!-- OCR_START -->
-- 如果你有我一半帅，那
-- 么你就不可能单身了
-<!-- OCR_END -->
+if语句是shell中最常用的条件控制语句，用于根据条件执行不同的命令。
 
   
+
  if在脚本开发中用的特别多，最频繁的语句，让超哥带你起飞吧！
 
 语法
@@ -929,13 +888,6 @@ The num you input must be {1|2|3}
 
 条件表达式，可以是超哥所教的[] test [[]] (())都可以。
 
-<!-- OCR_START -->
-- 开始
-- ifthen
-- 条件表达式
-- 命令集
-- f结束
-<!-- OCR_END -->
 
 ## 双分支
 ```plain
@@ -968,15 +920,6 @@ else
 fi
 ```
 
-<!-- OCR_START -->
-- 开始
-- else
-- 条件表达式
-- then
-- 命令集1
-- 命令集2
-- 五结束
-<!-- OCR_END -->
 
 ## 多个分支
 多个分支，就是当你需要多次逻辑判断，就会用到
@@ -1012,18 +955,6 @@ else
 fi
 ```
 
-<!-- OCR_START -->
-- 开始
-- elif
-- else
-- 条件表达式
-- 条件表达式2
-- then
-- 命令集1
-- 命令集2
-- 命令集3
-- 结束
-<!-- OCR_END -->
 
   
 
@@ -1061,7 +992,7 @@ if test -f /etc/hosts
 fi
 ```
 
-  
+
 执行
 
 ```plain
@@ -1155,7 +1086,7 @@ yes,4 grather than 3
 yes,1 less than 3
 ```
 
-  
+
 多分支脚本
 
 ```plain
@@ -1615,30 +1546,6 @@ Hello~pyyu
 你给脚本传入的参数依次是：yu 、chao、heihei、参数个数一共：3
 ```
 
-图解  
-
-<!-- OCR_START -->
-修改自定义函数的文件
-[root@chaogelinux
-shell_program]# cat my_func.sh
-#!/bin/bash
-pyyu(){
-echo "Hello~pyyu"
-helloPyyu(){
-echo
-你给脚本传入的参数依次是：$1、$2、$3、参数个数一共：$#"
-开发执行函数的脚本func2.sh
-[root@chaogelinux shell_program]# cat func2.sh
-#判断该文件是否存在，在则加载，否则退出
-[ -f /shell_program/my_func.sh ] && . /shell_program/my_func.sh Il exit
-#读取该文件后，该文件中定义的函数，会被加载到当前shell环境
-#可以执行自定义的函数
-#执行第二个函数，且给函数传入参数
-helloPyyu $1 $2 $3
-执行脚本
-[root@chaogelinux shell_program]# bash func2.sh yu chao heihei
-你给脚本传入的参数依次是：yu、chao、heihei、参数个数一共：3
-<!-- OCR_END -->
 
   
 
@@ -1800,19 +1707,10 @@ main $*
 
 ```plain
 [root@chaogelinux shell_program]# bash check_url_func3.sh www.pythonav.cn
-www.pythonav.cn is yes.                                    [  确定  ]
-
-[root@chaogelinux shell_program]# bash check_url_func3.sh www.pythonav.cnw
-www.pythonav.cnw is no.                                    [失败]
-```
-
-<!-- OCR_START -->
-[root@chaogelinux shell_program]# bash check_url_func3.sh www.pythonav.cn
 www.pythonav.cn is yes.
-[确定]
-www.pythonav.cnwisno.
-[失败]
-<!-- OCR_END -->
+[root@chaogelinux shell_program]# bash check_url_func3.sh www.pythonav.cnw
+www.pythonav.cnw is no.
+```
 
 ## 开发rsync起停脚本
 当然超哥这里讲的是函数版本  
@@ -1913,11 +1811,6 @@ rsyncd is started.                                         [  确定  ]
 ## case语句开发
 
 
-<!-- OCR_START -->
-> 超哥要开始讲CASE语句了
-<!-- OCR_END -->
-
-
 
 case语句用在当脚本中需要频繁使用if、elif、else时候，能够简化繁琐的if判断。
 
@@ -1958,29 +1851,27 @@ case "找老公" in
 esac
 ```
 
-图解
-
-<!-- OCR_START -->
-- 开始
-- case“变量”
-- 匹配值1
-- 假→匹配值2
-- 假一>匹配值3
-- 假—
-- 匹配
-- 命令集1
-- 命令集2
-- 命令集3
-- 命令集4
-- esac结束
-<!-- OCR_END -->
 
   
- 
 
-## case条件语句实践
-猜用户输入的数字
 
+### case语句语法
+case语句用于多分支条件判断，适合变量值为固定字符或数字的情况，语法如下：
+
+```plain
+case "变量" in 
+    值1)
+        代码1
+        ;;
+    值2)
+        代码2
+        ;;
+    *)
+        匹配默认值的代码
+esac
+```
+
+**案例：猜用户输入的数字**
 ```plain
 [root@chaogelinux shell_program]# cat case_1.sh
 #!/bin/bash
@@ -2088,21 +1979,22 @@ main(){
 main
 ```
 
-<!-- OCR_START -->
-- [root@chaogelinux shell_program]# bash case_menu.sh
-- 1.apple
-- 2.banana
-- 3.orange
-- 请选择一种水果：a
-- Usage: case_menu.sh {1121314}
-- [root@chaogelinux shell_program]#
-- 请选择一种水果：1
-- allple
-- 请选择一种水果：2
-- pear
-- 请选择一种水果：3
-- banana
-<!-- OCR_END -->
+执行结果：
+
+```plain
+[root@chaogelinux shell_program]# bash case_menu.sh
+        1.apple
+        2.banana
+        3.orange
+请选择一种水果：a
+Usage: case_menu.sh {1|2|3|4}
+请选择一种水果：1
+allple
+请选择一种水果：2
+pear
+请选择一种水果：3
+banana
+```
 
 ### Linux系统脚本范例
 case主要还是用于起停脚本，适合变量值较少，且为固定数字或字符的情况。
@@ -2311,22 +2203,6 @@ do
 done
 ```
 
-<!-- OCR_START -->
-- While循环开始
-- While循环条件
-- 表达式
-- 持续
-- 循环，
-- do
-- 直到
-- 条件
-- 表达
-- 式不
-- 命令集
-- 满足
-- done
-- done结束
-<!-- OCR_END -->
 
 ## until循环
 until循环和while循环类似，但是until是直到的含义
@@ -2399,26 +2275,17 @@ done
 + nohup command &
 + screen命令保持会话
 
-<!-- OCR_START -->
-- 用法
-- 说明
-- sh while1.sh &
-- 把脚本while1.sh放到后台执行（在后台运行脚本时常用的方法）
-- ctl+c
-- 停止执行当前脚本或任务
-- ctl+z
-- 暂停执行当前脚本或任务
-- bg
-- 把当前脚本或任务放到后台执行，bg可以理解为background
-- 把当前脚本或任务放到前台执行，如果有多个任务，可以使用fg加任务编号调出对应
-- fg
-- 的脚本任务，如fg2，是指调出第二个脚本任务，fg可以理解为frontground
-- jobs
-- 查看当前执行的脚本或任务
-- 关闭执行的脚本任务，即以“kill%任务编号”的形式关闭脚本，这个任务编号，可以
-- kill
-- 通过jobs来获得
-<!-- OCR_END -->
+### 后台任务管理命令
+
+| 命令 | 说明 |
+|---|---|
+| `command &` | 将脚本或命令放到后台执行 |
+| `ctrl + c` | 停止执行当前脚本或任务 |
+| `ctrl + z` | 暂停执行当前脚本或任务 |
+| `bg` | 将暂停的任务放到后台继续执行（background） |
+| `fg %n` | 将后台任务编号为n的任务调到前台执行（frontground） |
+| `jobs` | 查看当前执行的脚本或任务列表 |
+| `kill %n` | 关闭编号为n的后台任务 |
 
 ## 进程管理命令
 + Kill,killall,pkill
@@ -2474,7 +2341,7 @@ do
 done
 ```
 
-  
+
 脚本传递数字
 
 ```plain
@@ -2737,21 +2604,6 @@ echo "${1}:total: ${sum}bytes=`echo $((${sum}/1024))`KB"
 
 分布式拒绝服务（DDoS）攻击是通过大规模互联网流量淹没目标服务器或其周边基础设施，以破坏目标服务器、服务或网络正常流量的恶意行为。
 
-<!-- OCR_START -->
-- DDoS攻击示意图
-- 装有DDoS攻击程序的
-- 主机
-- 二级肉鸡，它接受从跳
-- 跳板肉鸡
-- 板肉鸡发送的命令，执
-- 行对服务器的攻击
-- 29
-- 被攻击
-- 服务器
-- 黑客
-- 受害者
-<!-- OCR_END -->
-
 > 作为运维，也需要从一些基础手段，减少服务器被恶意访问，减轻服务器的压力
 >
 > 思路：
@@ -2794,13 +2646,6 @@ done
 # 06_for循环开发
 ## for循环
 
-
-<!-- OCR_START -->
-> for循环很强大
-<!-- OCR_END -->
-
-
-
 for循环语句和while循环类似，但是for主要用于有次数限制的循环，而不是无限循环。
 
 ### 语法
@@ -2832,21 +2677,6 @@ do
 done
 ```
 
-<!-- OCR_START -->
-- for循环开始
-- for循环条件表达式
-- 持续
-- 循环,
-- do
-- 直到
-- 条件
-- 表达
-- 式不
-- 命令集
-- 满足
-- done
-- 结束
-<!-- OCR_END -->
 
 示例
 
@@ -3273,7 +3103,7 @@ d52ff363
 edd7711a-e79b-402c-8014-0beb00df3329
 ```
 
-  
+
 UUID意思是全球通用唯一识别码，其作用是让分布式系统中所有元素都有唯一的辨识信息，它能够使得网络中的任意一台机器都有唯一的UUID编码，因为加入了硬件、时间、机器运行状态等信息计算得出。
 
 # 07_ shell循环控制语句
@@ -3295,28 +3125,8 @@ exit用于终止所有语句，退出当前脚本，以及给当前shell返回�
 
 return只用在函数内，返回函数执行的状态值
 
-<!-- OCR_START -->
-命令
-说明
-break n
-如果省略n，则表示跳出整个循环，n表示跳出循环的层数
-如果省略n，则表示跳过本次循环，忽略本次循环的剩余代码，进人循环的下一次循环。
-continue n
-n表示退到第n层继续循环
-退出当前Shell程序，n为上一次程序执行的状态返回值。n也可以省略，在下一个Shell
-exit n
-里可通过“$?”接收exitn的n值
-用于在函数里作为函数的返回值，以判断函数执行是否正确。在下一个Shell里可通过
-return n
-“$?”接收exitn的n值
-<!-- OCR_END -->
-
 ## 图解循环控制
 break解释
-
-<!-- OCR_START -->
-- while循环开始
-- for循环开始
 - while循环条件表达式
 - for循环条件表达式
 - 持续
@@ -3333,35 +3143,10 @@ break解释
 - 命令集2
 - done
 - 循环结束
-<!-- OCR_END -->
 
 continue解释
 
-<!-- OCR_START -->
-- while循环开始
-- for循环开始
-- while循环条件表达式
-- for循环条件表达式
-- 持续
-- 循环，
-- 直到
-- 条件
-- do
-- 表达
-- 式不
-- 满足
-- 命令集1
-- 终止本次循
-- 命令集2
-- 环，继续下
-- 一次循环
-- done
-- 循环结束
-<!-- OCR_END -->
-
 exit解释
-
-<!-- OCR_START -->
 - while循环开始
 - for循环开始
 - while循环条件表达式
@@ -3373,14 +3158,6 @@ exit解释
 - 条件
 - 命令集1
 - 表达
-- 退出脚本
-- 式不
-- exit
-- 满足
-- 命令集2
-- done
-- 循环结束
-<!-- OCR_END -->
 
 ## 实践
 用于测试 break，continue、exit，return的脚本
@@ -3596,7 +3373,7 @@ do
 done </tmp/random_md5sum.db
 ```
 
-  
+
 执行结果
 
 ```plain
@@ -3604,8 +3381,8 @@ done </tmp/random_md5sum.db
 1dcca23355272056f04fe8bf20edfce0 - 5
 ```
 
-#   
-08_shell数组开发
+# 08_shell数组开发
+
 ## 为什么要学shell数组
 
 所谓数组，就是由一组数据，不再是单个数据
@@ -3630,17 +3407,6 @@ yu chao 666
 > 每一个变量的下标
 >
 
-<!-- OCR_START -->
-- 数组
-- hero=（诸葛亮安其拉白起不知火舞如己）
-- hero=（[0]=诸葛亮[1]=安其拉[2]=白起[3]=不知火舞[4]=姐己）
-- 诸葛亮安其拉白起不知火舞姐己
-- 索引
-- 2
-- 3
-- 元素
-<!-- OCR_END -->
-
 ```plain
 [root@chaogelinux tmp]# heros=([1]=程咬金 [0]=鲁班 [2]=后裔 )
 [root@chaogelinux tmp]# echo ${heros[*]}
@@ -3661,7 +3427,7 @@ yu chao 666
 zhangsan lisi erdan
 ```
 
-  
+
 方法2：键值对赋值，根据下标位置添加
 
 ```plain
@@ -4070,36 +3836,13 @@ main
 
 执行结果
 
-# 
-
-<!-- OCR_START -->
-- [root@chaogelinux shell_test]# bash array_check_url.sh
-- 3秒后，执行URL检查··
-- 确定
-- http://127.0.0.1
-- -check count:1--:
-- nttp://pythonav.cn
-- check count:2-------:
-- check count:3-------
-- -check count:4--:
-- -check count:5-------:
-- [失败]
-- nttp://pythonav.com
-- 7
-- check count:6-.
-<!-- OCR_END -->
+#
 
   
-   
+  
+
 09_高级shell面试题
 ## shell实战开发
-
-<!-- OCR_START -->
-- 学啥呀？没意思，不如玩游戏
-- 不妈妈
-- 我没钱娶媳妇，我要和超哥
-- 努力学Linux
-<!-- OCR_END -->
 
 ## 批量生成随机文件名
 在/chaoge目录下，创建10个log文件，每个文件得包含10个随机字符串，以及固定字符'pyyu'
@@ -4227,7 +3970,7 @@ do
 done
 ```
 
-  
+
 2.nmap命令检测
 
 ```plain
@@ -4487,13 +4230,13 @@ md5sum: 警告：1 个校验和不匹配
 ```
 
   
-  
+
 
 ## sed进阶
 ### 正则表达式练习题
 ### 计算PATH目录下的文件数
 PATH目录下的都是二进制命令文件  
- 
+
 
 ```plain
 1.查看PATH值
@@ -4738,7 +4481,7 @@ This is a boy.
 This is a gril.
 ```
 
-  
+
 此时sed编辑器匹配到apple这一行后，通过n指令，让sed编辑器移动到文本的下一行，也就是空行，然后通过d指令，删除了该行。
 
 此时sed执行完毕命令后，继续重复查找apple，然后尝试删除apple的下一行。
@@ -4934,7 +4677,7 @@ This is the first data line.
 sed编辑会将一些处理命令应用到数据流中的每一个文本行，单个行，或者一些区间行。也支持排除某个区间。
 
 sed支持用感叹号!来排除命令，让某个命令不起作用。  
- 
+
 
 ```plain
 [root@node02 tmp]# cat data2.txt
@@ -5120,20 +4863,81 @@ This is the last line.
 ```
 
 #### 删除连续的空白行
-有些文件里会有讨厌的多个空白行，删除连续的空白行是用地址区间检查数据流。
+有些文件里会有多个空白行，使用sed的地址区间可以精准控制，只保留非空白行之间的单个空白行。
 
-删除连续的空白行的关键在于创建一个非空白行和空白行的地址区间，sed碰到该区间，不删除，其他的空白行区间则删除。
+原理是利用地址区间 `/./到/^$/`，匹配从非空白行开始到下一个空白行结束的区间，对该区间不执行删除操作，其他空白行区间则删除。
 
-```plain
-sed语法
-区间是/./到/^$/
-sed '/./,/^$/!d'   !d这表示不删除该区间
-这就好比sed '1,3p' 打印1到3行一样
+示例：
+```bash
+sed '/./,/^$/!d' data.txt
 ```
 
-案例
+#### 删除开头的空白行
+只想删除文件开头的空白行，保留其他位置的空白行，可以用：
+```bash
+sed '/./,$!d' data.txt
+```
 
-```plain
+#### 删除HTML标签
+处理网页数据时，经常需要去除HTML标签，只保留纯文本内容：
+```bash
+sed 's/<[^>]*>//g' data.html
+```
+
+#### sed基本练习题
+以下是一些常见的sed练习题，帮助巩固所学知识：
+
+1. 删除文件中所有的空白行：
+   ```bash
+   sed '/^$/d' data.txt
+   ```
+
+2. 将文件中的所有"root"替换为"admin"：
+   ```bash
+   sed 's/root/admin/g' data.txt
+   ```
+
+3. 删除文件中的HTML标签：
+   ```bash
+   sed 's/<[^>]*>//g' data.html
+   ```
+
+4. 给文件的每一行行首添加"# "注释：
+   ```bash
+   sed 's/^/# /' data.txt
+   ```
+
+5. 删除文件开头的空白行：
+   ```bash
+   sed '/./,$!d' data.txt
+   ```
+
+#### awk进阶
+AWK是一个强大的文本处理工具，适合处理结构化数据，支持变量、数组、函数等高级功能。
+
+AWK的基本语法：
+```bash
+awk '模式 { 动作 }' 文件名
+```
+
+常用的内置变量：
+- `$0`：当前整行内容
+- `$1`：第一个字段
+- `$2`：第二个字段
+- `NF`：当前行的字段数量
+- `NR`：当前行号
+
+示例：
+```bash
+# 打印每行的第一个和第三个字段
+awk '{print $1, $3}' data.txt
+
+# 只处理包含"error"的行
+awk '/error/ {print $0}' log.txt
+
+# 计算文件的总行数
+awk 'END {print NR}' data.txt
+```
 [root@node02 tmp]# cat data2.txt
 This is the header line.
 
@@ -5193,20 +4997,9 @@ This is the last line.
 ```
 
 #### 删除HTML标签
-现在从网站上下载html并且保存使用的场景还是较多，例如爬虫等场景，HTML的标签较多，如何筛选出有益的信息。
-
-```plain
-[root@node02 tmp]# cat data2.txt
-<html>
-<head>
-<title>This is the page title</title> </head>
-<body>
-<p>
-This is the <b>first</b> line in the Web page.
-This should provide some <i>useful</i>
-information to use in our sed script.
-</body>
-</html>
+处理网页数据时，经常需要去除HTML标签，只保留纯文本内容：
+```bash
+sed 's/<[^>]*>//g' data.html
 ```
 
 对HTML标签的删除大部分是成对的删除，例如
@@ -5230,7 +5023,7 @@ This should provide some
 information to use in our sed script.
 ```
 
-  
+
 这里是有问题，发现titile标签整行被删除了，以及加粗，斜体的文本都不见了。
 
 sed认为的是在大于号、小于号之间的文本都要被替换为空。
@@ -5452,7 +5245,7 @@ lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin
 ```
 
   
-  
+
 
 ## awk进阶
 我们所学的centos7，awk，也就是gawk
@@ -5462,7 +5255,7 @@ lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin
 lrwxrwxrwx. 1 root root 4 Jun  4 19:05 /usr/bin/awk -> gawk
 ```
 
-  
+
 awk能够对原始数据进行格式化展示，适合处理各种数据格式化任务。
 
 ### 使用变量
@@ -5781,7 +5574,7 @@ Index:  d  - Value: 3
 注意，索引值的返回是没有顺序的，但是对应的值是唯一的。
 
   
- 
+
 
 #### 删除数组变量
 ```plain
@@ -5876,7 +5669,7 @@ lp /sbin/nologin
 
 #### 数学表达式
 除了正则，还可以用数学表达式，过滤如UID,GID寻找用户信息。  
-  
+
  
 
 ```plain
@@ -6082,7 +5875,7 @@ Average: 176.667
 for循环的计数器比起while要好用了。
 
   
- 
+
 
 ### awk内置函数
 awk内置的函数功能非常强大，可以进行常见的数学，字符串等运算。
@@ -6161,7 +5954,7 @@ print "替换后的字符串: ",str
 替换后的字符串:  Hello,超哥
 ```
 
-  
+
 排序函数asort()，经过排序后的数组，索引会被重置
 
 asort根据value进行排序
@@ -6321,7 +6114,7 @@ Total for team2 is 706 ,the average is  117.667
 ```
 
   
-  
+
 
 > 更新: 2022-12-21 16:43:50  
 > 原文: <https://www.yuque.com/chengkanghua/awf7cm/hsfg7ldksh5o8q4n>

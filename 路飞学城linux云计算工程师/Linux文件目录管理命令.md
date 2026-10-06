@@ -22,26 +22,10 @@ Vim是从 vi 发展出来的一个文本编辑器。代码补完、编译及错�
 
 **vim工作模式**
 
-命令模式:进入 vim 默认的模式
-
-编辑模式:按 i 进入的 a i o 也可以进入
-
-底行模式: 按下:(冒号)之后进入到的模式
-
-<!-- OCR_START -->
-- Vim/Vi工作模式
-- 进入
-- 退出
-- vi filename
-- 输入:wq
-- 命令模式
-- 输入ia 0
-- 命令以回车
-- ESC键
-- 结束运行
-- 输入模式
-- 底线命令模式
-<!-- OCR_END -->
+vi/vim 共分为三种模式：
+- **命令模式（Command mode）**：进入 vim 默认的模式，敲击键盘会被识别为命令而非输入字符
+- **输入模式（Insert mode）**：按 i、a、o 等键进入，用于编辑文本内容
+- **底线命令模式（Last line mode）**：按下 `:`（英文冒号）进入，可输入命令执行保存、退出等操作
 
 **vim基础用法**
 
@@ -63,12 +47,11 @@ Vim是从 vi 发展出来的一个文本编辑器。代码补完、编译及错�
 
 此状态下敲击键盘动作会被Vim识别为命令，而非输入字符。比如我们此时按下i，并不会输入一个字符，i被当作了一个命令
 
-<!-- OCR_START -->
-- ↑k
-- -h
-- →1(小写字母 L)
-- ↓j
-<!-- OCR_END -->
+移动光标方向：
+- `↑` 或 `k`：向上移动
+- `↓` 或 `j`：向下移动
+- `←` 或 `h`：向左移动
+- `→` 或 `l`：向右移动
 
 *移动光标*
 
@@ -148,14 +131,17 @@ ctrl+v
 3. 按d键就可全部取消注释
 ```
 
-<!-- OCR_START -->
-```text
-print （"hello world")
-brint ("hello world")
-print ("hello world")
-VISUALBLOCK
+**批量编辑示例（可视块模式）**
+在命令模式下按 `ctrl+v` 进入可视块模式，可用于批量编辑：
+1. 按 `ctrl+v` 进入可视块，上下左右选择区域
+2. 按 `I` 进入编辑模式，批量添加内容
+3. 编辑完成后按 `ESC` 退出，所选列会批量应用编辑
+示例：
+```python
+print("hello world")
+print("hello world")
+print("hello world")
 ```
-<!-- OCR_END -->
 
 **vim批量缩进**
 
@@ -189,82 +175,41 @@ VISUALBLOCK
 
 ### vim执行流程与常见故障解析
 
-*swp文件*
+#### 临时交换文件(.swp文件)
 
-<!-- OCR_START -->
-老男孩教育出品-foundswapfile/swapfilealreadyesists问题解决
-vilvim
-执行
-老男孩教育
-ldhovodu
-vivim编辑文件正常过程
-vivim执行过程
-故障原因
-vivim编辑出现故障的流程
-1.vi打开文件oldboy.txt
-编辑文件的时候突然断开
-oldboyedu.com
-2.进入编辑模式
-编辑文件
-多个窗口同时编辑一个文件
-2.进入编辑模式编辑文件
-3.编辑文件的时候
-.oldboy.txt.swp
-vi会自动创建一个临时文件
-4.编辑完成，vi会自动删除
-临时文件
-4.编辑文件的时候突然断网/电导致断开连接
-5.退出修改成功
-5.重新编辑文件则报错
-E325:ATTENTION
-Found a swap file by the name
-找到一个临时文件叫.oldboy.txt.swp
-owned by:root dated:TueDec1212:10:312017
-file name:~root/oldboy.txt
-modified:YES
-username:root
-host name:oldboyedu43-lnb
-process ID:9283
-While opening file"oldboy.txt”
-dated:TueDec1211:15:112017
-(1)Anotherprogrammaybe editing thesamefile.If this isthecase,
-becareful not toendupwithtwodifferent instancesof thesame
-file when making changes.Quit,or continuewith caution.
-报错啦
-(2)An edit session for this file crashed.
-If this is the case,use":recover”orvim-r oldboy.txt”
-torecover the changes(see":helprecovery").
-If youdid thisalready,delete theswapfileoldboy.txt.wp”
-to avoid this message.
-Swap file”oldboy.txt.swp”already exists!
-发现了一个临时文件叫.oldboy.txt.swp
-[O]penRead-Only,(E)ditanyway.(R)ecover,(D)elete it,(Q）uit,(A)bort:
-未保存的数据不要了
-未保存的数据必须要
-（必会）
-（了解）
-方法1-删除临时文件
-方法2-从临时文件中恢复数据然后
-解决
-之前未保存信息丢失
-删除
-Using swapfile"/tmp/.oldboy.txt.swp"
-Original file"/tmp/oldboy.txt”"
-命令行
-Recovery completed.You shouldcheckifeverything isOK
-退出编辑
-Q退出编辑，命令行恢复数据
-(Youmightwant towriteoutthisfileunderanothername
-vim-roldboy.txt
-andrundiff with theoriginal filetocheckforchanges)
-Youmaywant todelete the.swpfilenow.
-PressENTERortypecommand tocontinue
-命令行删除临时文件
-恢复文件内容后要保存退出
-ls-la#显示隐藏文件
-删除临时文件
-rm-f.oldboy.txt.swp
-<!-- OCR_END -->
+使用vim编辑文件时，如果异常退出（如断电、断网、强制关闭），会产生 `.filename.swp` 临时交换文件，再次打开文件时会出现报错：
+
+```plain
+E325: ATTENTION
+Found a swap file by the name ".oldboy.txt.swp"
+  owned by: root   dated: Tue Dec 12 12:10:31 2017
+  file name: ~root/oldboy.txt
+  modified: YES
+  (1) Another program may be editing the same file. If this is the case,
+    be careful not to end up with two different instances of the same
+    file when making changes. Quit, or continue with caution.
+  (2) An edit session for this file crashed.
+    If this is the case, use ":recover" or "vim -r oldboy.txt"
+    to recover the changes (see ":help recovery").
+    If you did this already, delete the swap file ".oldboy.txt.swp"
+    to avoid this message.
+
+Swap file ".oldboy.txt.swp" already exists!
+[O]pen Read-Only, (E)dit anyway, (R)ecover, (D)elete it, (Q)uit, (A)bort:
+```
+
+**解决方案**：
+- **方法1（必会）**：确认没有其他进程在编辑该文件，删除临时交换文件即可：
+  ```bash
+  ls -la  # 查看隐藏文件
+  rm -f .oldboy.txt.swp
+  ```
+- **方法2（了解）**：如果需要恢复未保存的内容，使用恢复命令：
+  ```bash
+  vim -r oldboy.txt  # 恢复文件
+  :wq  # 保存退出
+  # 恢复后记得删除 .swp 文件
+  ```
 
 ## 重定向符号
 
@@ -296,8 +241,6 @@ rm-f.oldboy.txt.swp
 cat命令用于查看纯文本文件（常用于内容较少的）， 可以理解为是`猫`，瞄一眼文件内容
 
 其单词是`concatenate`，指的是可以连接多个文件且打印到屏幕，或是重定向到文件中
-
-![1610807116908-341acdd4-94d2-46cf-a306-ffa07338f29c.jpeg](img/Linux文件目录管理命令/image5.jpeg)
 
 *cat功能*
 
@@ -390,13 +333,9 @@ $
 
 ## 管道符
 
-<!-- OCR_START -->
-- STDOUT
-- STDIN
-- Command 1
-- Command 2
-- Command 3
-<!-- OCR_END -->
+Linux 提供的管道符 `|` 用于将两条命令隔开，管道符左边命令的输出会作为右边命令的输入：
+- Command 1 | Command 2：将命令1的输出作为命令2的输入
+- Command 1 | Command 2 | Command 3：将命令1的输出作为命令2的输入，命令2的输出又作为命令3的输入
 
 ```plain
 Linux提供的管道符“|”讲两条命令隔开，管道符左边命令的输出会作为管道符右边命令的输入。
@@ -460,43 +399,15 @@ y            查看上一行，等于↑
 q退出
 ```
 
-案例
-
-<!-- OCR_START -->
-2.root@luffycity:/tm
-X root@luffycity:/tmp... 81
-1 root:x:0:0:root:/root:/bin/bash
-2 root:x:0:0:root:/root:/bin/bash
-3 root:x:0:0:root:/root:/bin/bash
-4 root:x:0:0:root:/root:/bin/bash
-5 root:x:0:0:root:/root:/bin/bash
-6 root:x:0:0:root:/root:/bin/bash
-7 root:x:0:0:root:/root:/bin/bash
-8 root:x:0:0:root:/root:/bin/bash
-9 root:x:0:0:root:/root:/bin/bash
-10 root:x:0:0:root:/root:/bin/bash
-11
-12
-13
-以当前窗口尺寸
-14root:x:0:0:root:/root:/bin/bash
-15
-分页输出结果
-16
-17 root:x:0:0:root:/root:/bin/bash
-18
-19 root:x:0:0:root:/root:/bin/bash
-20
-0 root:x:0:0:root:/root:/bin/bash
-21root:x:0:0:root:/root:/bin/bash
-22
-23
-24 root:x:0:0:root:/root:/bin/bash
-25
-26
-27 root:x:0:0:root:/root:/bin/bash
-28 root:x:0:0:root:/root:/bin/bash
-<!-- OCR_END -->
+案例：使用 less 查看 /etc/passwd 文件
+```bash
+less -N /etc/passwd  # 显示行号
+```
+操作说明：
+- 按 `f` 向后翻一页
+- 按 `b` 向前翻一页
+- 按 `空格` 查看下一行
+- 按 `q` 退出 less 模式
 
 ## head命令
 
@@ -558,37 +469,24 @@ root:x[root@luffycity ~]#
 ```
 
 案例
-
 ```plain
-#显示文件后10行
+# 显示文件后10行
 tail alex.txt
-#显示文件后5行
+# 显示文件后5行
 tail -5 alex.txt
-#从文件第3行开始显示文件
+# 从文件第3行开始显示文件
 tail -n +3 alex.txt
-#检测文件变化
+# 实时监测文件变化
 tail -f alex.txt
-# -F与-f参数的用法
-[root@luffycity tmp]# tail -f alex.txt            #    -f文件不存在，直接报错，退出
-tail: cannot open 'alex.txt' for reading: No such file or directory
-tail: no files remaining
-[root@luffycity tmp]# tail -F alex.txt            # -F    文件不存在报错，等待文件生成
+
+# -F 参数示例（文件不存在时等待生成）
+[root@luffycity tmp]# tail -F alex.txt
 tail: cannot open 'alex.txt' for reading: No such file or directory
 tail: 'alex.txt' has appeared;  following end of new file
-qwe
+# 在另一个终端追加内容
+[root@luffycity tmp]# echo "我叫你一声，你敢答应吗，金角小妖怪" >> /tmp/alex.txt
+# 当前终端会实时显示新追加的内容
 ```
-
-<!-- OCR_START -->
-[root@luffycitytmp]#tail-falex.txt
-[root@luffycity~]#
-你就是金角大王吧
-我叫你一声，你敢答应吗，金角小妖怪
-追加内容到文件
-[root@Luffycity~]#echo“我叫你一声，你敢答应吗，金角小妖怪”>>/tmp/alex.txt
-我叫你一声，你敢答应吗，
-金角小妖怪
-tail实时监测文件变化
-<!-- OCR_END -->
 
 ## cut命令
 
@@ -670,21 +568,13 @@ cut -f7 -d : /etc/passwd |head -5       #以冒号切割，显示第七区域信
 /var/spool/lpd:/sbin/nologin
 ```
 
-<!-- OCR_START -->
-[root@pylinuxtmp]#head-5/etc/passwd
-root:x:0:0:root:/root:/bin/bash
-bin:x:1:1:bin:/bin:/sbin/nologin
-daemon:x:2:2:daemon:/sbin:/sbin/nologin
-adm:x:3:4:adm:/var/adm:/sbin/nologin
-lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin
-[root@pylinux tmp]#
-[root@pylinux tmp]# cut -d:-f 7/etc/passwd1head-5
-/bin/bash
-/sbin/nologin
-以冒号切割
-取出第7个区域的结果
-显示前五行内容
-<!-- OCR_END -->
+使用 `-d` 指定分隔符，`-f` 指定要提取的字段：
+```plain
+# 查看 passwd 文件前5行
+head -5 /etc/passwd
+# 用冒号分割，取第7个字段
+cut -d: -f 7 /etc/passwd | head -5
+```
 
 ## sort命令
 
@@ -937,17 +827,9 @@ change，最近改动，文件元数据改变，如文件名
 
 **find命令**用来在指定目录下查找文件。任何位于参数之前的字符串都将被视为欲查找的目录名。
 
-如果使用该命令时，不设置任何参数，则find命令将在当前目录下查找子目录与文件。
+如果使用该命令时，不设置任何参数，则 find 命令将在当前目录下查找子目录与文件，并且将查找到的子目录和文件全部进行显示。
 
-并且将查找到的子目录和文件全部进行显示。
-
-<!-- OCR_START -->
-[root@luffycity tmp]#find --help
-Usage:find[-H][-L][-P][-Olevel] [-Dhelpltree|search|statlratesloptlexec] [path...]expression]
-hind处理符号链接要查找的路径参数限定条件执行动作
-find-H-L-PPATH
-optionstestsactions
-<!-- OCR_END -->
+find 命令用于在指定目录下查找文件，任何位于参数之前的字符串都将被视为欲查找的目录名。
 
 语法
 
@@ -1009,36 +891,19 @@ python1.pid  python10.pid  python2.pid  python3.pid  python4.pid  python5.pid  p
 ```
 
 UNIX/Linux文件系统每个文件都有三种时间戳：
+- **访问时间**（-atime/天，-amin/分钟）：用户最近一次访问时间（文件修改后未读取则不变）
+- **修改时间**（-mtime/天，-mmin/分钟）：文件内容最后修改时间（数据变动）
+- **变化时间**（-ctime/天，-cmin/分钟）：文件元数据（权限等）最后一次修改时间
 
-* **访问时间**（-atime/天，-amin/分钟）：用户最近一次访问时间（文件修改了，还未被读取过，则不变）。
-* **修改时间**（-mtime/天，-mmin/分钟）：文件最后一次修改时间（数据变动）。
-* **变化时间**（-ctime/天，-cmin/分钟）：文件数据元（例如权限等）最后一次修改时间。
+可以使用 `stat` 命令查看文件的详细时间戳信息：
+```plain
+stat alex.txt
+```
 
-<!-- OCR_START -->
-[root@luffycitytmp]#stat
-123p.pid
-File:'123p.pid'
-Size:0
-Blocks:0
-I0 Block:4096
-regular empty file
-Device:fd00h/64768d
-Inode: 17540175
-Links: 1
-Access:(0644/-rw-r--r--)
-Uid:C
-0/
-root)
-Gid:（
-Context:unconfined_u:object_r:user_tmp_t:s0
-访问时间
-Access:2019-10-16 10:55:08.051567087 +0800
-Modify:2019-10-16 10:55:08.051567087 +0800
-修改时间
-Change:2019-10-16 10:55:08.051567087 +0800
-变化时间
-Birth:-
-<!-- OCR_END -->
+UNIX/Linux 文件系统每个文件都有三种时间戳：
+- **访问时间（atime）**：用户最近一次访问时间（cat、less 等操作）
+- **修改时间（mtime）**：文件内容最后修改时间
+- **变化时间（ctime）**：文件元数据（权限、属性等）最后修改时间
 
 * 文件任何数据改变，change变化，无论是元数据变动，或是对文件mv，cp等
 * 文件内容被修改时，modify和change更新
@@ -1092,41 +957,12 @@ find . -mtime -1
 
 **查找文件时忽略目录**
 
-<!-- OCR_START -->
-- [root@pylinux s18tngx]# tree
-- conf
-- fastcgi.conf
-- fastcgi.conf.default
-- fastcgi_params
-- fastcgi_params.default
-- koi-utf
-- koi-win
-- mime.types
-- mime.types.default
-- nginx.conf
-- nginx.conf.default
-- scgi_params
-- scgi_params.default
-- uwsgi_params
-- uwsgi_params.default
-- win-utf
-- conf.d
-- html
-- 50x.html
-- index.html
-- Logs
-- sbin
-- 跳过这个文件夹
-- 输出名字叫做*.conf的文件
-- nginx
-- 5 directories, 20 files
-- [root@pylinux s18tngx]# find
-- -path"./conf.d"-prune
-- name
-- "*.conf" -print
-- ./conf/fastcgi.conf
-- /conf/nginx.conf
-<!-- OCR_END -->
+可以使用 `-path` 和 `-prune` 参数排除指定目录，例如跳过 `conf.d` 目录查找 `.conf` 文件：
+```plain
+[root@pylinux s18tngx]# find . -path "./conf.d" -prune -o -name "*.conf" -print
+./conf/fastcgi.conf
+./conf/nginx.conf
+```
 
 ```plain
 [root@pylinux s18tngx]# find . -path "./conf.d" -prune -o -name "*.conf" -print
@@ -1243,13 +1079,17 @@ xargs识别字符串的标识是空格或是换行符，因此如果遇见文件
 * -print0在find中表示每一个结果之后加一个NULL字符，而不是换行符（find默认在结果后加上\n，因此结果是换行输出的）
 * Xargs -0 表示xargs用NULL作为分隔符
 
-<!-- OCR_START -->
-[root@luffycity tmp]# touch hello\ luffycity.txt [root@luffycitytmp]#ls利用反斜线转义空格，创建携带空格的文件data data2 heihei hello luffycity.txt [root@luffycitytmp]# [root@luffycity tmp]# ls -l total0 drwxr-xr-x. 2 root root 6 0ct 16 16:19 data drwxr-xr-x. 2 root root 6 0ct 16 16:19 data2 drwxr-xr-x. 2 root root 6 0ct 16 16:19 heihei
+当文件名包含空格时，使用反斜杠转义空格创建文件，此时使用普通的管道符会报错，因为 xargs 默认以空格作为分隔符。需要使用 `-print0` 和 `-0` 参数来处理：
+```plain
+# 创建带有空格的文件
+touch hello\ luffycity.txt
 
--rw-r--r--.1root root 00ct 16 16:29helloluffycity.txt
+# 错误用法：会把"hello"和"luffycity.txt"当成两个文件
+find . -name "*.txt" | xargs rm
 
-[root@luffycitytmp]# [root@luffycity tmp]#能够正常查询出[root@luffycity tmp]# find . -name "*.txt" ./hello luffycity.txt [root@luffycity tmp]# find .-name "*.txt" I xargs rm xargs 误认文件中间是空格，报错文件不存在rm:cannot remove'./hello': No such file or directory rm: cannot remove 'luffycity.txt': No such file or directory
-<!-- OCR_END -->
+# 正确用法：用print0和-0处理空格文件名
+find . -name "*.txt" -print0 | xargs -0 rm
+```
 
 ```plain
 #修改find的输出结果，-print0可以改结尾为null
@@ -1275,73 +1115,39 @@ find . -name "*.txt" -print0 |xargs -0 rm
 查看命令
 
 ```plain
-ls -lhi  /opt
+ls -lhi /opt
 ```
 
-<!-- OCR_START -->
-- 老男孩教育-Linux文件属性
-- 1.报错：nospaceleftondevice（磁盘空间不足）
-- 老男孩教育
-- oldboyedu.com
-- 2.软连接与硬链接区别
-- [root@oldboyedu-Inb ~]# Is-Ihi
-- total64K
-- 130089
-- -rw-r--r-
-- 1 root root
-- 0 Oct 18 13:20 alex.txt
-- 145239
-- -rw-
-- 1root root 1.1k Oct 16 12:41 anaconda-ks.cfg
-- 145240
-- drwxr-x-
-- 2 root root 4.0k Oct 16 12:42 anaconda-screenshots
-- 老男孩
-- 130097 drwxr-xr-x.2 root root4.0K Oct 18 13:13 data-bak
-- oldboyed
-- 130153-rw-r--r--.1root root
-- t 260 Oct 19 00:40 ifcfg-eth0
-- 130053
-- 3-rw-r--r--
-- 22K Oct 16 12:41 install.log
-- 130054
-- 1 root root 5.8k Oct 16 12:40 install.log.syslog
-- 130137
-- 69 Nov 11 08:32 oldboy.txt
-- 63 Oct 18 20:25oldboy.txt.bak
-- 教育
-- 130270
-- oiapoyedu.com
-- 第1列
-- 第2列
-- 第3列
-- 第4-5列
-- 第6列
-- 第7-9列
-- 第10列
-- Inode号码
-- 硬链接
-- 4列：所有者
-- 文件的类型
-- 文件的大
-- 文件名字
-- (Indexnode索引节点）
-- 的数量
-- 5列：属于的家
-- Linux权限
-- 文件的修改时间
-- 身份证号码
-- 庭（组）
-- （不是文件属性）
-- 4列：属主
-- 5列：属组
-- 硬链接==超市前后门
-- 硬链接的数量===超市前后门数量
-<!-- OCR_END -->
+### inode号码
 
-图解：
+使用 `ls -lhi` 命令可以查看文件的inode号码：
+```plain
+[root@oldboyedu ~]# ls -lhi
+total 64K
+130089 -rw-r--r-- 1 root root 0 Oct 18 13:20 alex.txt
+145239 -rw-r--r-- 1 root root 1.1K Oct 16 12:41 anaconda-ks.cfg
+130153 -rw-r--r-- 1 root root 260 Oct 19 00:40 ifcfg-eth0
+130053 -rw-r--r-- 1 root root 22K Oct 16 12:41 install.log
+130054 -rw-r--r-- 1 root root 5.8K Oct 16 12:40 install.log.syslog
+130137 -rw-r--r-- 1 root root 69 Nov 11 08:32 oldboy.txt
+63 -rw-r--r-- 1 root root 1024 Oct 18 20:25 oldboy.txt.bak
+```
 
-1. Inode索引节点号，（人的身份证，家庭地址等信息，唯一），系统寻找文件名 > Inode号 > 文件内容
+**inode 号说明：**
+
+通过 `ls -lhi` 看到的每一列含义：
+- **第1列**：inode号 → 相当于文件的"身份证号"，每个文件在系统中唯一标识
+- **第2列**：硬链接计数 → 文件被创建了多少个别名（硬链接）
+- **第3列**：文件所有者 → 文件属于哪个用户
+- **第4列**：所属组 → 文件属于哪个用户组
+- **第5列**：文件大小 → 文件的字节数
+- **第6列**：时间戳 → 文件的最近修改/访问/变动时间
+- **第7列**：文件名 → 文件的实际名称
+
+**inode 核心作用：**
+1. 每个文件都有唯一的 inode 号，系统通过 inode 号找到文件内容
+2. inode 包含了文件的元数据信息（权限、大小、时间等），但不包含文件名，文件名是存储在目录条目里的
+3. 当删除文件时，实际是删除 inode 条目，释放数据块
 2. 文件权限，第一个字符是文件类型，随后9个字符是文件权限，最后一个. 有关selinux
 3. 文件硬链接数量，与ln命令配合
 4. 文件所属用户
@@ -1366,33 +1172,7 @@ windows下的文件扩展名
 
 对于windows系统，文件名后缀有问题则会影响使用
 
-<!-- OCR_START -->
-- 名称
-- 修改日期
-- 类型
-- 大小
-- Bluetooth交换文件卖
-- 2013/12/1421:17
-- 文件卖
-- d3dx9_30XiaZaiBa
-- 2014/1/114:18
-- 文件奖
-- Might&MagicHeroesVI
-- 2014/1/318:42
-- OneNote笔记本
-- 2013/12/2716:26
-- Tencent Files
-- 2014/1/1919:55
-- 计算机
-- 205411401858
-- 鹿鼎记（1）
-- 重命名
-- 复习zip
-- 741KB
-- 如果改变文件扩展名，可能会导致文件不可用
-- 确实要更改吗？
-- 否（N）
-<!-- OCR_END -->
+Linux 文件的扩展名只是方便阅读，对文件类型不影响，Linux 通过文件属性区分文件类型。
 
 *扩展名*
 
@@ -1491,78 +1271,72 @@ python: /usr/bin/python /usr/bin/python2.7 /usr/lib/python2.7 /usr/lib64/python2
 
 tar命令在linux系统里，可以实现对多个文件进行，压缩、打包、解包
 
-![1610807144040-e66d2775-19b8-4a27-96f1-1c0923a56bf9.jpeg](img/Linux文件目录管理命令/image17.jpeg)
+
 
 *打包*
 
 将一大堆文件或目录汇总成一个整体。
 
-*压缩*
+## tar命令（打包/压缩工具）
 
-将大文件压缩成小文件，节省磁盘空间。
+tar是Linux中最常用的打包命令，相当于"打包机"+"压缩工具"，可以把多个文件/目录打包成一个文件，还能压缩节省磁盘空间。
 
-<!-- OCR_START -->
-- 前
-- 后
-- 压缩
-- →
-<!-- OCR_END -->
+### tar命令核心选项
+| 选项 | 作用 |
+|---|---|
+| `-c` | create → 新建一个备份（打包） |
+| `-x` | extract → 解压/还原备份文件 |
+| `-z` | gzip → 用gzip压缩/解压缩（配合打包一起压缩） |
+| `-v` | verbose → 显示详细的打包/解压过程 |
+| `-f` | file → 指定备份文件名，**必须放在参数最后！** |
+| `-t` | list → 列出备份文件内的内容，不解压 |
+| `-h` | 打包软链接指向的**实际文件**，而不是只打包快捷方式本身 |
+| `--exclude` | 打包时排除不需要的文件/目录 |
 
-```plain
-语法：
-tar(选项)(参数)
--A或--catenate：新增文件到以存在的备份文件；
--B：设置区块大小；
--c或--create：建立新的备份文件；
--C <目录>：这个选项用在解压缩，若要在特定目录解压缩，可以使用这个选项。
--d：记录文件的差别；
--x或--extract或--get：从备份文件中还原文件；
--t或--list：列出备份文件的内容；
--z或--gzip或--ungzip：通过gzip指令处理备份文件；
--Z或--compress或--uncompress：通过compress指令处理备份文件；
--f<备份文件>或--file=<备份文件>：指定备份文件；
--v或--verbose：显示指令执行过程；
--r：添加文件到已经压缩的文件；
--u：添加改变了和现有的文件到已经存在的压缩文件；
--j：支持bzip2解压文件；
--v：显示操作过程；
--l：文件系统边界设置；
--k：保留原有文件不覆盖；
--m：保留文件不被覆盖；
--w：确认压缩文件的正确性；
--p或--same-permissions：用原来的文件权限还原文件；
--P或--absolute-names：文件名使用绝对名称，不移除文件名称前的“/”号；不建议使用
--N <日期格式> 或 --newer=<日期时间>：只将较指定日期更新的文件保存到备份文件里；
---exclude=<范本样式>：排除符合范本样式的文件。
--h, --dereference跟踪符号链接；将它们所指向的文件归档并输出
+### 常见案例
+
+#### 1. 仅打包，不压缩
+把当前目录所有文件打包成一个.tar文件，不做压缩，适合后续再用其他工具压缩：
+```bash
+# -c 创建打包，-v 显示过程，-f 指定打包文件名
+tar -cvf alltmp.tar ./*
 ```
 
-*案例*
-
-*仅打包，不压缩*
-
-```plain
-#tar 参数 包裹文件名  需要打包的文件
-[alex@luffycity tmp]$ tar -cvf alltmp.tar ./*
+#### 2. 打包同时压缩（节省空间）
+打包后用gzip压缩，文件后缀会变成.tar.gz（或.tgz），节省磁盘空间，生产环境最常用：
+```bash
+# -c 创建，-z 用gzip压缩，-v 显示过程，-f 文件名
+tar -zcvf alltmp.tar.gz ./*
 ```
 
-*打包后且用gzip命令压缩，节省磁盘空间*
-
-```plain
-[alex@luffycity tmp]$ tar -zcvf alltmp.tar ./*
+#### 3. 查看tar包内的文件内容（不解压）
+可以不打开压缩包，直接看里面有什么文件，适合检查：
+```bash
+# 根据后缀判断是否加-z参数，.gz后缀用-z
+tar -ztvf alltmp.tar.gz
 ```
 
-**注意**
+#### 4. 解压tar.gz压缩包
+把.tar.gz文件解压到当前目录：
+```bash
+# -x 解压，-z 用gzip解压，-v 显示过程，-f 文件名
+tar -zxvf alltmp.tar.gz
+```
 
-* f参数必须写在最后，后面紧跟压缩文件名
-* tar命令仅打包，习惯用.tar作为后缀
-* tar命令加上z参数，文件以.tar.gz或.tgz表示
+#### 5. 打包软链接时注意
+使用 `-h` 参数可以确保打包软链接指向的实际文件，而不是只打包一个快捷方式（默认只打包链接本身，解压后无法使用）：
+```bash
+# 错误：默认打包链接本身
+tar -zcf link.tar.gz h.txt
 
-*列出tar包内的文件*
+# 正确：加上-h参数，打包实际源文件
+tar -zcf link.tar.gz -h h.txt
+```
 
-```plain
-#根据tar包文件后缀，决定是否添加z参数，调用gzip
-[alex@luffycity tmp]$ tar -ztvf alltmp2.tar.gz
+#### 6. 打包时排除不需要的文件
+用 `--exclude` 选项可以排除指定文件/目录，比如排除.开头的隐藏文件：
+```bash
+tar -zcvf etc.tar.gz /etc --exclude=/etc/*.swp --exclude=/etc/tmp
 ```
 
 *拆开tar包*
@@ -1600,40 +1374,22 @@ tar -zxvf ../alltmp2.tar.gz ./
 [root@luffycity tmp]# tar -zxvf ../alltmp2.tar.gz   --exclude data
 ```
 
-*打包链接文件*
+*打包链接文件（软链接）*
+
+使用 `-h` 参数打包软链接时，默认只打包链接本身，加上 `-h` 参数可以打包链接指向的实际源文件：
 
 ```plain
--h参数能够保证，打包的不仅仅是个快捷方式，而是找到源文件
+# 打包软链接指向的源文件，而不是链接本身
+tar -zcf test_link.tgz -h ./h.txt
 ```
 
-<!-- OCR_START -->
-- [root@luffycitytmp]#
-- total 116108
-- -rw-rw-r--.1 alex alex
-- 00ct 1618:36123
-- rw-rw-r--.1alexalex 1188888840ct 1709:39alex.txt
-- drwxr-xr-x.2 root root
-- 6 0ct 16 16:19 data
-- Lrwxrwxrwx.1 root root
-- 8 0ct 16 17:26 h.txt->hehe.txt
-- 软链接
-- -rw-r--r--.1 root root
-- 16 0ct 16 16:36 hehe.txt
-- 6 0ct 1616:19heihei
-- tar-zcftest_link.tgz./h.txt
-- 压缩且打包
-- h.txt软链接
-- 查看压缩包中内容
-- [root@luffycitytmp]#tar-tzvftest_link.tgz
-- Lrwxrwxrwxroot/root
-- 02019-10-16 17:26./h.txt ->hehe.txt
-- 发现是个快捷方式
-- tar-hzcftest_link2.tgz./h.txt
-- 再次压缩，加上-h参数
-- 发现已然是源文件
-- root/root
-- 162019-10-1616:36./h.txt
-<!-- OCR_END -->
+查看压缩包内容：
+```plain
+tar -tzf test_link.tgz
+# 使用 -h 参数后，压缩包内容是源文件，而不是快捷方式
+```
+
+这个参数很重要，避免打包时只打包了空链接，而没有实际文件。
 
 *打包/etc下所有普通文件*
 
@@ -1642,65 +1398,73 @@ tar -zxvf ../alltmp2.tar.gz ./
 [root@luffycity tmp]# tar -tzvf etc.tgz
 ```
 
-## gzip命令
+## gzip命令（压缩工具）
 
-要说tar命令是个纸箱子用于打包，gzip命令就是压缩机器
+如果说tar是"打包机"，把多个文件打包成一个"纸箱子"，那gzip就是"压缩机器"，负责把大文件压缩成小文件，节省磁盘空间，网络传输也更快。
 
-gzip通过压缩算法_lempel-ziv\_ 算法(*lz77*) 将文件压缩为较小文件，节省60%以上的存储空间，以及网络传输速率
+gzip使用DEFLATE压缩算法，通常能把文件压缩到原大小的40%以下，节省60%以上的存储空间。
 
-```plain
-gzip(选项)(参数)
--a或——ascii：使用ASCII文字模式；
--c或--stdout或--to-stdout 　把解压后的文件输出到标准输出设备。 
--d或--decompress或----uncompress：解开压缩文件；
--f或——force：强行压缩文件。不理会文件名称或硬连接是否存在以及该文件是否为符号连接；
--h或——help：在线帮助；
--l或——list：列出压缩文件的相关信息；
--L或——license：显示版本与版权信息；
--n或--no-name：压缩文件时，不保存原来的文件名称及时间戳记；
--N或——name：压缩文件时，保存原来的文件名称及时间戳记；
--q或——quiet：不显示警告信息；
--r或——recursive：递归处理，将指定目录下的所有文件及子目录一并处理；
--S或<压缩字尾字符串>或----suffix<压缩字尾字符串>：更改压缩字尾字符串；
--t或——test：测试压缩文件是否正确无误；
--v或——verbose：显示指令执行过程；
--V或——version：显示版本信息；
--<压缩效率>：压缩效率是一个介于1~9的数值，预设值为“6”，指定愈大的数值，压缩效率就会愈高；
---best：此参数的效果和指定“-9”参数相同；
---fast：此参数的效果和指定“-1”参数相同。
+### 常用选项
+| 选项 | 作用 |
+|---|---|
+| `-z` | 压缩（tar命令常用） |
+| `-d` | 解压缩（等价于gunzip） |
+| `-l` | list → 列出压缩文件的详细信息，包括压缩率 |
+| `-v` | 显示压缩/解压的过程 |
+| `-r` | 递归处理目录下的所有文件 |
+| `-数字` | 设置压缩效率，范围1-9，默认6，9压缩率最高速度最慢 |
+
+### gzip核心特性
+1. **单独使用只能压缩文件，不能压缩目录** → 压缩目录需要先通过tar打包
+2. **压缩后默认删除源文件** → 压缩后得到.gz文件，原文件会被删除
+3. **解压用-d选项，或者用gunzip命令**
+
+### 常见案例
+
+#### 1. 压缩单个文件
+```bash
+# 压缩后原文件会被删除，生成.gz文件
+gzip alex.txt
+
+# 查看压缩信息，不解压
+gzip -l alex.txt.gz
 ```
 
-案例
-
-```plain
-#压缩目录中每一个html文件为.gz,文件夹无法压缩，必须先tar打包
-gzip *.html        #gzip压缩，解压都会删除源文件
+#### 2. 解压.gz文件
+```bash
+# 解压缩，还原原文件，删除.gz文件
+gzip -d alex.txt.gz
 ```
 
-*列出压缩文件中信息*
+#### 3. 结合tar压缩目录
+生产环境最常用：先打包再用gzip压缩，得到.tar.gz文件：
+```bash
+# 打包目录并压缩（最常用方式）
+tar -zcvf etc.tar.gz /etc
 
-```plain
-[root@luffycity tmp]# gzip -l *.gz        #不解压显示压缩文件内信息，以及压缩率
-         compressed        uncompressed  ratio uncompressed_name
-                 28                   0   0.0% 10.html
-                 24                   0   0.0% 123
-                 27                   0   0.0% 1.html
-                 27                   0   0.0% 2.html
-                 27                   0   0.0% 3.html
-                 27                   0   0.0% 4.html
-                 27                   0   0.0% 5.html
-                 27                   0   0.0% 6.html
-                 27                   0   0.0% 7.html
-                 27                   0   0.0% 8.html
-                 27                   0   0.0% 9.html
-           23581672           118888884  80.2% alex.txt
-           23582535           118896640  80.2% alltmp.tar
-                289                 470  44.9% glances.log
-                 45                  16 -12.5% hehe.txt
-           47164836           237786010  80.2% (totals)
+# 解压.tar.gz文件
+tar -zxvf etc.tar.gz
 ```
 
-*解压缩且显示过程*
+#### 4. 批量压缩目录中的文件
+对目录下所有.html文件批量压缩：
+```bash
+# 批量压缩当前目录下所有.html文件
+gzip *.html
+
+# 会生成每个文件对应的.html.gz，原文件被删除
+```
+
+#### 5. 查看压缩文件内容（不解压）
+```bash
+# 查看压缩文件的详细信息，包括压缩率
+gzip -l *.gz
+
+# 或者用tar命令直接查看压缩包内容
+tar -ztvf etc.tar.gz
+```
+
+**注意**：如果要压缩目录，必须先使用tar打包，因为gzip本身不支持压缩目录！
 
 ```plain
 [root@luffycity tmp]# gzip -dv *.gz
@@ -1965,11 +1729,7 @@ date -s "2018/07/07 05:30:30"
 
 ### shred命令
 
-
-
-<!-- OCR_START -->
-> 文件料碎工具
-<!-- OCR_END -->
+shred 是文件粉碎工具，可以多次覆盖文件，使得即使是昂贵的硬件探测仪器也难以将数据复原。
 
 
 
@@ -1982,21 +1742,23 @@ shred heihei.txt  随机覆盖文件内容，不删除源文件
 
 案例
 
-彻底粉碎且删除文件
+彻底粉碎文件（无法恢复）
 
-```plain
-[root@pylinux tmp]# ls -lh
-总用量 25M
--rw-r--r-- 1 root root 25M 10月 14 15:02 heihei.txt
-[root@pylinux tmp]#
-[root@pylinux tmp]# shred -u heihei.txt
+Linux的shred命令可以多次覆盖文件内容，让数据难以被专业工具恢复，适合需要彻底删除敏感文件的场景：
+```bash
+# 查看文件大小
+ls -lh heihei.txt
+
+# 彻底删除文件，确保无法被恢复
+shred -u heihei.txt
 ```
+注意：这个操作不可逆，请谨慎使用！
 
 # Linux用户管理
 
 ## 用户管理篇
 
-![1610807166446-5cb744df-e943-40bb-aebb-4ff1c63ad7fb.gif](img/Linux文件目录管理命令/image21.gif)
+
 
 Root用户登录系统后可以做很多事
 
@@ -2013,20 +1775,9 @@ Root用户登录系统后可以做很多事
 
 *多用户多任务*
 
-<!-- OCR_START -->
-- 运维小张上传图片
-- 运维小李查看服务器数据库
-- Linux系统可以多个用户登录，各自做各自的事情
-- Linux服务器
-- 运维超哥打打酱油，假装很努力
-- 运维小王检查服务器日志
-<!-- OCR_END -->
+Linux系统支持多用户多任务，多个用户可以同时登录服务器各自完成不同的任务，例如：运维小张上传图片、运维小李查看数据库、运维小王检查日志等。
 
-多个用户使用同一个操作系统，每个人做自己的事。
-
-每个人都有自己的账号密码，权限也不一样，好比老板权限最大，员工权限较低
-
-多用户大多都是远程登录去控制服务器
+多个用户使用同一个操作系统，每个人做自己的事，每个人都有自己的账号密码和不同的权限，老板权限最大，员工权限较低，通常多用户都是远程登录去控制服务器。
 
 ## Linux的用户管理
 
@@ -2034,19 +1785,12 @@ Linux系统不同用户权限不一样，好比小张想用我的服务器，我
 
 还有计算机程序默认创建的用户，如ftp，nobody等等
 
-用户信息存放在/etc/passwd文件中
+用户信息存放在/etc/passwd文件中。
 
 *用户角色划分*
-
-<!-- OCR_START -->
-- 普通用户，属于普通老百姓，权利较低，只能在自己家目录做
-- 点事情，干啥都权限不足，由root创建
-- root用户系统中唯一，权利最大，可以操作任
-- 虚拟用户，也是假用户，没有登录
-- 意命令，一家之主
-- 系统的功能，系统运行依赖于用
-- 户，如bin，ftp，mail，由系统创
-<!-- OCR_END -->
+- 普通用户：权限较低，只能在自己家目录操作，由root创建
+- root用户：系统中唯一，权限最大，可以操作任意文件和命令
+- 虚拟用户：系统创建的假用户，没有登录权限（如bin、ftp、mail等）
 
 * root
 * 普通用户
@@ -2094,110 +1838,58 @@ root 用户、组、id都为0，属于老板
 
 例如，可以通过对技术部门设置权限，使得只有技术部门的员工可以访问公司的 数据库信息等。
 
-Linux管理员在创建用户时，将自动创建一个与其同名的用户组，这个用户组只有该用户一个人，
+Linux管理员在创建用户时，将自动创建一个与其同名的用户组，这个用户组只有该用户一个人。
 
-<!-- OCR_START -->
-- 咨询室
-- 办公室
-- CONFERENCE ROOM
-- OFFICE
-- 业务部
-- 行政部
-- BUSINESSDEPT.
-- ADMINISTRATIVEDEPT
-- 会议室
-- 财务室
-- MEETING ROOM
-- FINANCEROOM
-- 仓库
-- 生产部
-- WAREHOUSE
+用户组的作用是方便管理，例如公司可以按照部门划分用户组：技术部、行政部、财务部、销售部等，对整个部门设置统一的权限。
 - PRODUCTDEPT
 - 销售部
 - 市场部
 - SALESDEPT
 - MARKETDEPARTMENT
-<!-- OCR_END -->
 
-windows下的管理员
-
-<!-- OCR_START -->
-- 命令提示符（管理员）（A）
-- 这样
-- Administrator
-- 登录
-- 或者这样
-<!-- OCR_END -->
 
 Linux/unix是一个多用户、多任务的操作系统。
 
-root：默认在Unix/linux操作系统中拥有最高的管理权限。可以理解为qq群的群主⬇️⬇️⬇️
-
-<!-- OCR_START -->
-- kengdie.com
-- root
-- QQ群主
-- 权利最大，随心所欲
-- 群主
-- 普通用户
-- QQ群主有权拉进群，踢掉
-<!-- OCR_END -->
+root：默认在Unix/linux操作系统中拥有最高的管理权限，可以理解为qq群的群主，权利最大，随心所欲，可以管理普通用户（有权拉进群、踢掉成员）。
 
 普通用户：是管理员或者具备管理权限的用户所创建的，只能读、看，不能增、删、改。
 
 ### 用户和组的关系
 
-* 一对一，一个用户可以存在一个组里，组里就一个成员
-* 一对多，一个用户呆在多个组里面
-* 多对一，多个用户在一个组里，这些用户和组有相同的权限
-* 多对多，多个用户存在多个组里
+可以把用户和组的关系理解为：
+- **一对一**：一个用户只属于一个组 → 比如普通用户默认只属于自己同名的用户组
+- **一对多**：一个用户可以同时属于多个组 → 比如你可能既属于"root"组，又属于"sudo"组，还属于"dev"组
+- **多对一**：多个用户可以加入同一个组 → 比如开发团队的多个用户都属于"project-team"组，方便统一分配权限
+- **多对多**：多个用户可以属于多个不同的组，形成复杂的权限管理关系
 
 ### 常用命令解释器
-
-```plain
-/bin/sh 默认 
-/bin/bash 默认
-/sbin/nologin 虚拟用户
-/dash ubuntu 
-csh unix
-tsh unix
-```
+| 解释器 | 说明 |
+| --- | --- |
+| `/bin/sh` | 默认shell |
+| `/bin/bash` | 默认bash shell |
+| `/sbin/nologin` | 虚拟用户，不能登录系统 |
+| `/bin/dash` | Ubuntu默认shell |
+| `/bin/csh` | Unix系统的C shell |
+| `/bin/tcsh` | C shell的增强版 |
 
 ### 用户信息配置文件
+Linux 用户信息主要存储在以下四个文件中：
+- `/etc/passwd`：用户信息文件
+- `/etc/shadow`：用户密码信息文件
+- `/etc/group`：用户组信息文件
+- `/etc/gshadow`：用户组密码信息文件
 
-`/etc/passwd文件内容`
-
-<!-- OCR_START -->
-root@luffycity:/tmp..81
+#### `/etc/passwd` 文件格式
+每行用冒号 `:` 分割为7个字段：
+```plain
+用户名:密码占位符:UID:GID:用户注释:用户家目录:解释器
+```
+示例：
+```plain
 root:x:0:0:root:/root:/bin/bash
-bin:x:1:1:bin:/bin:/sbin/nologin
-daemon:x:2:2:daemon:/sbin:/sbin/nologin
-adm:x:3:4:adm:/var/adm:/sbin/nologin
-Lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin
-sync:x:5:0:sync:/sbin:/bin/sync
-shutdown:x:6:0:shutdown:/sbin:/sbin/shutdown
-halt:x:7:0:halt:/sbin:/sbin/halt
-mail:x:8:12:mail:/var/spool/mail:/sbin/nologin
-operator:x:11:0:operator:/root:/sbin/nologin
-games:x:12:100:games:/usr/games:/sbin/nologin
-ftp:x:14:50:FTP User:/var/ftp:/sbin/nologin
-nobody:x:99:99:Nobody:/:/sbin/nologin
-systemd-network:x:192:192:systemd Network Management:/:/sbin/nologin
-dbus:x:81:81:Systemmessagebus:/:/sbin/nologin
-polkitd:x:999:998:Userforpolkitd:/:/sbin/nologin
-tss:x:59:59:Accountusedbythetrouserspackagetosandboxthetcsddaemon:/dev/null:/sbin/nologin
-abrt:x:173:173::/etc/abrt:/sbin/nologin
-sshd:x:74:74:Privilege-separatedSSH:/var/empty/sshd:/sbin/nologin
-postfix:x:89:89::/var/spool/postfix:/sbin/nologin
 alex:x:1000:1000::/home/alex:/bin/bash
-冒号分割
 yu:x:1001:1001::/home/yu:/bin/bash
-用户名
-名密码
-UIDGID用户注释
-用户家目录
-用户使用的解释器
-<!-- OCR_END -->
+```
 
 ```plain
 /etc/passwd 用户信息
@@ -2466,16 +2158,13 @@ alex  chaoge  oldchao  yu
 uid=789(luffychao) gid=1004(luffychao) groups=1004(luffychao),0(root),801(old)
 ```
 
-<!-- OCR_START -->
-- [root@luffycity~]#
-- -G账号属于root和old组
-- -f2天后过期
-- -u设置uid
-- 设置解释器-c账号解释
-- -e账号过期时间
-- -d设置家目录
-- 用户名
-<!-- OCR_END -->
+*-G：指定用户所属附加群组
+-f：设置密码过期缓冲天数
+-u：指定用户UID
+-c：设置用户备注信息
+-e：设置账号过期时间
+-d：设置用户家目录
+用户名：指定新用户名称
 
 *-D参数用来修改配置文件/etc/default/useradd文件的默认值*
 
@@ -2757,13 +2446,7 @@ testyu                                     **从未登录过**
 
 ### su命令
 
-<!-- OCR_START -->
-- Adninistrator
-- 管理员
-- Windows
-- 普通用户
-- 聚开始，请单击您的用户名
-<!-- OCR_END -->
+su 命令用于切换到指定用户。
 
 su命令用于切换到指定用户
 
@@ -2893,26 +2576,10 @@ Administrator. It usually boils down to these three things:
 123  123456  456  anaconda-ks.cfg
 ```
 
-* 配置了/etc/sudoers文件后，可以对用户命令提权，sudo 命令
-* 想要切换root执行操作，可以sudo su - ，需要输入当前用户密码
+* 配置了/etc/sudoers文件后，可以对用户命令提权，使用 sudo 命令
+* 想要切换 root 执行操作，可以 `sudo su -`，需要输入当前用户密码
 
-<!-- OCR_START -->
-- root用户
-- QQ群主
-- su - root
-- su
-- sudo touch /opt/luffy.txt
-- 切换到root用户
-- 普通用户权限不足
-- 使用root身份去执行命令
-- 普通用户
-- sudo命令
-- oldboy
-- 提权命令，黑
-- 默认以root身份执行命令
-- QQ群普通用户
-- QQ群的管理员
-<!-- OCR_END -->
+sudo 是提权命令，普通用户可以用它以 root 身份执行命令，例如 `sudo touch /opt/luffy.txt`。
 
 ## Centos7忘记root密码怎么办
 
@@ -2943,30 +2610,12 @@ touch /.autorelabel
 
 *第六，重启机器，验证新的密码*
 
-<!-- OCR_START -->
-yumac:~yuchao$sshroot@192.168.178.180
-root@192.168.178.180'spassword:
-Last login: Tue Nov 5 11:33:32 2019
-神兽出没
-神兽保佑
-代码无bug
-感觉萌萌哒
-<!-- OCR_END -->
-
 # Linux文件权限
 
-<!-- OCR_START -->
-- root@oldboy-python ~ 10:23:38]#ll /var/log/mysqld.log
-- 1mysqlmysql68091578月
-- 13 18:59 /var/log/mysqld.log
-- "W
-- >属主
-- 属组
-- >其他人
-- 用户
-- 用户组
-- 普通文件
-<!-- OCR_END -->
+查看文件权限可以使用 `ll` 或 `ls -l` 命令，例如：
+```plain
+ll /var/log/mysqld.log
+```
 
 ### 文件权限
 
@@ -2996,20 +2645,18 @@ x    可以cd进入这个目录，或者查看详细信息
 * 你和这个文件具体的关系
 
 ### 文件权限与数字转化
+Linux 文件权限分为三类用户：
+- **文件所有者（Owner）**：文件的创建者
+- **文件所属组（Group）**：文件所在用户组
+- **其他用户（Others）**：其他所有用户
 
-<!-- OCR_START -->
-- 权限分配
-- 文件所有者
-- 文件所属组
-- 其他用户
-- 权限项
-- 执行
-- 字符表示
-- 数字表示
-- 4
-- 2
-- 1
-<!-- OCR_END -->
+每个角色有三种权限：
+| 权限 | 字符表示 | 数字表示 | 说明 |
+| --- | --- | --- | --- |
+| 读 | `r` | 4 | 可以读取文件内容/列出目录 |
+| 写 | `w` | 2 | 可以修改文件内容/创建删除文件 |
+| 执行 | `x` | 1 | 可以执行文件/进入目录 |
+| 无权限 | `-` | 0 | 没有对应权限 |
 
 ```plain
 rwx权限表示
@@ -3040,25 +2687,7 @@ x  execute  执行 1
 
 用户可以使用chmod指令去变更文件与目录的权限，设置方式采用文字或数字代号皆可。
 
-符号连接的权限无法变更，如果用户对符号连接修改权限，其改变会作用在被连接的原始文件。
-
-<!-- OCR_START -->
-- 如果是“d”，代表这是文件夹
-- 如果是
-- “一”，代表这是文件
-- u：文件的拥有者
-- 文件所属群组
-- g：
-- 0：其他用户
-- XXX
-- a：所有用户
-- 三类用户
-- 拥有的权限
-- r:读权限
-- w：写权限
-- 执行权限
-- 一：无权限
-<!-- OCR_END -->
+符号连接的权限无法变更，修改符号连接的权限会作用到被连接的原始文件。
 
 ```plain
 权限范围：
@@ -3333,29 +2962,15 @@ drwxr-xr-x. 2 root root 6 Oct 18 11:54 chao
 
 ### Linux默认权限
 
-* 文件644 rw- r-- r--
-* 目录655rwx r-x r-x
+* 文件权限示例：644（rw-r--r--）
+* 目录权限示例：755（rwxr-xr-x）
 
-<!-- OCR_START -->
-- 老男孩教育-单机（博客网站）站点权限设置
-- 一台服务器
-- 博客网站blog.oldboyedu.com
-- blog博客程序（站点目录）
-- 运行博客通过wWw用户运行（推荐）
-- 如何让你的网站/博客更安全？
-- 1.blog目录下
-- 运行博客通过root
-- 用户运行（比较危险）
-- 文件f644目录d755
-- 文件或目录的所有者rootroot
-- 2.upload目录（用户上传的附件图片头像）
-- 文件或目录的所有者wwwwww
-- 3
-- 1）.程序：控制扩展名jpg；.zip
-- 2）.挂载参数决定noexec
-- 3）.服务/软件，指定目录禁止解析/执行php。
-- 4）.http协议请求方法控制只能post，禁止get
-<!-- OCR_END -->
+### 网站安全权限设置示例
+对于博客网站，权限设置建议：
+1. 程序目录（blog）：所有者为 www 用户，权限 755
+2. 上传目录（upload）：所有者为 www 用户，权限 755
+3. 禁止执行上传目录的脚本文件
+4. 只允许通过 POST 方法访问网站
 
 ## chattr命令
 
